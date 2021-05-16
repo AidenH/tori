@@ -1,5 +1,5 @@
 tori/binance_f/
 keys.py
 
-__pycache__/
+tori/__pycache__/
 *.pyc
