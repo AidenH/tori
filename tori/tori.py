@@ -41,6 +41,11 @@ def callback(data_type: 'SubscribeMessageType', event: 'any'):
 def error(e: 'BinanceApiException'):
     print(e.error_code + e.error_message)
 
+#classes
+class priceaxis:
+
+    pass
+
 #tkinter
 lastprice = tk.Label(
     text = "price"
