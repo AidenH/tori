@@ -86,6 +86,7 @@ price_axis_frame = tk.Frame(
     bg = "red",
 )
 
+#tkinter packs
 price_axis_frame.pack(side = "left")
 
 curprice.pack()
