@@ -10,10 +10,19 @@ from binance_f.base.printobject import *
 
 import keys
 
+class Toolbar(tk.Frame):
+    pass
+
+class Priceaxis(tk.Frame):
+    pass
+
 class MainApplication(tk.Frame):
     def __init__(self, master, *args, **kwargs):
         tk.Frame.__init__(self, master, *args, **kwargs)
         self.parent = master
+        self.toolbar = Toolbar(self)
+
+        self.toolbar.pack(side="top", fill="x")
 
     def update_title(self):
         time = datetime.now().strftime("%H:%M:%S.%f")
