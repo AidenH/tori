@@ -11,7 +11,18 @@ from binance_f.base.printobject import *
 import keys
 
 class Toolbar(tk.Frame):
-    pass
+    def __init__(self, master):
+        tk.Frame.__init__(self, master, bg = "gainsboro", height = 30)
+        self.parent = master
+
+        subbutton = tk.Button(
+            #command = connect,
+            master = self,
+            text = "Subscribe",
+            width = 10,
+        )
+
+        subbutton.pack(side = "left")
 
 class Priceaxis(tk.Frame):
     pass
