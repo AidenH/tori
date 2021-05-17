@@ -65,7 +65,16 @@ unsubbutton = tk.Button(
     height = 2
 )
 
-lastprice.pack()
+price_axis_frame = tk.Frame(
+    master = window,
+    width = wwidth / 5,
+    height = wheight,
+    bg = "red",
+)
+
+price_axis_frame.pack(side = "left")
+
+curprice.pack()
 subbutton.pack()
 unsubbutton.pack()
 
