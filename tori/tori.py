@@ -46,7 +46,6 @@ def callback(data_type: 'SubscribeMessageType', event: 'any'):
 
         print(str(global_lastprice) + " " + str(datetime.now()))
 
-
     else:
         print("Unknown Data:")
 

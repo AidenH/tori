@@ -11,13 +11,27 @@ from binance_f.base.printobject import *
 import keys
 
 class MainApplication(tk.Frame):
-    def __init__(self, parent, *args, **kwargs):
-        tk.Frame.__init__(self, parent, *args, **kwargs)
-        self.parent = parent
+    def __init__(self, master, *args, **kwargs):
+        tk.Frame.__init__(self, master, *args, **kwargs)
+        self.parent = master
 
-        #code here
+    def update_title(self):
+        time = datetime.now().strftime("%H:%M:%S.%f")
+        root.title(instrument + " " + time)
+        root.after(100, self.update_title)
 
 if __name__ == "__main__":
+    instrument = "ethusdt"
+    wwidth = 400
+    wheight = 700
+
     root = tk.Tk()
-    MainApplication(root).pack(side="top", fill="both", expand=True)
+    root.geometry(str(wwidth)+"x"+str(wheight))
+    root.attributes('-topmost', True)
+
+    main = MainApplication(root)
+    main.pack(side="top", fill="both", expand=True)
+
+    main.update_title()
+
     root.mainloop()
