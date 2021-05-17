@@ -18,8 +18,6 @@ window.attributes('-topmost', True)
 
 sub_client = SubscriptionClient(api_key=keys.api, secret_key=keys.secret)
 
-lprice = 0
-
 #funcs
 def connect():
     print("\nSubscribing...")
