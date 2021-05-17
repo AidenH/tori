@@ -1,4 +1,5 @@
 import websockets
+from datetime import datetime
 import tkinter as tk
 
 from binance_f import SubscriptionClient
@@ -11,9 +12,12 @@ import keys
 
 #setup
 instrument = "ethusdt"
+wwidth = 400
+wheight = 700
+global_lastprice = 0
 
 window = tk.Tk()
-window.geometry("400x700")
+window.geometry(str(wwidth)+"x"+str(wheight))
 window.attributes('-topmost', True)
 
 sub_client = SubscriptionClient(api_key=keys.api, secret_key=keys.secret)
@@ -28,14 +32,24 @@ def disconnect():
     sub_client.unsubscribe_all()
 
 def callback(data_type: 'SubscribeMessageType', event: 'any'):
+
     if data_type == SubscribeMessageType.RESPONSE:
         print("EventID: ", event)
+
     elif data_type == SubscribeMessageType.PAYLOAD:
-        lastprice["text"] = int(round(event.price, 0))
-        print(int(round(event.price, 0)))
         #PrintBasic.print_obj(event)    #keep for full aggtrade payload example
+        time = datetime.now().strftime("%H:%M:%S.%f")
+        window.title(instrument + " " + time)
+        global_lastprice = int(round(event.price, 0))
+
+        curprice["text"] = str(global_lastprice) + " x " + str(event.qty)
+
+        print(str(global_lastprice) + " " + str(datetime.now()))
+
+
     else:
         print("Unknown Data:")
+
     print()
 
 def error(e: 'BinanceApiException'):
@@ -43,12 +57,12 @@ def error(e: 'BinanceApiException'):
 
 #classes
 class priceaxis:
-
-    pass
+    def __init__():
+        pass
 
 #tkinter
-lastprice = tk.Label(
-    text = "price"
+curprice = tk.Label(
+    text = "price x quantity"
 )
 
 subbutton = tk.Button(
