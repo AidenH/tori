@@ -25,6 +25,8 @@ if __name__ == "__main__":
     wwidth = 400
     wheight = 700
 
+    sub_client = SubscriptionClient(api_key=keys.api, secret_key=keys.secret)
+
     root = tk.Tk()
     root.geometry(str(wwidth)+"x"+str(wheight))
     root.attributes('-topmost', True)
