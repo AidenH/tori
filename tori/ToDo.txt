@@ -1,2 +1,5 @@
 -Build price axis grid using .grid()
 -Populate grid with price dictionary
+
+-Price ladder column cells as dictionary items???
+  -Would allow for more info to be stored about each.

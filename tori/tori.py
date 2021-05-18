@@ -13,14 +13,18 @@ import keys
 #FUNCTIONS
 def connect():
     global dict_setup
+    global subscribed_bool
     dict_setup = False
+    subscribed_bool = True
 
     print("\nSubscribing...")
     sub_client.subscribe_aggregate_trade_event(instrument, callback, error)
 
 def disconnect():
     global title_instrument_info
+    global subscribed_bool
     title_instrument_info = "none"
+    subscribed_bool = False
 
     print("\n\nDisconnected.\n")
     sub_client.unsubscribe_all()
@@ -51,8 +55,12 @@ def callback(data_type: 'SubscribeMessageType', event: 'any'):
                 prices[i] = {"volume": 0}   #only adding the total level volume information for the moment
             dict_setup = True
             recenter()
+            main.priceaxis.highlight_trade_price(local_lastprice)
 
-        prices[local_lastprice]["volume"] += round(event.qty, 3)   #add event order quantity to price volume dict key
+        prices[local_lastprice]["volume"] += round(event.qty, 0)   #add event order quantity to price volume dict key
+        print("cum. qty.: " + str(int(prices[local_lastprice]["volume"])))
+
+        #recenter()
 
     else:
         print("Unknown Data:")
@@ -63,10 +71,11 @@ def error(e: 'BinanceApiException'):
     print(e.error_code + e.error_message)
 
 def recenter():
+    global subscribed_bool
     global ladder_midpoint
     for i in range(window_price_levels):
         global_lastprice["coordinate"] = ladder_midpoint
-        exec(f"price_label{i}['text'] = str({i})+' - '+str((global_lastprice['price']-23)+{i})")
+        exec(f"price_label{i}['text'] = str((global_lastprice['price']-ladder_midpoint)+{i})")
         #each label is referenced around the 23th (middle) row price level
 
 #CLASSES
@@ -139,6 +148,16 @@ price_label{i}.pack(fill="x")''')
         )
         marketprice.pack(fill="x")
 
+    def highlight_trade_price(self, price):
+        highlight = tk.Label(
+            master = price_frame23,
+            text = price, #need to be able to update this
+            font = font,
+            fg = "white",
+            bg = "blue",
+        )
+        highlight.place(y=-1, relwidth=1)
+
 class Volumecolumn(tk.Frame):
     def __init__(self, master):
         tk.Frame.__init__(self, master, bg="gainsboro", width = wwidth / 6)
@@ -174,8 +193,10 @@ if __name__ == "__main__":
     wwidth = 400
     wheight = 996
     font = "arial 7"
-    window_price_levels = 48 #need to generate this dynamically at some point
+    window_price_levels = 48
+    #^^need to generate this dynamically based on the window size at some point
 
+    subscribed_bool = False
     marketprice = 0
     global_lastprice = {
         "price": 0,
