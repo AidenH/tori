@@ -46,6 +46,11 @@ def callback(data_type: 'SubscribeMessageType', event: 'any'):
                 prices[i] = {"volume": 0}   #only adding the total level volume information for the moment
             dict_setup = True
 
+        prices[global_lastprice]["volume"] += event.qty
+
+        for i in range(global_lastprice-23, global_lastprice+24):
+            print(str(i) + ": " + str(prices[i]))   #it's working!!
+
     else:
         print("Unknown Data:")
 
@@ -137,6 +142,7 @@ if __name__ == "__main__":
     wheight = 996
     font = "arial 7"
 
+    marketprice = 0
     global_lastprice = 0
     prices = {}
     dict_setup = False
