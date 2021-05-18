@@ -144,6 +144,11 @@ label{i}.pack(fill="x")''')
         )
         marketprice.pack(fill="x")
 
+class Volumecolumn(tk.Frame):
+    def __init__(self, master):
+        tk.Frame.__init__(self, master, bg="red", width = wwidth / 6)
+        self.parent = master
+
 class MainApplication(tk.Frame):
     def __init__(self, master, *args, **kwargs):
         tk.Frame.__init__(self, master, *args, **kwargs)
@@ -151,10 +156,15 @@ class MainApplication(tk.Frame):
         self.parent = master
         self.toolbar = Toolbar(self)
         self.priceaxis = Priceaxis(self)
+        self.volumecolumn = Volumecolumn(self)
 
         self.toolbar.pack(side="top", fill="x")
+
         self.priceaxis.pack(side="left", fill="y")
         self.priceaxis.pack_propagate(False)
+
+        self.volumecolumn.pack(side="left", fill="y")
+        self.volumecolumn.pack_propagate(False)
 
     def update_title(self):
         global time
