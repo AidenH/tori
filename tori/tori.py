@@ -60,6 +60,7 @@ def callback(data_type: 'SubscribeMessageType', event: 'any'):
         prices[local_lastprice]["volume"] += round(event.qty, 0)   #add event order quantity to price volume dict key
         print("cum. qty.: " + str(int(prices[local_lastprice]["volume"])))
 
+        recenter()
         volume_column_populate()
 
     else:
@@ -75,12 +76,13 @@ def recenter():
     global ladder_midpoint
     for i in range(window_price_levels):
         global_lastprice["coordinate"] = ladder_midpoint
-        exec(f"price_label{i}['text'] = str((global_lastprice['price']-ladder_midpoint)+{i})")
+        exec(f"price_label{i}['text'] = str({i}) + ' - ' + str((global_lastprice['price']-ladder_midpoint)+{i})")
         #each label is referenced around the 23th (middle) row price level
 
 def volume_column_populate():
     for i in range(window_price_levels):
         exec(f"volume_label{i}['text'] = str(int(prices[global_lastprice['price']-ladder_midpoint+{i}]['volume']))")
+        #needs to only recenter when price axis recenters!
 
 #CLASSES
 class Toolbar(tk.Frame):
@@ -143,14 +145,14 @@ price_label{i} = tk.Label(
 price_label{i}.pack(fill="x")''')
 
         #market price
-        marketprice = tk.Label(
+        '''marketprice = tk.Label(
             master = self,
             text = "Price",
             font = font,
             fg = "white",
             bg = "dimgrey"
         )
-        marketprice.pack(fill="x")
+        marketprice.pack(fill="x")'''
 
     def highlight_trade_price(self, price):
         highlight = tk.Label(
@@ -217,9 +219,9 @@ if __name__ == "__main__":
     #root env variables
     instrument = "ethusdt"
     wwidth = 400
-    wheight = 996
-    font = "arial 7"
-    window_price_levels = 48
+    wheight = 988
+    font = "arial 7 bold"
+    window_price_levels = 50
     #^^need to generate this dynamically based on the window size at some point
     title_instrument_info = "none"
 
@@ -243,7 +245,7 @@ if __name__ == "__main__":
     main = MainApplication(root)
     main.pack(side="top", fill="both", expand=True)
 
-    print(marketprice["text"])
+    #print(marketprice["text"])
     main.update_title()
 
     root.mainloop()
