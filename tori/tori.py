@@ -19,6 +19,9 @@ def connect():
     sub_client.subscribe_aggregate_trade_event(instrument, callback, error)
 
 def disconnect():
+    global title_instrument_info
+    title_instrument_info = "none"
+
     print("\n\nDisconnected.\n")
     sub_client.unsubscribe_all()
 
@@ -26,6 +29,9 @@ def callback(data_type: 'SubscribeMessageType', event: 'any'):
     global dict_setup
     global prices
     global global_lastprice
+    global title_instrument_info
+
+    title_instrument_info = instrument + " " + str(global_lastprice)
 
     if data_type == SubscribeMessageType.RESPONSE:
         print("EventID: ", event)
@@ -47,12 +53,12 @@ def callback(data_type: 'SubscribeMessageType', event: 'any'):
                 prices[i] = {"volume": 0}   #only adding the total level volume information for the moment
             dict_setup = True
 
-            main.priceaxis.populate_ladder()
+            recenter()
 
         prices[global_lastprice]["volume"] += round(event.qty, 3)   #add quantity to price volume key
 
-        for i in range(global_lastprice-23, global_lastprice+24):
-            print(str(i) + ": " + str(prices[i]))   #it's working!!
+        #for i in range(global_lastprice-23, global_lastprice+24):
+            #print(str(i) + ": " + str(prices[i]))   #it's working!!
 
     else:
         print("Unknown Data:")
@@ -63,7 +69,9 @@ def error(e: 'BinanceApiException'):
     print(e.error_code + e.error_message)
 
 def recenter():
-    pass
+    for i in range(window_price_levels):
+        exec(f"label{i}['text'] = str({i})+' '+str((global_lastprice-23)+{i})")
+        #each label is referenced around the 23th (middle) row price level
 
 #CLASSES
 class Toolbar(tk.Frame):
@@ -135,11 +143,6 @@ label{i}.pack(fill="x")''')
         )
         marketprice.pack(fill="x")
 
-    def populate_ladder(self):
-        for i in range(window_price_levels):
-            exec(f"label{i}['text'] = (global_lastprice-24)+{i}")
-            #each label is referenced around the 24th (middle) row price level
-
 class MainApplication(tk.Frame):
     def __init__(self, master, *args, **kwargs):
         tk.Frame.__init__(self, master, *args, **kwargs)
@@ -154,8 +157,9 @@ class MainApplication(tk.Frame):
 
     def update_title(self):
         global time
+        global title_instrument_info
         time = datetime.now().strftime("%H:%M:%S.%f")[:-4]
-        root.title(instrument + " " + time)
+        root.title("tori - " + title_instrument_info + " " + time)
         root.after(100, self.update_title)
 
 if __name__ == "__main__":
@@ -169,6 +173,8 @@ if __name__ == "__main__":
     global_lastprice = 0
     prices = {}
     dict_setup = False
+
+    title_instrument_info = "none"
 
     sub_client = SubscriptionClient(api_key=keys.api, secret_key=keys.secret)
 
