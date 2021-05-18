@@ -1,3 +1,7 @@
+import websockets
+from datetime import datetime
+import tkinter as tk
+
 from binance_f import SubscriptionClient
 from binance_f.constant.test import *
 from binance_f.model import *
@@ -6,9 +10,20 @@ from binance_f.base.printobject import *
 
 import keys
 
+#setup
+instrument = "ethusdt"
+wwidth = 400
+wheight = 700
+global_lastprice = 0
+
+window = tk.Tk()
+window.geometry(str(wwidth)+"x"+str(wheight))
+window.attributes('-topmost', True)
+
 sub_client = SubscriptionClient(api_key=keys.api, secret_key=keys.secret)
 
-def connect(instrument):
+#funcs
+def connect():
     print("\nSubscribing...")
     sub_client.subscribe_aggregate_trade_event(instrument, callback, error)
 
@@ -38,3 +53,43 @@ def callback(data_type: 'SubscribeMessageType', event: 'any'):
 
 def error(e: 'BinanceApiException'):
     print(e.error_code + e.error_message)
+
+#classes
+class priceaxis:
+    def __init__():
+        pass
+
+#tkinter
+curprice = tk.Label(
+    text = "price x quantity"
+)
+
+subbutton = tk.Button(
+    command = connect,
+    text = "Subscribe",
+    width = 10,
+    height = 2
+)
+
+unsubbutton = tk.Button(
+    command = disconnect,
+    text = "Disconnect",
+    width = 10,
+    height = 2
+)
+
+price_axis_frame = tk.Frame(
+    master = window,
+    width = wwidth / 5,
+    height = wheight,
+    bg = "red",
+)
+
+#tkinter packs
+price_axis_frame.pack(side = "left")
+
+curprice.pack()
+subbutton.pack()
+unsubbutton.pack()
+
+window.mainloop()
