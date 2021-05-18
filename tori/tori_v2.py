@@ -10,32 +10,74 @@ from binance_f.base.printobject import *
 
 import keys
 
+def connect():
+    print("\nSubscribing...")
+    sub_client.subscribe_aggregate_trade_event(instrument, callback, error)
+
+def disconnect():
+    print("\n\nDisconnected.\n")
+    sub_client.unsubscribe_all()
+
+def callback(data_type: 'SubscribeMessageType', event: 'any'):
+
+    if data_type == SubscribeMessageType.RESPONSE:
+        print("EventID: ", event)
+
+    elif data_type == SubscribeMessageType.PAYLOAD:
+        #PrintBasic.print_obj(event)    #keep for full aggtrade payload example
+        time = datetime.now().strftime("%H:%M:%S.%f")
+        root.title(instrument + " " + time)
+        global_lastprice = int(round(event.price, 0))
+
+        marketprice["text"] = str(global_lastprice) + " x " + str(event.qty)[:-2]
+
+        print(str(global_lastprice) + " " + str(datetime.now()))
+
+    else:
+        print("Unknown Data:")
+
+    print()
+
+def error(e: 'BinanceApiException'):
+    print(e.error_code + e.error_message)
+
 class Toolbar(tk.Frame):
     def __init__(self, master):
         tk.Frame.__init__(self, master, bg="gainsboro", height=30, padx=3, pady=3, bd=3)
         self.parent = master
 
         subbutton = tk.Button(
-            #command = connect,
+            command = connect,
             master = self,
             text = "Subscribe",
             width = 10,
         )
 
+        unsubbutton = tk.Button(
+            master = self,
+            command = disconnect,
+            text = "Disconnect",
+            width = 10,
+            padx = 3
+        )
+
         subbutton.pack(side = "left")
+        unsubbutton.pack(side = "left")
+
 
 class Priceaxis(tk.Frame):
     def __init__(self, master):
         tk.Frame.__init__(self, master, bg="gray", padx=8)
         self.parent = master
+        global marketprice
 
-        middleprice = tk.Label(
+        marketprice = tk.Label(
             master = self,
             text = "Price",
             font = "Arial 8"
         )
 
-        middleprice.pack(side = "left")
+        marketprice.pack(side = "left")
 
 class MainApplication(tk.Frame):
     def __init__(self, master, *args, **kwargs):
@@ -57,6 +99,8 @@ if __name__ == "__main__":
     wwidth = 400
     wheight = 700
 
+    sub_client = SubscriptionClient(api_key=keys.api, secret_key=keys.secret)
+
     root = tk.Tk()
     root.geometry(str(wwidth)+"x"+str(wheight))
     root.attributes('-topmost', True)
@@ -64,6 +108,7 @@ if __name__ == "__main__":
     main = MainApplication(root)
     main.pack(side="top", fill="both", expand=True)
 
+    print(marketprice["text"])
     main.update_title()
 
     root.mainloop()
