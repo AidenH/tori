@@ -67,17 +67,19 @@ class Toolbar(tk.Frame):
 
 class Priceaxis(tk.Frame):
     def __init__(self, master):
-        tk.Frame.__init__(self, master, bg="gray", padx=8)
+        tk.Frame.__init__(self, master, bg="gray", width = wwidth / 6)
         self.parent = master
         global marketprice
 
         marketprice = tk.Label(
             master = self,
             text = "Price",
-            font = "Arial 8"
+            font = "Arial 8",
+            fg = "white",
+            bg = "dimgrey"
         )
 
-        marketprice.pack(side = "left")
+        marketprice.pack(fill="x")
 
 class MainApplication(tk.Frame):
     def __init__(self, master, *args, **kwargs):
@@ -88,6 +90,7 @@ class MainApplication(tk.Frame):
 
         self.toolbar.pack(side="top", fill="x")
         self.priceaxis.pack(side="left", fill="y")
+        self.priceaxis.pack_propagate(False)
 
     def update_title(self):
         time = datetime.now().strftime("%H:%M:%S.%f")
