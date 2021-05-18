@@ -46,12 +46,12 @@ def callback(data_type: 'SubscribeMessageType', event: 'any'):
                 prices[i] = {"volume": 0}   #only adding the total level volume information for the moment
             dict_setup = True
 
-        prices[global_lastprice]["volume"] += round(event.qty, 3)
+            main.priceaxis.create_ladder()
+
+        prices[global_lastprice]["volume"] += round(event.qty, 3)   #add quantity to price volume key
 
         for i in range(global_lastprice-23, global_lastprice+24):
             print(str(i) + ": " + str(prices[i]))   #it's working!!
-
-        print(frame2)
 
     else:
         print("Unknown Data:")
@@ -97,6 +97,7 @@ class Priceaxis(tk.Frame):
         #price ladder grid
         for i in range(23):
             exec(f'''global frame{i}
+global label{i}
 frame{i} = tk.Frame(
                 master = self,
                 relief = tk.GROOVE,
@@ -104,14 +105,13 @@ frame{i} = tk.Frame(
             )
 frame{i}.pack(fill="x")
 
-label = tk.Label(
+label{i} = tk.Label(
                 master=frame{i},
                 text="0",
                 font = font,
                 bg="gray"
             )
-label.pack(fill="x")
-print(label)''')
+label{i}.pack(fill="x")''')
 
         #market price
         marketprice = tk.Label(
@@ -121,7 +121,10 @@ print(label)''')
             fg = "white",
             bg = "dimgrey"
         )
-        marketprice.pack(fill="x")
+        #marketprice.pack(fill="x")
+
+    def create_ladder(self):
+        label3["text"] = global_lastprice-20
 
 class MainApplication(tk.Frame):
     def __init__(self, master, *args, **kwargs):
