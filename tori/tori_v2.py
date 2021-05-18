@@ -10,6 +10,7 @@ from binance_f.base.printobject import *
 
 import keys
 
+#CONNECTIVITY
 def connect():
     print("\nSubscribing...")
     sub_client.subscribe_aggregate_trade_event(instrument, callback, error)
@@ -41,6 +42,12 @@ def callback(data_type: 'SubscribeMessageType', event: 'any'):
 def error(e: 'BinanceApiException'):
     print(e.error_code + e.error_message)
 
+#PRICE AXIS SETUP
+
+def recenter():
+    pass
+
+#CLASSES
 class Toolbar(tk.Frame):
     def __init__(self, master):
         tk.Frame.__init__(self, master, bg="gainsboro", height=30, padx=3, pady=3, bd=3)
@@ -71,15 +78,46 @@ class Priceaxis(tk.Frame):
         self.parent = master
         global marketprice
 
+        #price ladder grid
+        for i in range(23):
+            frame = tk.Frame(
+                master = self,
+                relief = tk.GROOVE,
+                borderwidth = 1
+            )
+            frame.pack(fill="x")
+            label = tk.Label(
+                master=frame,
+                text="text",
+                font = font,
+                bg="gray"
+            )
+            label.pack(fill="x")
+
+        #market price
         marketprice = tk.Label(
             master = self,
             text = "Price",
-            font = "Arial 8",
+            font = font,
             fg = "white",
             bg = "dimgrey"
         )
-
         marketprice.pack(fill="x")
+
+        for i in range(24):
+            frame = tk.Frame(
+                master = self,
+                relief = tk.GROOVE,
+                borderwidth = 1
+            )
+            frame.pack(fill="x")
+            label = tk.Label(
+                master=frame,
+                text="text",
+                font = font,
+                bg="gray"
+            )
+            label.pack(fill="x")
 
 class MainApplication(tk.Frame):
     def __init__(self, master, *args, **kwargs):
@@ -100,7 +138,8 @@ class MainApplication(tk.Frame):
 if __name__ == "__main__":
     instrument = "ethusdt"
     wwidth = 400
-    wheight = 700
+    wheight = 1000
+    font = "arial 7"
 
     sub_client = SubscriptionClient(api_key=keys.api, secret_key=keys.secret)
 
