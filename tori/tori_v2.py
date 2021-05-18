@@ -89,13 +89,15 @@ class Toolbar(tk.Frame):
         unsubbutton.pack(side = "left")
 
 class Priceaxis(tk.Frame):
+    global window_price_levels
+
     def __init__(self, master):
         tk.Frame.__init__(self, master, bg="gray", width = wwidth / 6)
         self.parent = master
         global marketprice
 
-        #price ladder grid
-        for i in range(23):
+        #arrange empty price ladder grid
+        for i in range(window_price_levels):
             exec(f'''global frame{i}
 global label{i}
 frame{i} = tk.Frame(
@@ -121,10 +123,12 @@ label{i}.pack(fill="x")''')
             fg = "white",
             bg = "dimgrey"
         )
-        #marketprice.pack(fill="x")
+        marketprice.pack(fill="x")
 
     def create_ladder(self):
-        label3["text"] = global_lastprice-20
+        for i in range(window_price_levels):
+            exec(f"label{i}['text'] = (global_lastprice-24)+{i}")
+            #each label is referenced around the 24th (middle) row price level
 
 class MainApplication(tk.Frame):
     def __init__(self, master, *args, **kwargs):
@@ -149,6 +153,7 @@ if __name__ == "__main__":
     wwidth = 400
     wheight = 996
     font = "arial 7"
+    window_price_levels = 48 #need to generate this dynamically at some point
 
     marketprice = 0
     global_lastprice = 0
