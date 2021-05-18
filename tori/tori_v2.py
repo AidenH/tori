@@ -12,7 +12,9 @@ import keys
 
 #CONNECTIVITY
 def connect():
+    global dict_setup
     dict_setup = False
+
     print("\nSubscribing...")
     sub_client.subscribe_aggregate_trade_event(instrument, callback, error)
 
@@ -21,22 +23,28 @@ def disconnect():
     sub_client.unsubscribe_all()
 
 def callback(data_type: 'SubscribeMessageType', event: 'any'):
+    global dict_setup
+    global prices
+    global global_lastprice
 
     if data_type == SubscribeMessageType.RESPONSE:
         print("EventID: ", event)
 
     elif data_type == SubscribeMessageType.PAYLOAD:
         #PrintBasic.print_obj(event)    #keep for full aggtrade payload example
-        global_lastprice = int(round(event.price, 0))
 
-        marketprice["text"] = str(global_lastprice) + " x " + str(event.qty)[:-2]
+        global_lastprice = int(round(event.price, 0))   #set current global_lastprice
 
-        print(str(global_lastprice) + " " + time)
+        marketprice["text"] = str(global_lastprice) + " x " + str(event.qty)[:-2]   #set marketprice label to last price
 
-        #if dict_setup == False:
-            #for i in range(0, global_lastprice + global_lastprice):
-                #print(i)
-            #dict_setup = True
+        print(str(global_lastprice) + " " + time)   #log price & time to console
+
+        #Populate price levels dictionary
+        if dict_setup == False:
+            print("connect")
+            for i in range(0, global_lastprice + global_lastprice):
+                prices[i] = {"volume": 0}   #only adding the total level volume information for the moment
+            dict_setup = True
 
     else:
         print("Unknown Data:")
@@ -105,21 +113,6 @@ class Priceaxis(tk.Frame):
         )
         marketprice.pack(fill="x")
 
-        for i in range(24):
-            frame = tk.Frame(
-                master = self,
-                relief = tk.GROOVE,
-                borderwidth = 1
-            )
-            frame.pack(fill="x")
-            label = tk.Label(
-                master=frame,
-                text="0",
-                font = font,
-                bg="gray"
-            )
-            label.pack(fill="x")
-
 class MainApplication(tk.Frame):
     def __init__(self, master, *args, **kwargs):
         tk.Frame.__init__(self, master, *args, **kwargs)
@@ -144,9 +137,7 @@ if __name__ == "__main__":
     wheight = 996
     font = "arial 7"
 
-    global dict_setup
-    global prices
-    global global_lastprice
+    global_lastprice = 0
     prices = {}
     dict_setup = False
 
