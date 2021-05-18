@@ -1,0 +1,2 @@
+-Build price axis grid using .grid()
+-Populate grid with price dictionary
