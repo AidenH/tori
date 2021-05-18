@@ -46,10 +46,12 @@ def callback(data_type: 'SubscribeMessageType', event: 'any'):
                 prices[i] = {"volume": 0}   #only adding the total level volume information for the moment
             dict_setup = True
 
-        prices[global_lastprice]["volume"] += event.qty
+        prices[global_lastprice]["volume"] += round(event.qty, 3)
 
         for i in range(global_lastprice-23, global_lastprice+24):
             print(str(i) + ": " + str(prices[i]))   #it's working!!
+
+        print(frame2)
 
     else:
         print("Unknown Data:")
@@ -94,19 +96,22 @@ class Priceaxis(tk.Frame):
 
         #price ladder grid
         for i in range(23):
-            frame = tk.Frame(
+            exec(f'''global frame{i}
+frame{i} = tk.Frame(
                 master = self,
                 relief = tk.GROOVE,
                 borderwidth = 1
             )
-            frame.pack(fill="x")
-            label = tk.Label(
-                master=frame,
+frame{i}.pack(fill="x")
+
+label = tk.Label(
+                master=frame{i},
                 text="0",
                 font = font,
                 bg="gray"
             )
-            label.pack(fill="x")
+label.pack(fill="x")
+print(label)''')
 
         #market price
         marketprice = tk.Label(
