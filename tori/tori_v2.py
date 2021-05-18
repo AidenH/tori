@@ -12,6 +12,7 @@ import keys
 
 #CONNECTIVITY
 def connect():
+    dict_setup = False
     print("\nSubscribing...")
     sub_client.subscribe_aggregate_trade_event(instrument, callback, error)
 
@@ -32,6 +33,11 @@ def callback(data_type: 'SubscribeMessageType', event: 'any'):
 
         print(str(global_lastprice) + " " + time)
 
+        #if dict_setup == False:
+            #for i in range(0, global_lastprice + global_lastprice):
+                #print(i)
+            #dict_setup = True
+
     else:
         print("Unknown Data:")
 
@@ -39,8 +45,6 @@ def callback(data_type: 'SubscribeMessageType', event: 'any'):
 
 def error(e: 'BinanceApiException'):
     print(e.error_code + e.error_message)
-
-#PRICE AXIS SETUP
 
 def recenter():
     pass
@@ -69,7 +73,6 @@ class Toolbar(tk.Frame):
         subbutton.pack(side = "left")
         unsubbutton.pack(side = "left")
 
-
 class Priceaxis(tk.Frame):
     def __init__(self, master):
         tk.Frame.__init__(self, master, bg="gray", width = wwidth / 6)
@@ -86,7 +89,7 @@ class Priceaxis(tk.Frame):
             frame.pack(fill="x")
             label = tk.Label(
                 master=frame,
-                text="text",
+                text="0",
                 font = font,
                 bg="gray"
             )
@@ -111,7 +114,7 @@ class Priceaxis(tk.Frame):
             frame.pack(fill="x")
             label = tk.Label(
                 master=frame,
-                text="text",
+                text="0",
                 font = font,
                 bg="gray"
             )
@@ -120,6 +123,7 @@ class Priceaxis(tk.Frame):
 class MainApplication(tk.Frame):
     def __init__(self, master, *args, **kwargs):
         tk.Frame.__init__(self, master, *args, **kwargs)
+
         self.parent = master
         self.toolbar = Toolbar(self)
         self.priceaxis = Priceaxis(self)
@@ -139,6 +143,12 @@ if __name__ == "__main__":
     wwidth = 400
     wheight = 996
     font = "arial 7"
+
+    global dict_setup
+    global prices
+    global global_lastprice
+    prices = {}
+    dict_setup = False
 
     sub_client = SubscriptionClient(api_key=keys.api, secret_key=keys.secret)
 
