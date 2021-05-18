@@ -60,7 +60,7 @@ def callback(data_type: 'SubscribeMessageType', event: 'any'):
         prices[local_lastprice]["volume"] += round(event.qty, 0)   #add event order quantity to price volume dict key
         print("cum. qty.: " + str(int(prices[local_lastprice]["volume"])))
 
-        #recenter()
+        volume_column_populate()
 
     else:
         print("Unknown Data:")
@@ -77,6 +77,10 @@ def recenter():
         global_lastprice["coordinate"] = ladder_midpoint
         exec(f"price_label{i}['text'] = str((global_lastprice['price']-ladder_midpoint)+{i})")
         #each label is referenced around the 23th (middle) row price level
+
+def volume_column_populate():
+    for i in range(window_price_levels):
+        exec(f"volume_label{i}['text'] = str(int(prices[global_lastprice['price']-ladder_midpoint+{i}]['volume']))")
 
 #CLASSES
 class Toolbar(tk.Frame):
@@ -115,7 +119,7 @@ class Priceaxis(tk.Frame):
     global window_price_levels
 
     def __init__(self, master):
-        tk.Frame.__init__(self, master, bg="gray", width = wwidth / 6)
+        tk.Frame.__init__(self, master, bg="red", width = wwidth / 6)
         self.parent = master
         global marketprice
 
@@ -159,9 +163,29 @@ price_label{i}.pack(fill="x")''')
         highlight.place(y=-1, relwidth=1)
 
 class Volumecolumn(tk.Frame):
+    global window_price_levels
+
     def __init__(self, master):
-        tk.Frame.__init__(self, master, bg="gainsboro", width = wwidth / 6)
+        tk.Frame.__init__(self, master, bg="green", width = wwidth / 6)
         self.parent = master
+
+        for i in range(window_price_levels):
+            exec(f'''global volume_frame{i}
+global volume_label{i}
+volume_frame{i} = tk.Frame(
+            master = self,
+            borderwidth = 1
+        )
+volume_frame{i}.pack(fill="x")
+
+volume_label{i} = tk.Label(
+            master=volume_frame{i},
+            text="0",
+            font = font,
+            anchor = "w",
+            bg="gainsboro"
+        )
+volume_label{i}.pack(fill="x")''')
 
 class MainApplication(tk.Frame):
     def __init__(self, master, *args, **kwargs):
@@ -189,13 +213,17 @@ class MainApplication(tk.Frame):
 
 #MAIN
 if __name__ == "__main__":
+
+    #root env variables
     instrument = "ethusdt"
     wwidth = 400
     wheight = 996
     font = "arial 7"
     window_price_levels = 48
     #^^need to generate this dynamically based on the window size at some point
+    title_instrument_info = "none"
 
+    #Dom-related variables
     subscribed_bool = False
     marketprice = 0
     global_lastprice = {
@@ -205,8 +233,6 @@ if __name__ == "__main__":
     prices = {}
     dict_setup = False
     ladder_midpoint = 23
-
-    title_instrument_info = "none"
 
     sub_client = SubscriptionClient(api_key=keys.api, secret_key=keys.secret)
 
