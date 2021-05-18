@@ -32,34 +32,27 @@ def callback(data_type: 'SubscribeMessageType', event: 'any'):
     global global_lastprice
     global title_instrument_info
 
-    title_instrument_info = instrument + " " + str(global_lastprice)
-
     if data_type == SubscribeMessageType.RESPONSE:
         print("EventID: ", event)
 
     elif data_type == SubscribeMessageType.PAYLOAD:
         #PrintBasic.print_obj(event)    #keep for full aggtrade payload example
+        #marketprice["text"] = str(global_lastprice) + " x " + str(event.qty)[:-2]   #DEPRECATED set marketprice label to last price
 
-        global_lastprice = int(round(event.price, 0))   #set current global_lastprice
-
-        marketprice["text"] = str(global_lastprice) + " x " + str(event.qty)[:-2]   #set marketprice label to last price
-
-        print(str(global_lastprice) + " " + time)   #log price & time to console
+        global_lastprice["price"] = int(round(event.price, 0))   #set current global_lastprice
+        local_lastprice = global_lastprice["price"] #set local price variable
+        title_instrument_info = instrument + " " + str(local_lastprice) #update window title ticker info
+        print(str(local_lastprice) + " " + time)   #log price & time to console
 
         #Populate price levels dictionary
         if dict_setup == False:
-            print("connect")
-
-            for i in range(0, global_lastprice + global_lastprice):
+            print("Set up dictionary.")
+            for i in range(0, local_lastprice + local_lastprice):
                 prices[i] = {"volume": 0}   #only adding the total level volume information for the moment
             dict_setup = True
-
             recenter()
 
-        prices[global_lastprice]["volume"] += round(event.qty, 3)   #add quantity to price volume key
-
-        #for i in range(global_lastprice-23, global_lastprice+24):
-            #print(str(i) + ": " + str(prices[i]))   #it's working!!
+        prices[local_lastprice]["volume"] += round(event.qty, 3)   #add event order quantity to price volume dict key
 
     else:
         print("Unknown Data:")
@@ -70,8 +63,10 @@ def error(e: 'BinanceApiException'):
     print(e.error_code + e.error_message)
 
 def recenter():
+    global ladder_midpoint
     for i in range(window_price_levels):
-        exec(f"label{i}['text'] = str({i})+' '+str((global_lastprice-23)+{i})")
+        global_lastprice["coordinate"] = ladder_midpoint
+        exec(f"price_label{i}['text'] = str({i})+' - '+str((global_lastprice['price']-23)+{i})")
         #each label is referenced around the 23th (middle) row price level
 
 #CLASSES
@@ -117,22 +112,22 @@ class Priceaxis(tk.Frame):
 
         #arrange empty price ladder grid
         for i in range(window_price_levels):
-            exec(f'''global frame{i}
-global label{i}
-frame{i} = tk.Frame(
+            exec(f'''global price_frame{i}
+global price_label{i}
+price_frame{i} = tk.Frame(
                 master = self,
                 relief = tk.GROOVE,
                 borderwidth = 1
             )
-frame{i}.pack(fill="x")
+price_frame{i}.pack(fill="x")
 
-label{i} = tk.Label(
-                master=frame{i},
+price_label{i} = tk.Label(
+                master=price_frame{i},
                 text="0",
                 font = font,
                 bg="gray"
             )
-label{i}.pack(fill="x")''')
+price_label{i}.pack(fill="x")''')
 
         #market price
         marketprice = tk.Label(
@@ -146,7 +141,7 @@ label{i}.pack(fill="x")''')
 
 class Volumecolumn(tk.Frame):
     def __init__(self, master):
-        tk.Frame.__init__(self, master, bg="red", width = wwidth / 6)
+        tk.Frame.__init__(self, master, bg="gainsboro", width = wwidth / 6)
         self.parent = master
 
 class MainApplication(tk.Frame):
@@ -182,9 +177,13 @@ if __name__ == "__main__":
     window_price_levels = 48 #need to generate this dynamically at some point
 
     marketprice = 0
-    global_lastprice = 0
+    global_lastprice = {
+        "price": 0,
+        "coordinate": 23
+    }
     prices = {}
     dict_setup = False
+    ladder_midpoint = 23
 
     title_instrument_info = "none"
 
