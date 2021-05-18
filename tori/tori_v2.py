@@ -26,8 +26,16 @@ class Toolbar(tk.Frame):
 
 class Priceaxis(tk.Frame):
     def __init__(self, master):
-        tk.Frame.__init__(self, master, bg="gray", width=wwidth / 5)
+        tk.Frame.__init__(self, master, bg="gray", padx=8)
         self.parent = master
+
+        middleprice = tk.Label(
+            master = self,
+            text = "Price",
+            font = "Arial 8"
+        )
+
+        middleprice.pack(side = "left")
 
 class MainApplication(tk.Frame):
     def __init__(self, master, *args, **kwargs):
@@ -42,15 +50,12 @@ class MainApplication(tk.Frame):
     def update_title(self):
         time = datetime.now().strftime("%H:%M:%S.%f")
         root.title(instrument + " " + time[:-4])
-
         root.after(100, self.update_title)
 
 if __name__ == "__main__":
     instrument = "ethusdt"
     wwidth = 400
     wheight = 700
-
-    sub_client = SubscriptionClient(api_key=keys.api, secret_key=keys.secret)
 
     root = tk.Tk()
     root.geometry(str(wwidth)+"x"+str(wheight))
