@@ -26,13 +26,11 @@ def callback(data_type: 'SubscribeMessageType', event: 'any'):
 
     elif data_type == SubscribeMessageType.PAYLOAD:
         #PrintBasic.print_obj(event)    #keep for full aggtrade payload example
-        time = datetime.now().strftime("%H:%M:%S.%f")
-        root.title(instrument + " " + time)
         global_lastprice = int(round(event.price, 0))
 
         marketprice["text"] = str(global_lastprice) + " x " + str(event.qty)[:-2]
 
-        print(str(global_lastprice) + " " + str(datetime.now()))
+        print(str(global_lastprice) + " " + time)
 
     else:
         print("Unknown Data:")
@@ -131,14 +129,15 @@ class MainApplication(tk.Frame):
         self.priceaxis.pack_propagate(False)
 
     def update_title(self):
-        time = datetime.now().strftime("%H:%M:%S.%f")
-        root.title(instrument + " " + time[:-4])
+        global time
+        time = datetime.now().strftime("%H:%M:%S.%f")[:-4]
+        root.title(instrument + " " + time)
         root.after(100, self.update_title)
 
 if __name__ == "__main__":
     instrument = "ethusdt"
     wwidth = 400
-    wheight = 1000
+    wheight = 996
     font = "arial 7"
 
     sub_client = SubscriptionClient(api_key=keys.api, secret_key=keys.secret)
