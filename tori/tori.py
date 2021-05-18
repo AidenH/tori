@@ -10,7 +10,7 @@ from binance_f.base.printobject import *
 
 import keys
 
-#CONNECTIVITY
+#FUNCTIONS
 def connect():
     global dict_setup
     dict_setup = False
@@ -25,6 +25,7 @@ def disconnect():
     print("\n\nDisconnected.\n")
     sub_client.unsubscribe_all()
 
+#main subscription functionality
 def callback(data_type: 'SubscribeMessageType', event: 'any'):
     global dict_setup
     global prices
@@ -162,6 +163,7 @@ class MainApplication(tk.Frame):
         root.title("tori - " + title_instrument_info + " " + time)
         root.after(100, self.update_title)
 
+#MAIN
 if __name__ == "__main__":
     instrument = "ethusdt"
     wwidth = 400
