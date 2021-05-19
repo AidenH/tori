@@ -62,6 +62,7 @@ def callback(data_type: 'SubscribeMessageType', event: 'any'):
 
         recenter()
         volume_column_populate()
+        main.priceaxis.highlight_trade_price(local_lastprice)
 
     else:
         print("Unknown Data:")
@@ -159,7 +160,7 @@ price_label{i}.pack(fill="x")''')
     def highlight_trade_price(self, price):
         highlight = tk.Label(
             master = price_frame23,
-            text = price, #need to be able to update this
+            text = price,
             font = font,
             fg = "white",
             bg = "blue",
