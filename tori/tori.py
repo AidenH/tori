@@ -55,14 +55,14 @@ def callback(data_type: 'SubscribeMessageType', event: 'any'):
                 prices[i] = {"volume": 0}   #only adding the total level volume information for the moment
             dict_setup = True
             recenter()
-            main.priceaxis.highlight_trade_price(local_lastprice)
+            #main.priceaxis.highlight_trade_price(local_lastprice)
 
         prices[local_lastprice]["volume"] += round(event.qty, 0)   #add event order quantity to price volume dict key
         print("cum. qty.: " + str(int(prices[local_lastprice]["volume"])))
 
         recenter()
         volume_column_populate()
-        main.priceaxis.highlight_trade_price(local_lastprice)
+        highlight_trade_price(local_lastprice)
 
     else:
         print("Unknown Data:")
@@ -86,6 +86,13 @@ def volume_column_populate():
     for i in range(window_price_levels):
         exec(f"volume_label{i}['text'] = str(int(prices[global_lastprice['price']-ladder_midpoint+{i}]['volume']))")
         #needs to only recenter when price axis recenters!
+
+def highlight_trade_price(price):
+    highlight["text"] = price
+
+def clean_volume():
+    for i in range(len(prices)):
+        prices[i]["volume"] = 0
 
 #CLASSES
 class Toolbar(tk.Frame):
@@ -116,9 +123,18 @@ class Toolbar(tk.Frame):
             padx = 3
         )
 
+        clean = tk.Button(
+            master = self,
+            command = clean_volume,
+            text = "Clean",
+            width = 10,
+            padx = 3
+        )
+
         subbutton.pack(side = "left")
         unsubbutton.pack(side = "left")
         recenter.pack(side="left")
+        clean.pack(side="left")
 
 class Priceaxis(tk.Frame):
     global window_price_levels
@@ -127,6 +143,7 @@ class Priceaxis(tk.Frame):
         tk.Frame.__init__(self, master, bg="red", width = wwidth / 6)
         self.parent = master
         global marketprice
+        global highlight
 
         #arrange empty price ladder grid
         for i in range(window_price_levels):
