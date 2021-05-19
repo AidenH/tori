@@ -43,8 +43,8 @@ def callback(data_type: 'SubscribeMessageType', event: 'any'):
         #PrintBasic.print_obj(event)    #keep for full aggtrade payload example
         #marketprice["text"] = str(global_lastprice) + " x " + str(event.qty)[:-2]   #DEPRECATED set marketprice label to last price
 
-        global_lastprice["price"] = int(round(event.price, 0))   #set current global_lastprice
-        local_lastprice = global_lastprice["price"] #set local price variable
+        global_lastprice = int(round(event.price, 0))   #set current global_lastprice
+        local_lastprice = global_lastprice #set local price variable
         title_instrument_info = instrument + " " + str(local_lastprice) #update window title ticker info
         print(str(local_lastprice) + " " + str(event.time))   #log price & time to console
 
@@ -73,25 +73,42 @@ def error(e: 'BinanceApiException'):
     print(e.error_code + e.error_message)
 
 #recenter/price populate price axis
-def recenter_axis():
-    global subscribed_bool
+def rewrite_axis():
     global ladder_midpoint
+    global global_lastprice
+    global ladder_dict
+
+    label = "price_label{0}"
+
+    #populate the ladder cell dictionary
     for i in range(window_price_levels):
+        ladder_dict[i] = global_lastprice-ladder_midpoint+i
+    print(ladder_dict)
+
+    #write dictionary values to frame
+    for i in range(window_price_levels):
+        eval(label.format(i))["text"] = ladder_dict[i]
+
+    #OLD, bad performance
+    '''for i in range(window_price_levels):
         global_lastprice["coordinate"] = ladder_midpoint
         exec(f"price_label{i}['text'] = str((global_lastprice['price']-ladder_midpoint)+{i})")
-        #each label is referenced around the 23th (middle) row price level
+        #each label is referenced around the 23th (middle) row price level'''
 
 #recursive volume cell update
 def volume_column_populate():
     global subscribed_bool
     for i in range(window_price_levels):
-        exec(f"volume_label{i}['text'] = str(int(prices[global_lastprice['price']-ladder_midpoint+{i}]['volume']))")
+        exec(f"volume_label{i}['text'] = str(int(prices[global_lastprice-ladder_midpoint+{i}]['volume']))")
         #needs to only recenter when price axis recenters!
     if subscribed_bool == True:
         root.after(100, volume_column_populate())
 
-def highlight_trade_price(price):
-    highlight["text"] = price
+def highlight_trade_price():
+    global global_lastprice
+
+    highlight["text"] = global_lastprice
+    root.after(100, highlight_trade_price)
 
 def clean_volume():
     for i in range(len(prices)):
@@ -238,15 +255,15 @@ if __name__ == "__main__":
     title_instrument_info = "none"
 
     #Dom-related variables
-    subscribed_bool = False
-    marketprice = 0
-    global_lastprice = {
-        "price": 0,
-        "coordinate": 23
-    }
-    prices = {}
     dict_setup = False
     ladder_midpoint = 23
+    subscribed_bool = False
+    global_lastprice = 0
+    prices = {}
+
+    ladder_dict = {}
+    for i in range(window_price_levels):
+        ladder_dict[i] = 0
 
     sub_client = SubscriptionClient(api_key=keys.api, secret_key=keys.secret)
 
