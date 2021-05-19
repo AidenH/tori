@@ -60,9 +60,9 @@ def callback(data_type: 'SubscribeMessageType', event: 'any'):
         prices[local_lastprice]["volume"] += round(event.qty, 0)   #add event order quantity to price volume dict key
         print("cum. qty.: " + str(int(prices[local_lastprice]["volume"])))
 
-        recenter_axis()
-        volume_column_populate()
-        highlight_trade_price(local_lastprice)
+        #recenter_axis()
+        #volume_column_populate()
+        #highlight_trade_price(local_lastprice)
 
     else:
         print("Unknown Data:")
@@ -87,8 +87,8 @@ def volume_column_populate():
     for i in range(window_price_levels):
         exec(f"volume_label{i}['text'] = str(int(prices[global_lastprice['price']-ladder_midpoint+{i}]['volume']))")
         #needs to only recenter when price axis recenters!
-    #if subscribed_bool == True:
-        #root.after(100, volume_column_populate())
+    if subscribed_bool == True:
+        root.after(100, volume_column_populate())
 
 def highlight_trade_price(price):
     highlight["text"] = price
@@ -257,8 +257,7 @@ if __name__ == "__main__":
     main = MainApplication(root)
     main.pack(side="top", fill="both", expand=True)
 
-    #print(marketprice["text"])
     main.update_title()
-    #volume_column_populate()
+    volume_column_populate()
 
     root.mainloop()
