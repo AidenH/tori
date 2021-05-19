@@ -1,4 +1,5 @@
 HUGE DELAY ---- FIX IT
+  -implement root.after() into all funcs to see if it improves performance
 
 
 DONE -Build price axis grid
