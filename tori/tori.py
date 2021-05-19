@@ -71,6 +71,7 @@ def callback(data_type: 'SubscribeMessageType', event: 'any'):
 def error(e: 'BinanceApiException'):
     print(e.error_code + e.error_message)
 
+#recenter/price populate price axis
 def recenter():
     global subscribed_bool
     global ladder_midpoint
@@ -79,6 +80,7 @@ def recenter():
         exec(f"price_label{i}['text'] = str({i}) + ' - ' + str((global_lastprice['price']-ladder_midpoint)+{i})")
         #each label is referenced around the 23th (middle) row price level
 
+#recursive volume cell update
 def volume_column_populate():
     for i in range(window_price_levels):
         exec(f"volume_label{i}['text'] = str(int(prices[global_lastprice['price']-ladder_midpoint+{i}]['volume']))")
