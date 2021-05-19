@@ -1,3 +1,6 @@
+HUGE DELAY ---- FIX IT
+
+
 DONE -Build price axis grid
 DONE -Populate grid with price dictionary
 

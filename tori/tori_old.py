@@ -38,13 +38,16 @@ def callback(data_type: 'SubscribeMessageType', event: 'any'):
 
     elif data_type == SubscribeMessageType.PAYLOAD:
         #PrintBasic.print_obj(event)    #keep for full aggtrade payload example
-        time = datetime.now().strftime("%H:%M:%S.%f")
-        window.title(instrument + " " + time)
+
         global_lastprice = int(round(event.price, 0))
+
+        time = datetime.now().strftime("%H:%M:%S.%f")
+        window.title(instrument + " " + str(event.price) + " " + time)
 
         curprice["text"] = str(global_lastprice) + " x " + str(event.qty)
 
-        print(str(global_lastprice) + " " + str(datetime.now()))
+        #print(str(global_lastprice) + " " + str(datetime.now()))
+        print(str(global_lastprice) + " " + str(event.time))
 
     else:
         print("Unknown Data:")
