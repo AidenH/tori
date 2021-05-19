@@ -46,7 +46,7 @@ def callback(data_type: 'SubscribeMessageType', event: 'any'):
         global_lastprice["price"] = int(round(event.price, 0))   #set current global_lastprice
         local_lastprice = global_lastprice["price"] #set local price variable
         title_instrument_info = instrument + " " + str(local_lastprice) #update window title ticker info
-        print(str(local_lastprice) + " " + time)   #log price & time to console
+        print(str(local_lastprice) + " " + str(event.time))   #log price & time to console
 
         #Populate price levels dictionary
         if dict_setup == False:
@@ -78,7 +78,7 @@ def recenter():
     global ladder_midpoint
     for i in range(window_price_levels):
         global_lastprice["coordinate"] = ladder_midpoint
-        exec(f"price_label{i}['text'] = str({i}) + ' - ' + str((global_lastprice['price']-ladder_midpoint)+{i})")
+        exec(f"price_label{i}['text'] = str((global_lastprice['price']-ladder_midpoint)+{i})")
         #each label is referenced around the 23th (middle) row price level
 
 #recursive volume cell update
@@ -147,20 +147,9 @@ price_label{i} = tk.Label(
             )
 price_label{i}.pack(fill="x")''')
 
-        #market price
-        '''marketprice = tk.Label(
-            master = self,
-            text = "Price",
-            font = font,
-            fg = "white",
-            bg = "dimgrey"
-        )
-        marketprice.pack(fill="x")'''
-
-    def highlight_trade_price(self, price):
         highlight = tk.Label(
             master = price_frame23,
-            text = price,
+            text = "0",
             font = font,
             fg = "white",
             bg = "blue",
