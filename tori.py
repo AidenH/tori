@@ -79,7 +79,6 @@ def rewrite_axis():
     #populate the ladder cell dictionary
     for i in range(window_price_levels):
         ladder_dict[i] = global_lastprice-ladder_midpoint+i
-    print(ladder_dict)
 
     #write dictionary values to frame
     for i in range(window_price_levels):
@@ -153,11 +152,10 @@ class Toolbar(tk.Frame):
         clean.pack(side="left")
 
 class Priceaxis(tk.Frame):
-    global window_price_levels
-
     def __init__(self, master):
         tk.Frame.__init__(self, master, bg="red", width = wwidth / 6)
         self.parent = master
+        global window_price_levels
         global highlight
 
         #arrange empty price ladder grid
