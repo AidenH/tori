@@ -1,5 +1,21 @@
--Build price axis grid using .grid()
--Populate grid with price dictionary
+DONE -Build price axis grid
+DONE -Populate grid with price dictionary
 
+
+IDEAS
 -Price ladder column cells as dictionary items???
   -Would allow for more info to be stored about each.
+
+
+PRICE AXIS
+-Add selective auto-recenter
+-Make highlighted price label actually reflect changing current price (not just stuck on the first price change on init)
+-Make highlighted price move within window
+
+
+VOLUME COLUMN
+-Add proportional volume bars behind (or below?) quantity label
+
+
+TOOLBAR
+-Add functionality to Recenter button
