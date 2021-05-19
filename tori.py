@@ -52,17 +52,13 @@ def callback(data_type: 'SubscribeMessageType', event: 'any'):
         if dict_setup == False:
             print("Set up dictionary.")
             for i in range(0, local_lastprice + local_lastprice):
-                prices[i] = {"volume": 0}   #only adding the total level volume information for the moment
+                prices[i] = {"volume" : 0}   #only adding the total level volume information for the moment
             dict_setup = True
-            recenter_axis()
+            rewrite_axis()
             #main.priceaxis.highlight_trade_price(local_lastprice)
 
         prices[local_lastprice]["volume"] += round(event.qty, 0)   #add event order quantity to price volume dict key
         print("cum. qty.: " + str(int(prices[local_lastprice]["volume"])))
-
-        #recenter_axis()
-        #volume_column_populate()
-        #highlight_trade_price(local_lastprice)
 
     else:
         print("Unknown Data:")
@@ -137,7 +133,7 @@ class Toolbar(tk.Frame):
 
         recenter = tk.Button(
             master = self,
-            command = recenter_axis,
+            command = rewrite_axis,
             text = "Recenter",
             width = 10,
             padx = 3
@@ -162,7 +158,6 @@ class Priceaxis(tk.Frame):
     def __init__(self, master):
         tk.Frame.__init__(self, master, bg="red", width = wwidth / 6)
         self.parent = master
-        global marketprice
         global highlight
 
         #arrange empty price ladder grid
@@ -275,6 +270,6 @@ if __name__ == "__main__":
     main.pack(side="top", fill="both", expand=True)
 
     main.update_title()
-    volume_column_populate()
+    highlight_trade_price()
 
     root.mainloop()
