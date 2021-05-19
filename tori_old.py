@@ -42,7 +42,7 @@ def callback(data_type: 'SubscribeMessageType', event: 'any'):
         global_lastprice = int(round(event.price, 0))
 
         time = datetime.now().strftime("%H:%M:%S.%f")
-        window.title(instrument + " " + str(global_lastprice) + " " + time)
+        window.title("OLD " + instrument + " " + str(global_lastprice) + " " + time)
 
         curprice["text"] = str(global_lastprice) + " x " + str(event.qty)
 
