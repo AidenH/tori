@@ -54,13 +54,13 @@ def callback(data_type: 'SubscribeMessageType', event: 'any'):
             for i in range(0, local_lastprice + local_lastprice):
                 prices[i] = {"volume": 0}   #only adding the total level volume information for the moment
             dict_setup = True
-            recenter()
+            recenter_axis()
             #main.priceaxis.highlight_trade_price(local_lastprice)
 
         prices[local_lastprice]["volume"] += round(event.qty, 0)   #add event order quantity to price volume dict key
         print("cum. qty.: " + str(int(prices[local_lastprice]["volume"])))
 
-        recenter()
+        recenter_axis()
         volume_column_populate()
         highlight_trade_price(local_lastprice)
 
@@ -73,7 +73,7 @@ def error(e: 'BinanceApiException'):
     print(e.error_code + e.error_message)
 
 #recenter/price populate price axis
-def recenter():
+def recenter_axis():
     global subscribed_bool
     global ladder_midpoint
     for i in range(window_price_levels):
@@ -83,9 +83,12 @@ def recenter():
 
 #recursive volume cell update
 def volume_column_populate():
+    global subscribed_bool
     for i in range(window_price_levels):
         exec(f"volume_label{i}['text'] = str(int(prices[global_lastprice['price']-ladder_midpoint+{i}]['volume']))")
         #needs to only recenter when price axis recenters!
+    #if subscribed_bool == True:
+        #root.after(100, volume_column_populate())
 
 def highlight_trade_price(price):
     highlight["text"] = price
@@ -117,7 +120,7 @@ class Toolbar(tk.Frame):
 
         recenter = tk.Button(
             master = self,
-            #command = main.priceaxis.create_ladder,
+            command = recenter_axis,
             text = "Recenter",
             width = 10,
             padx = 3
@@ -256,5 +259,6 @@ if __name__ == "__main__":
 
     #print(marketprice["text"])
     main.update_title()
+    #volume_column_populate()
 
     root.mainloop()
