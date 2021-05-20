@@ -18,7 +18,7 @@ def connect():
     dict_setup = False
     subscribed_bool = True
 
-    print("\nSubscribing...")
+    print("\nSubscribing... - " + time)
     sub_client.subscribe_aggregate_trade_event(instrument, callback, error)
 
 def disconnect():
@@ -36,6 +36,9 @@ def callback(data_type: 'SubscribeMessageType', event: 'any'):
     global prices
     global global_lastprice
     global title_instrument_info
+    global coord
+
+    coord = int(price_label0["text"]) - global_lastprice
 
     if data_type == SubscribeMessageType.RESPONSE:
         print("EventID: ", event)
@@ -50,11 +53,11 @@ def callback(data_type: 'SubscribeMessageType', event: 'any'):
 
         #Populate price levels dictionary
         if dict_setup == False:
-            print("Set up dictionary - " + time)
+            print("Set up dictionary - " + time + "\n")
             for i in range(0, local_lastprice + local_lastprice):
                 prices[i] = {"volume" : 0, "buy" : 0, "sell" : 0}   #only adding the total level volume information for the moment
             dict_setup = True
-            write_axis()
+            refresh()
             volume_column_populate(False)
             buy_column_populate(False)
             sell_column_populate(False)
@@ -76,7 +79,7 @@ def error(e: 'BinanceApiException'):
     print(e.error_code + e.error_message)
 
     #recenter/price populate price axis
-def write_axis():
+def refresh():
     global ladder_midpoint
     global global_lastprice
     global ladder_dict
@@ -91,7 +94,7 @@ def write_axis():
     for i in range(window_price_levels, 0, -1):
         eval(label.format(i-1))["text"] = ladder_dict[i-1]
 
-    print("Recenter - " + time)
+    print("Refresh - " + time)
 
     volume_column_populate(True)
 
@@ -106,6 +109,7 @@ def volume_column_populate(clean):
     global subscribed_bool
     global global_lastprice
     global ladder_dict
+    global coord
 
     label = "volume_label{0}"
 
@@ -125,6 +129,7 @@ def buy_column_populate(clean):
     global subscribed_bool
     global global_lastprice
     global ladder_dict
+    global coord
 
     label = "buy_label{0}"
 
@@ -144,6 +149,7 @@ def sell_column_populate(clean):
     global subscribed_bool
     global global_lastprice
     global ladder_dict
+    global coord
 
     label = "sell_label{0}"
 
@@ -162,7 +168,8 @@ def sell_column_populate(clean):
 def highlight_trade_price():
     global global_lastprice
     global prev_highlight_price
-    coord = int(price_label0["text"]) - global_lastprice
+    global coord
+    #coord = int(price_label0["text"]) - global_lastprice
     #label = 'price_label{0}["{1}"] = "blue"'
 
     #highlight["text"] = global_lastprice
@@ -180,7 +187,7 @@ def highlight_trade_price():
     prev_highlight_price = global_lastprice
 
     if dict_setup == True and (coord < 5 or coord > (window_price_levels-5)):
-        write_axis()
+        refresh()
 
     root.after(100, highlight_trade_price)
 
@@ -215,7 +222,7 @@ class Toolbar(tk.Frame):
 
         recenter = tk.Button(
             master = self,
-            command = write_axis,
+            command = refresh,
             text = "Recenter",
             width = 10,
             padx = 3
@@ -288,7 +295,7 @@ volume_frame{i}.pack(fill="x")
 
 volume_label{i} = tk.Label(
             master=volume_frame{i},
-            text="0",
+            text="",
             font = font,
             anchor = "w",
             bg = "gainsboro"
@@ -313,7 +320,7 @@ buy_frame{i}.pack(fill="x")
 
 buy_label{i} = tk.Label(
             master=buy_frame{i},
-            text="0",
+            text="",
             font = font,
             anchor = "w",
             fg = "blue",
@@ -339,7 +346,7 @@ sell_frame{i}.pack(fill="x")
 
 sell_label{i} = tk.Label(
             master=sell_frame{i},
-            text="0",
+            text="",
             font = font,
             anchor = "w",
             fg = "maroon",
@@ -395,6 +402,7 @@ if __name__ == "__main__":
     global_lastprice = 0
     prev_highlight_price = 0
     prices = {}
+    coord = 0
 
     ladder_dict = {}
     for i in range(window_price_levels):
