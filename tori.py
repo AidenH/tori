@@ -54,6 +54,7 @@ def callback(data_type: 'SubscribeMessageType', event: 'any'):
                 prices[i] = {"volume" : 0}   #only adding the total level volume information for the moment
             dict_setup = True
             write_axis()
+            volume_column_populate(False)
             #main.priceaxis.highlight_trade_price(local_lastprice)
 
         prices[local_lastprice]["volume"] += round(event.qty, 0)   #add event order quantity to price volume dict key
@@ -90,8 +91,8 @@ def write_axis():
         exec(f"price_label{i}['text'] = str((global_lastprice['price']-ladder_midpoint)+{i})")
         #each label is referenced around the 23th (middle) row price level'''
 
-#recursive volume cell update
-def volume_column_populate():
+#volume cell update
+def volume_column_populate(clean):
     global subscribed_bool
     global global_lastprice
     global ladder_dict
@@ -107,7 +108,8 @@ def volume_column_populate():
         #exec(f"volume_label{i}['text'] = str(int(prices[global_lastprice-ladder_midpoint+{i}]['volume']))")
         #needs to only recenter when price axis recenters!
 
-    root.after(100, volume_column_populate)
+    if clean == False:
+        root.after(100, volume_column_populate, False)
 
 def highlight_trade_price():
     global global_lastprice
@@ -118,6 +120,7 @@ def highlight_trade_price():
 def clean_volume():
     for i in range(len(prices)):
         prices[i]["volume"] = 0
+    print("clean_volume()")
 
 #CLASSES
 class Toolbar(tk.Frame):
