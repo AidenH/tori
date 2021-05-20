@@ -174,7 +174,7 @@ def highlight_trade_price():
 
     prev_highlight_price = global_lastprice
 
-    if dict_setup == True and (coord < 10 or coord > 40):
+    if dict_setup == True and (coord < 5 or coord > (window_price_levels-5)):
         write_axis()
 
     root.after(200, highlight_trade_price)
