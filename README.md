@@ -1,6 +1,8 @@
 # tori
 
-Requires binance_f
+Requirements:
+  *binance_f
+  *tkinter
 
-![tori as of 19/05/2021](https://github.com/AidenH/tori/blob/main/img/5-19-21-tori.png)  
-*tori as of 19/05/2021*
+![tori as of 20/05/2021](https://raw.githubusercontent.com/AidenH/tori/main/img/5-20-21-tori.png)  
+*tori as of 20/05/2021*
