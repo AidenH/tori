@@ -11,6 +11,7 @@ from binance_f.base.printobject import *
 import keys
 
 #FUNCTIONS
+
 def connect():
     global dict_setup
     global subscribed_bool
@@ -100,7 +101,7 @@ def write_axis():
         exec(f"price_label{i}['text'] = str((global_lastprice['price']-ladder_midpoint)+{i})")
         #each label is referenced around the 23th (middle) row price level'''
 
-        #volume cell update
+    #volume cell update
 def volume_column_populate(clean):
     global subscribed_bool
     global global_lastprice
@@ -191,6 +192,7 @@ def clean_volume():
     print("clean_volume() - " + time)
 
 #CLASSES
+
 class Toolbar(tk.Frame):
     def __init__(self, master):
         tk.Frame.__init__(self, master, bg="gainsboro", height=30, padx=3, pady=3, bd=3)
@@ -375,6 +377,7 @@ class MainApplication(tk.Frame):
         root.after(100, self.update_title)
 
 #MAIN
+
 if __name__ == "__main__":
 
     #Root environment variables
