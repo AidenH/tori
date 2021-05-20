@@ -41,12 +41,11 @@ def callback(data_type: 'SubscribeMessageType', event: 'any'):
 
     elif data_type == SubscribeMessageType.PAYLOAD:
         #PrintBasic.print_obj(event)    #keep for full aggtrade payload example
-        #marketprice["text"] = str(global_lastprice) + " x " + str(event.qty)[:-2]   #DEPRECATED set marketprice label to last price
 
         global_lastprice = int(round(event.price, 0))   #set current global_lastprice
         local_lastprice = global_lastprice #set local price variable
         title_instrument_info = instrument + " " + str(local_lastprice) #update window title ticker info
-        print(str(local_lastprice) + " " + str(event.time))   #log price & time to console
+        #print(str(local_lastprice) + " " + str(event.time))   #log price & time to console
 
         #Populate price levels dictionary
         if dict_setup == False:
@@ -54,22 +53,20 @@ def callback(data_type: 'SubscribeMessageType', event: 'any'):
             for i in range(0, local_lastprice + local_lastprice):
                 prices[i] = {"volume" : 0}   #only adding the total level volume information for the moment
             dict_setup = True
-            rewrite_axis()
+            write_axis()
             #main.priceaxis.highlight_trade_price(local_lastprice)
 
         prices[local_lastprice]["volume"] += round(event.qty, 0)   #add event order quantity to price volume dict key
-        print("cum. qty.: " + str(int(prices[local_lastprice]["volume"])))
+        #print("cum. qty.: " + str(int(prices[local_lastprice]["volume"])))
 
     else:
         print("Unknown Data:")
-
-    print()
 
 def error(e: 'BinanceApiException'):
     print(e.error_code + e.error_message)
 
 #recenter/price populate price axis
-def rewrite_axis():
+def write_axis():
     global ladder_midpoint
     global global_lastprice
     global ladder_dict
@@ -80,9 +77,12 @@ def rewrite_axis():
     for i in range(window_price_levels):
         ladder_dict[i] = global_lastprice-ladder_midpoint+i
 
-    #write dictionary values to frame
-    for i in range(window_price_levels):
-        eval(label.format(i))["text"] = ladder_dict[i]
+    #REVERSE ME write dictionary values to frame
+    for i in range(window_price_levels, 0, -1):
+        print(i-1)
+        eval(label.format(i-1))["text"] = ladder_dict[i-1]
+
+    volume_column_populate()
 
     #OLD, bad performance
     '''for i in range(window_price_levels):
@@ -93,11 +93,21 @@ def rewrite_axis():
 #recursive volume cell update
 def volume_column_populate():
     global subscribed_bool
-    for i in range(window_price_levels):
-        exec(f"volume_label{i}['text'] = str(int(prices[global_lastprice-ladder_midpoint+{i}]['volume']))")
+    global global_lastprice
+    global ladder_dict
+
+    label = "volume_label{0}"
+
+    for i in range(0, window_price_levels):
+        if subscribed_bool == True:
+            #print(str(prices[ladder_dict[i]]["volume"]))
+            eval(label.format(i))["text"] = str(prices[ladder_dict[i]]["volume"])[:-2]
+
+        #OLD, poor performance
+        #exec(f"volume_label{i}['text'] = str(int(prices[global_lastprice-ladder_midpoint+{i}]['volume']))")
         #needs to only recenter when price axis recenters!
-    if subscribed_bool == True:
-        root.after(100, volume_column_populate())
+
+    root.after(100, volume_column_populate)
 
 def highlight_trade_price():
     global global_lastprice
@@ -132,7 +142,7 @@ class Toolbar(tk.Frame):
 
         recenter = tk.Button(
             master = self,
-            command = rewrite_axis,
+            command = write_axis,
             text = "Recenter",
             width = 10,
             padx = 3
@@ -268,6 +278,7 @@ if __name__ == "__main__":
     main.pack(side="top", fill="both", expand=True)
 
     main.update_title()
+
     highlight_trade_price()
 
     root.mainloop()
