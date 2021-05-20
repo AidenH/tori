@@ -29,7 +29,7 @@ def disconnect():
     print("\n\nDisconnected.\n")
     sub_client.unsubscribe_all()
 
-#main subscription functionality
+    #main subscription functionality
 def callback(data_type: 'SubscribeMessageType', event: 'any'):
     global dict_setup
     global prices
@@ -51,17 +51,20 @@ def callback(data_type: 'SubscribeMessageType', event: 'any'):
         if dict_setup == False:
             print("Set up dictionary - " + time)
             for i in range(0, local_lastprice + local_lastprice):
-                prices[i] = {"volume" : 0, "buy" : 0}   #only adding the total level volume information for the moment
+                prices[i] = {"volume" : 0, "buy" : 0, "sell" : 0}   #only adding the total level volume information for the moment
             dict_setup = True
             write_axis()
             volume_column_populate(False)
             buy_column_populate(False)
+            sell_column_populate(False)
             #main.priceaxis.highlight_trade_price(local_lastprice)
 
         prices[local_lastprice]["volume"] += round(event.qty, 0)   #add event order quantity to price volume dict key
 
         if event.isBuyerMaker == False:
             prices[local_lastprice]["buy"] += round(event.qty, 0)
+        else:
+            prices[local_lastprice]["sell"] += round(event.qty, 0)
 
         #print("cum. qty.: " + str(int(prices[local_lastprice]["volume"])))
 
@@ -71,7 +74,7 @@ def callback(data_type: 'SubscribeMessageType', event: 'any'):
 def error(e: 'BinanceApiException'):
     print(e.error_code + e.error_message)
 
-#recenter/price populate price axis
+    #recenter/price populate price axis
 def write_axis():
     global ladder_midpoint
     global global_lastprice
@@ -97,7 +100,7 @@ def write_axis():
         exec(f"price_label{i}['text'] = str((global_lastprice['price']-ladder_midpoint)+{i})")
         #each label is referenced around the 23th (middle) row price level'''
 
-#volume cell update
+        #volume cell update
 def volume_column_populate(clean):
     global subscribed_bool
     global global_lastprice
@@ -136,6 +139,25 @@ def buy_column_populate(clean):
     if clean == False:
         root.after(100, buy_column_populate, False)
 
+def sell_column_populate(clean):
+    global subscribed_bool
+    global global_lastprice
+    global ladder_dict
+
+    label = "sell_label{0}"
+
+    for i in range(0, window_price_levels):
+        if subscribed_bool == True:
+            #print(str(prices[ladder_dict[i]]["volume"]))
+            eval(label.format(i))["text"] = str(prices[ladder_dict[i]]["sell"])[:-2]
+
+        #OLD, poor performance
+        #exec(f"volume_label{i}['text'] = str(int(prices[global_lastprice-ladder_midpoint+{i}]['volume']))")
+        #needs to only recenter when price axis recenters!
+
+    if clean == False:
+        root.after(100, sell_column_populate, False)
+
 def highlight_trade_price():
     global global_lastprice
     global prev_highlight_price
@@ -159,7 +181,9 @@ def highlight_trade_price():
 
 def clean_volume():
     for i in range(len(prices)):
-        prices[i]["volume"] = 0
+        #prices[i]["volume"] = 0
+        prices[i]["buy"] = 0
+        prices[i]["sell"] = 0
     print("clean_volume() - " + time)
 
 #CLASSES
@@ -269,7 +293,7 @@ class Buycolumn(tk.Frame):
     global window_price_levels
 
     def __init__(self, master):
-        tk.Frame.__init__(self, master, bg="blue", width = wwidth / 6)
+        tk.Frame.__init__(self, master, bg="blue", width = wwidth / 12)
         self.parent = master
 
         for i in range(window_price_levels):
@@ -291,6 +315,32 @@ buy_label{i} = tk.Label(
         )
 buy_label{i}.pack(fill="x")''')
 
+class Sellcolumn(tk.Frame):
+    global window_price_levels
+
+    def __init__(self, master):
+        tk.Frame.__init__(self, master, bg="blue", width = wwidth / 12)
+        self.parent = master
+
+        for i in range(window_price_levels):
+            exec(f'''global sell_frame{i}
+global sell_label{i}
+sell_frame{i} = tk.Frame(
+            master = self,
+            borderwidth = 1
+        )
+sell_frame{i}.pack(fill="x")
+
+sell_label{i} = tk.Label(
+            master=sell_frame{i},
+            text="0",
+            font = font,
+            anchor = "w",
+            fg = "maroon",
+            bg = "gainsboro"
+        )
+sell_label{i}.pack(fill="x")''')
+
 class MainApplication(tk.Frame):
     def __init__(self, master, *args, **kwargs):
         tk.Frame.__init__(self, master, *args, **kwargs)
@@ -300,11 +350,14 @@ class MainApplication(tk.Frame):
         self.priceaxis = Priceaxis(self)
         self.volumecolumn = Volumecolumn(self)
         self.buycolumn = Buycolumn(self)
+        self.sellcolumn = Sellcolumn(self)
 
         self.toolbar.pack(side="top", fill="x")
 
         self.priceaxis.pack(side="left", fill="y")
         self.priceaxis.pack_propagate(False)
+        self.sellcolumn.pack(side="left", fill="y")
+        self.sellcolumn.pack_propagate(False)
         self.buycolumn.pack(side="left", fill="y")
         self.buycolumn.pack_propagate(False)
         self.volumecolumn.pack(side="left", fill="y")
@@ -320,13 +373,12 @@ class MainApplication(tk.Frame):
 #MAIN
 if __name__ == "__main__":
 
-    #root env variables
+    #Root environment variables
     instrument = "ethusdt"
     wwidth = 400
     wheight = 988
     font = "arial 7 bold"
-    window_price_levels = 50
-    #^^need to generate this dynamically based on the window size at some point
+    window_price_levels = 50    #need to generate this dynamically based on the window size at some point
     title_instrument_info = "none"
 
     #Dom-related variables
@@ -343,6 +395,7 @@ if __name__ == "__main__":
 
     sub_client = SubscriptionClient(api_key=keys.api, secret_key=keys.secret)
 
+    #Window setup
     root = tk.Tk()
     root.geometry(str(wwidth)+"x"+str(wheight))
     root.attributes('-topmost', True)
