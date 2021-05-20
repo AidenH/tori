@@ -85,18 +85,24 @@ def refresh():
     global ladder_dict
 
     label = "price_label{0}"
+    vlabel = "volume_label{0}"
+    blabel = "buy_label{0}"
+    slabel = "sell_label{0}"
 
     #populate the ladder cell dictionary
     for i in range(window_price_levels):
         ladder_dict[i] = global_lastprice+ladder_midpoint-i
 
     #write dictionary values to frame
-    for i in range(window_price_levels, 0, -1):
-        eval(label.format(i-1))["text"] = ladder_dict[i-1]
+    for i in range(window_price_levels-1, -1, -1):
+        eval(label.format(i))["text"] = ladder_dict[i]
+        eval(vlabel.format(i))["text"] = str(prices[ladder_dict[i]]["volume"])[:-2]
+        eval(blabel.format(i))["text"] = str(prices[ladder_dict[i]]["buy"])[:-2]
+        eval(slabel.format(i))["text"] = str(prices[ladder_dict[i]]["sell"])[:-2]
 
     print("Refresh - " + time)
 
-    volume_column_populate(True)
+    #volume_column_populate(True)
 
     #OLD, bad performance
     '''for i in range(window_price_levels):
@@ -113,10 +119,13 @@ def volume_column_populate(clean):
 
     label = "volume_label{0}"
 
-    for i in range(0, window_price_levels):
+    eval(label.format(coord))["text"] = str(prices[ladder_dict[coord]]["volume"])[:-2]
+
+    #OLD
+    '''for i in range(0, window_price_levels):
         if subscribed_bool == True:
             #print(str(prices[ladder_dict[i]]["volume"]))
-            eval(label.format(i))["text"] = str(prices[ladder_dict[i]]["volume"])[:-2]
+            eval(label.format(i))["text"] = str(prices[ladder_dict[i]]["volume"])[:-2]'''
 
         #OLD, poor performance
         #exec(f"volume_label{i}['text'] = str(int(prices[global_lastprice-ladder_midpoint+{i}]['volume']))")
@@ -133,10 +142,12 @@ def buy_column_populate(clean):
 
     label = "buy_label{0}"
 
-    for i in range(0, window_price_levels):
+    eval(label.format(coord))["text"] = str(prices[ladder_dict[coord]]["buy"])[:-2]
+
+    '''for i in range(0, window_price_levels):
         if subscribed_bool == True:
             #print(str(prices[ladder_dict[i]]["volume"]))
-            eval(label.format(i))["text"] = str(prices[ladder_dict[i]]["buy"])[:-2]
+            eval(label.format(i))["text"] = str(prices[ladder_dict[i]]["buy"])[:-2]'''
 
         #OLD, poor performance
         #exec(f"volume_label{i}['text'] = str(int(prices[global_lastprice-ladder_midpoint+{i}]['volume']))")
@@ -153,10 +164,13 @@ def sell_column_populate(clean):
 
     label = "sell_label{0}"
 
-    for i in range(0, window_price_levels):
+    eval(label.format(coord))["text"] = str(prices[ladder_dict[coord]]["sell"])[:-2]
+
+    '''for i in range(0, window_price_levels):
         if subscribed_bool == True:
             #print(str(prices[ladder_dict[i]]["volume"]))
             eval(label.format(i))["text"] = str(prices[ladder_dict[i]]["sell"])[:-2]
+        '''
 
         #OLD, poor performance
         #exec(f"volume_label{i}['text'] = str(int(prices[global_lastprice-ladder_midpoint+{i}]['volume']))")
@@ -192,11 +206,19 @@ def highlight_trade_price():
     root.after(100, highlight_trade_price)
 
 def clean_volume():
+    blabel = "buy_label{0}"
+    slabel = "sell_label{0}"
+
     for i in range(len(prices)):
         #prices[i]["volume"] = 0
         prices[i]["buy"] = 0
         prices[i]["sell"] = 0
-    print("clean_volume() - " + time)
+
+    for i in range(window_price_levels):
+        eval(blabel.format(i))["text"] = ""
+        eval(slabel.format(i))["text"] = ""
+
+    print("clean volume - " + time)
 
 #CLASSES
 
