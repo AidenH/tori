@@ -1,10 +1,12 @@
 LAG
-  -Would likely be much faster if volume was only added to specific cell labels,
-    rather than iterating and refreshing the entire column every cycle.
+  DONE -Would likely be much faster if volume was only added to specific cell labels,
+      rather than iterating and refreshing the entire column every cycle.
   -App still gets very laggy after a certain period. Need to get to the bottom of this.
 
   DONE??? HUGE DELAY ---- FIX IT
-  -implement root.after() into all funcs to see if it improves performance
+  -implement .after() into all funcs to see if it improves performance
+      (it was actually in issue of calling too many functions with .after() recursion,
+      so it just added more and more recursive functions firing with each cycle.)
 
 
 DONE -Build price axis grid
@@ -12,19 +14,21 @@ DONE -Populate grid with price dictionary
 
 
 IDEAS
--Price ladder column cells as dictionary items???
-  -Would allow for more info to be stored about each.
+DONE -Price ladder column cells as dictionary items???
+    DONE -Would allow for more info to be stored about each.
 
 
 PRICE AXIS
-  -Add selective auto-recenter
-  -Make highlighted price label actually reflect changing current price (not just stuck on the first price change on init)
-  -Make highlighted price move within column
+    -Make highlight_trade_price() activate on recenter/refresh, there are leftover highlights when function is called
+
+    DONE -Add selective auto-recenter
+    DONE -Make highlighted price label actually reflect changing current price (not just stuck on the first price change on init)
+    DONE -Make highlighted price move within column
 
 
 VOLUME COLUMN
-  -Add proportional volume bars behind (or below?) quantity label as representation of size
+    -Add proportional volume bars behind (or below?) quantity label as representation of size
 
 
 TOOLBAR
-  DONE -Add functionality to Recenter button
+    DONE -Add functionality to Recenter button
