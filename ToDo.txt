@@ -1,6 +1,9 @@
--App still gets very laggy after a certain period. Need to get to the bottom of this.
+LAG
+  -Would likely be much faster if volume was only added to specific cell labels,
+    rather than iterating and refreshing the entire column every cycle.
+  -App still gets very laggy after a certain period. Need to get to the bottom of this.
 
-DONE??? HUGE DELAY ---- FIX IT
+  DONE??? HUGE DELAY ---- FIX IT
   -implement root.after() into all funcs to see if it improves performance
 
 
