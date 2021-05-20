@@ -49,7 +49,7 @@ def callback(data_type: 'SubscribeMessageType', event: 'any'):
 
         #Populate price levels dictionary
         if dict_setup == False:
-            print("Set up dictionary.")
+            print("Set up dictionary - " + time)
             for i in range(0, local_lastprice + local_lastprice):
                 prices[i] = {"volume" : 0}   #only adding the total level volume information for the moment
             dict_setup = True
@@ -82,7 +82,7 @@ def write_axis():
     for i in range(window_price_levels, 0, -1):
         eval(label.format(i-1))["text"] = ladder_dict[i-1]
 
-    print("Rewrite()")
+    print("Recenter - " + time)
 
     volume_column_populate(True)
 
@@ -136,7 +136,7 @@ def highlight_trade_price():
 def clean_volume():
     for i in range(len(prices)):
         prices[i]["volume"] = 0
-    print("clean_volume()")
+    print("clean_volume() - " + time)
 
 #CLASSES
 class Toolbar(tk.Frame):
