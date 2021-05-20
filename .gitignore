@@ -2,3 +2,5 @@ __pycache__/
 *.pyc
 binance_f/
 keys.py
+dist/
+build/
