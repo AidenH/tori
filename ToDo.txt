@@ -1,4 +1,6 @@
-HUGE DELAY ---- FIX IT
+-App still gets very laggy after a certain period. Need to get to the bottom of this.
+
+DONE??? HUGE DELAY ---- FIX IT
   -implement root.after() into all funcs to see if it improves performance
 
 
@@ -12,14 +14,14 @@ IDEAS
 
 
 PRICE AXIS
--Add selective auto-recenter
--Make highlighted price label actually reflect changing current price (not just stuck on the first price change on init)
--Make highlighted price move within window
+  -Add selective auto-recenter
+  -Make highlighted price label actually reflect changing current price (not just stuck on the first price change on init)
+  -Make highlighted price move within column
 
 
 VOLUME COLUMN
--Add proportional volume bars behind (or below?) quantity label
+  -Add proportional volume bars behind (or below?) quantity label as representation of size
 
 
 TOOLBAR
--Add functionality to Recenter button
+  DONE -Add functionality to Recenter button
