@@ -182,7 +182,7 @@ def highlight_trade_price():
     if dict_setup == True and (coord < 5 or coord > (window_price_levels-5)):
         write_axis()
 
-    root.after(200, highlight_trade_price)
+    root.after(100, highlight_trade_price)
 
 def clean_volume():
     for i in range(len(prices)):
