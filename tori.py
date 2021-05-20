@@ -51,13 +51,18 @@ def callback(data_type: 'SubscribeMessageType', event: 'any'):
         if dict_setup == False:
             print("Set up dictionary - " + time)
             for i in range(0, local_lastprice + local_lastprice):
-                prices[i] = {"volume" : 0}   #only adding the total level volume information for the moment
+                prices[i] = {"volume" : 0, "buy" : 0}   #only adding the total level volume information for the moment
             dict_setup = True
             write_axis()
             volume_column_populate(False)
+            buy_column_populate(False)
             #main.priceaxis.highlight_trade_price(local_lastprice)
 
         prices[local_lastprice]["volume"] += round(event.qty, 0)   #add event order quantity to price volume dict key
+
+        if event.isBuyerMaker == False:
+            prices[local_lastprice]["buy"] += round(event.qty, 0)
+
         #print("cum. qty.: " + str(int(prices[local_lastprice]["volume"])))
 
     else:
@@ -112,6 +117,25 @@ def volume_column_populate(clean):
     if clean == False:
         root.after(100, volume_column_populate, False)
 
+def buy_column_populate(clean):
+    global subscribed_bool
+    global global_lastprice
+    global ladder_dict
+
+    label = "buy_label{0}"
+
+    for i in range(0, window_price_levels):
+        if subscribed_bool == True:
+            #print(str(prices[ladder_dict[i]]["volume"]))
+            eval(label.format(i))["text"] = str(prices[ladder_dict[i]]["buy"])[:-2]
+
+        #OLD, poor performance
+        #exec(f"volume_label{i}['text'] = str(int(prices[global_lastprice-ladder_midpoint+{i}]['volume']))")
+        #needs to only recenter when price axis recenters!
+
+    if clean == False:
+        root.after(100, buy_column_populate, False)
+
 def highlight_trade_price():
     global global_lastprice
     global prev_highlight_price
@@ -131,7 +155,7 @@ def highlight_trade_price():
     if dict_setup == True and (coord < 10 or coord > 40):
         write_axis()
 
-    root.after(100, highlight_trade_price)
+    root.after(200, highlight_trade_price)
 
 def clean_volume():
     for i in range(len(prices)):
@@ -237,9 +261,35 @@ volume_label{i} = tk.Label(
             text="0",
             font = font,
             anchor = "w",
-            bg="gainsboro"
+            bg = "gainsboro"
         )
 volume_label{i}.pack(fill="x")''')
+
+class Buycolumn(tk.Frame):
+    global window_price_levels
+
+    def __init__(self, master):
+        tk.Frame.__init__(self, master, bg="blue", width = wwidth / 6)
+        self.parent = master
+
+        for i in range(window_price_levels):
+            exec(f'''global buy_frame{i}
+global buy_label{i}
+buy_frame{i} = tk.Frame(
+            master = self,
+            borderwidth = 1
+        )
+buy_frame{i}.pack(fill="x")
+
+buy_label{i} = tk.Label(
+            master=buy_frame{i},
+            text="0",
+            font = font,
+            anchor = "w",
+            fg = "blue",
+            bg = "gainsboro"
+        )
+buy_label{i}.pack(fill="x")''')
 
 class MainApplication(tk.Frame):
     def __init__(self, master, *args, **kwargs):
@@ -249,12 +299,14 @@ class MainApplication(tk.Frame):
         self.toolbar = Toolbar(self)
         self.priceaxis = Priceaxis(self)
         self.volumecolumn = Volumecolumn(self)
+        self.buycolumn = Buycolumn(self)
 
         self.toolbar.pack(side="top", fill="x")
 
         self.priceaxis.pack(side="left", fill="y")
         self.priceaxis.pack_propagate(False)
-
+        self.buycolumn.pack(side="left", fill="y")
+        self.buycolumn.pack_propagate(False)
         self.volumecolumn.pack(side="left", fill="y")
         self.volumecolumn.pack_propagate(False)
 
