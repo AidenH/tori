@@ -76,14 +76,15 @@ def write_axis():
 
     #populate the ladder cell dictionary
     for i in range(window_price_levels):
-        ladder_dict[i] = global_lastprice-ladder_midpoint+i
+        ladder_dict[i] = global_lastprice+ladder_midpoint-i
 
-    #REVERSE ME write dictionary values to frame
+    #write dictionary values to frame
     for i in range(window_price_levels, 0, -1):
-        print(i-1)
         eval(label.format(i-1))["text"] = ladder_dict[i-1]
 
-    volume_column_populate()
+    print("Rewrite()")
+
+    volume_column_populate(True)
 
     #OLD, bad performance
     '''for i in range(window_price_levels):
@@ -113,8 +114,23 @@ def volume_column_populate(clean):
 
 def highlight_trade_price():
     global global_lastprice
+    global prev_highlight_price
+    coord = int(price_label0["text"]) - global_lastprice #-24
+    #label = 'price_label{0}["{1}"] = "blue"'
 
-    highlight["text"] = global_lastprice
+    #highlight["text"] = global_lastprice
+    #highlight["master"] = price_frame2     #this would be ideal
+    exec(f"price_label{coord}['bg'] = 'blue'")
+
+    if global_lastprice != prev_highlight_price:
+        for i in range(window_price_levels):
+            exec(f"price_label{i}['bg'] = 'gray'")
+
+    prev_highlight_price = global_lastprice
+
+    if dict_setup == True and (coord < 10 or coord > 40):
+        write_axis()
+
     root.after(100, highlight_trade_price)
 
 def clean_volume():
@@ -183,21 +199,22 @@ price_frame{i} = tk.Frame(
 price_frame{i}.pack(fill="x")
 
 price_label{i} = tk.Label(
-                master=price_frame{i},
-                text="0",
+                master = price_frame{i},
+                text = "0",
                 font = font,
-                bg="gray"
+                fg = "white",
+                bg = "gray"
             )
 price_label{i}.pack(fill="x")''')
 
-        highlight = tk.Label(
+        '''highlight = tk.Label(
             master = price_frame23,
             text = "0",
             font = font,
             fg = "white",
             bg = "blue",
         )
-        highlight.place(y=-1, relwidth=1)
+        highlight.place(y=-1, relwidth=1)'''
 
 class Volumecolumn(tk.Frame):
     global window_price_levels
@@ -265,6 +282,7 @@ if __name__ == "__main__":
     ladder_midpoint = 23
     subscribed_bool = False
     global_lastprice = 0
+    prev_highlight_price = 0
     prices = {}
 
     ladder_dict = {}
