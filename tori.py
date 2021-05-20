@@ -161,16 +161,20 @@ def sell_column_populate(clean):
 def highlight_trade_price():
     global global_lastprice
     global prev_highlight_price
-    coord = int(price_label0["text"]) - global_lastprice #-24
+    coord = int(price_label0["text"]) - global_lastprice
     #label = 'price_label{0}["{1}"] = "blue"'
 
     #highlight["text"] = global_lastprice
     #highlight["master"] = price_frame2     #this would be ideal
     exec(f"price_label{coord}['bg'] = 'blue'")
+    exec(f"buy_label{coord}['bg'] = 'silver'")
+    exec(f"sell_label{coord}['bg'] = 'silver'")
 
     if global_lastprice != prev_highlight_price:
         for i in range(window_price_levels):
             exec(f"price_label{i}['bg'] = 'gray'")
+            exec(f"buy_label{i}['bg'] = 'gainsboro'")
+            exec(f"sell_label{i}['bg'] = 'gainsboro'")
 
     prev_highlight_price = global_lastprice
 
