@@ -183,6 +183,7 @@ def highlight_trade_price():
     global global_lastprice
     global prev_highlight_price
     global coord
+    global prev_coord
     #coord = int(price_label0["text"]) - global_lastprice
     #label = 'price_label{0}["{1}"] = "blue"'
 
@@ -192,13 +193,13 @@ def highlight_trade_price():
     exec(f"buy_label{coord}['bg'] = 'silver'")
     exec(f"sell_label{coord}['bg'] = 'silver'")
 
-    if global_lastprice != prev_highlight_price:
-        for i in range(window_price_levels):
-            exec(f"price_label{i}['bg'] = 'gray'")
-            exec(f"buy_label{i}['bg'] = 'gainsboro'")
-            exec(f"sell_label{i}['bg'] = 'gainsboro'")
+    if coord != prev_coord:
+        #for i in range(window_price_levels):
+        exec(f"price_label{prev_coord}['bg'] = 'gray'")
+        exec(f"buy_label{prev_coord}['bg'] = 'gainsboro'")
+        exec(f"sell_label{prev_coord}['bg'] = 'gainsboro'")
 
-    prev_highlight_price = global_lastprice
+    prev_coord = coord
 
     if dict_setup == True and (coord < 5 or coord > (window_price_levels-5)):
         refresh()
@@ -422,7 +423,7 @@ if __name__ == "__main__":
     ladder_midpoint = 23
     subscribed_bool = False
     global_lastprice = 0
-    prev_highlight_price = 0
+    prev_coord = 0
     prices = {}
     coord = 0
 
