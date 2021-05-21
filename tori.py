@@ -240,6 +240,10 @@ def clean_volume():
 
     print("clean volume - " + time)
 
+def test(i):
+    exec(f"order_label{i}['text'] = '0.1'")
+    print(f"clickable: {i}")
+
 #CLASSES
 
 class Toolbar(tk.Frame):
@@ -282,6 +286,33 @@ class Toolbar(tk.Frame):
         unsubbutton.pack(side = "left")
         recenter.pack(side="left")
         clean.pack(side="left")
+
+class Ordercolumn(tk.Frame):
+    global window_price_levels
+
+    def __init__(self, master):
+        tk.Frame.__init__(self, master, bg="blue", width = wwidth / 20)
+        self.parent = master
+
+        for i in range(window_price_levels):
+            exec(f'''global order_frame{i}
+global order_label{i}
+order_frame{i} = tk.Frame(
+            master = self,
+            borderwidth = 1
+        )
+order_frame{i}.pack(fill="x")
+
+order_label{i} = tk.Label(
+            master=order_frame{i},
+            text="",
+            font = font,
+            anchor = "w",
+            fg = "blue",
+            bg = "gainsboro"
+        )
+order_label{i}.pack(fill="x")
+order_label{i}.bind("<Button-1>", lambda e: test({i}))''')
 
 class Priceaxis(tk.Frame):
     def __init__(self, master):
@@ -399,16 +430,21 @@ sell_label{i}.pack(fill="x")''')
 class MainApplication(tk.Frame):
     def __init__(self, master, *args, **kwargs):
         tk.Frame.__init__(self, master, *args, **kwargs)
-
         self.parent = master
+
+        #toolbars
         self.toolbar = Toolbar(self)
+        self.toolbar.pack(side="top", fill="x")
+
+        #columns
+        self.ordercolumn = Ordercolumn(self)
         self.priceaxis = Priceaxis(self)
         self.volumecolumn = Volumecolumn(self)
         self.buycolumn = Buycolumn(self)
         self.sellcolumn = Sellcolumn(self)
 
-        self.toolbar.pack(side="top", fill="x")
-
+        self.ordercolumn.pack(side="left", fill="y")
+        self.ordercolumn.pack_propagate(False)
         self.priceaxis.pack(side="left", fill="y")
         self.priceaxis.pack_propagate(False)
         self.sellcolumn.pack(side="left", fill="y")
