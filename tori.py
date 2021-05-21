@@ -37,6 +37,7 @@ def callback(data_type: 'SubscribeMessageType', event: 'any'):
     global global_lastprice
     global title_instrument_info
     global coord
+    global last_trade
 
     coord = int(price_label0["text"]) - global_lastprice
 
@@ -64,10 +65,15 @@ def callback(data_type: 'SubscribeMessageType', event: 'any'):
             #main.priceaxis.highlight_trade_price(local_lastprice)
 
         prices[local_lastprice]["volume"] += round(event.qty, 0)   #add event order quantity to price volume dict key
+        last_trade["qty"] = int(round(event.qty, 0))
 
         if event.isBuyerMaker == False:
+            #if buyer
+            last_trade["buyer"] = True
             prices[local_lastprice]["buy"] += round(event.qty, 0)
         else:
+            #if seller
+            last_trade["buyer"] = False
             prices[local_lastprice]["sell"] += round(event.qty, 0)
 
         #print("cum. qty.: " + str(int(prices[local_lastprice]["volume"])))
@@ -184,20 +190,33 @@ def highlight_trade_price():
     global prev_highlight_price
     global coord
     global prev_coord
+    global last_trade
     #coord = int(price_label0["text"]) - global_lastprice
     #label = 'price_label{0}["{1}"] = "blue"'
 
     #highlight["text"] = global_lastprice
     #highlight["master"] = price_frame2     #this would be ideal
-    exec(f"price_label{coord}['bg'] = 'blue'")
-    exec(f"buy_label{coord}['bg'] = 'silver'")
-    exec(f"sell_label{coord}['bg'] = 'silver'")
+    if dict_setup == True:
+        if last_trade["qty"] > vol_filter:
+            exec(f"price_label{coord}['text'] = last_trade['qty']")
 
-    if coord != prev_coord:
-        #for i in range(window_price_levels):
-        exec(f"price_label{prev_coord}['bg'] = 'gray'")
-        exec(f"buy_label{prev_coord}['bg'] = 'gainsboro'")
-        exec(f"sell_label{prev_coord}['bg'] = 'gainsboro'")
+            if last_trade["buyer"]:
+                exec(f"price_label{coord}['fg'] = 'lime'")
+            else:
+                exec(f"price_label{coord}['fg'] = 'red'")
+
+        exec(f"price_label{coord}['bg'] = 'blue'")
+        exec(f"buy_label{coord}['bg'] = 'silver'")
+        exec(f"sell_label{coord}['bg'] = 'silver'")
+
+        if coord != prev_coord:
+            #for i in range(window_price_levels):
+            exec(f"price_label{prev_coord}['text'] = ladder_dict[prev_coord]")
+
+            exec(f"price_label{prev_coord}['bg'] = 'gray'")
+            exec(f"price_label{prev_coord}['fg'] = 'white'")
+            exec(f"buy_label{prev_coord}['bg'] = 'gainsboro'")
+            exec(f"sell_label{prev_coord}['bg'] = 'gainsboro'")
 
     prev_coord = coord
 
@@ -419,6 +438,7 @@ if __name__ == "__main__":
     title_instrument_info = "none"
 
     #Dom-related variables
+    vol_filter = 5
     dict_setup = False
     ladder_midpoint = 23
     subscribed_bool = False
@@ -426,6 +446,7 @@ if __name__ == "__main__":
     prev_coord = 0
     prices = {}
     coord = 0
+    last_trade = {"qty" : 0, "buyer" : False}
 
     ladder_dict = {}
     for i in range(window_price_levels):
