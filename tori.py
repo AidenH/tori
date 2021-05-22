@@ -107,7 +107,7 @@ def refresh():
         eval(blabel.format(i))["text"] = str(prices[ladder_dict[i]]["buy"])[:-2]
         eval(slabel.format(i))["text"] = str(prices[ladder_dict[i]]["sell"])[:-2]
         if prices[ladder_dict[i]]["order"] > 0:
-            eval(olabel.format(i))["text"] = str(prices[ladder_dict[i]]["order"])
+            eval(olabel.format(i))["text"] = str(f"%.{precision}f" % prices[ladder_dict[i]]["order"])
         else:
             eval(olabel.format(i))["text"] = ""
 
@@ -242,9 +242,8 @@ def place_order(coord):
         price = ladder_dict[coord]
 
         prices[price]["order"] += round(order_size, 2)
-        exec(f"order_label{coord}['text'] = prices[{price}]['order']")
-        print(f"Order placed at: {price}")
-        print(prices[price])
+        exec(f"order_label{coord}['text'] = '%.{precision}f' % prices[{price}]['order']")
+        print(f"Order {prices[price]['order']} placed at {price}")
 
 #CLASSES
 
@@ -293,7 +292,7 @@ class Ordercolumn(tk.Frame):
     global window_price_levels
 
     def __init__(self, master):
-        tk.Frame.__init__(self, master, bg="blue", width = wwidth / 20)
+        tk.Frame.__init__(self, master, bg="yellow", width = wwidth / 20)
         self.parent = master
 
         for i in range(window_price_levels):
@@ -487,6 +486,7 @@ if __name__ == "__main__":
     last_trade = {"qty" : 0, "buyer" : False}
 
     #trading variables
+    precision = 1
     order_size = 0.1
 
     ladder_dict = {}
