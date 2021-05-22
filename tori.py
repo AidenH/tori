@@ -256,6 +256,10 @@ def place_order(coord):
         print(f"Order {prices[price]['order']} placed at {price}")
 
 def get_orders():
+
+    #This all prints multiple times for some reason?
+
+    #result = request_client.get_balance_v2()
     result = request_client.get_all_orders(symbol=instrument)
     PrintMix.print_data(result)
 
@@ -355,15 +359,6 @@ price_label{i} = tk.Label(
                 bg = "gray"
             )
 price_label{i}.pack(fill="x")''')
-
-        '''highlight = tk.Label(
-            master = price_frame23,
-            text = "0",
-            font = font,
-            fg = "white",
-            bg = "blue",
-        )
-        highlight.place(y=-1, relwidth=1)'''
 
 class Volumecolumn(tk.Frame):
     global window_price_levels
