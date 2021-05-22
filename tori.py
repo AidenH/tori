@@ -19,7 +19,7 @@ def connect():
     subscribed_bool = True
 
     print("\nSubscribing... - " + time)
-    sub_client.subscribe_aggregate_trade_event(instrument, callback, error)
+    sub_client.subscribe_aggregate_trade_event(instrument, get_trades_callback, error)
 
 def disconnect():
     global title_instrument_info
@@ -31,7 +31,7 @@ def disconnect():
     sub_client.unsubscribe_all()
 
     #main subscription functionality
-def callback(data_type: 'SubscribeMessageType', event: 'any'):
+def get_trades_callback(data_type: 'SubscribeMessageType', event: 'any'):
     global dict_setup
     global prices
     global global_lastprice
@@ -80,6 +80,10 @@ def callback(data_type: 'SubscribeMessageType', event: 'any'):
 
     else:
         print("Unknown Data:")
+
+def user_data_callback(data_type: 'SubscribeMessageType', event: 'any'):
+    #grab user data here
+    pass
 
 def error(e: 'BinanceApiException'):
     print(e.error_code + e.error_message)
