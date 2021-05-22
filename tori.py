@@ -2,6 +2,7 @@ import websockets
 from datetime import datetime
 import tkinter as tk
 
+from binance_f import RequestClient
 from binance_f import SubscriptionClient
 from binance_f.constant.test import *
 from binance_f.model import *
@@ -20,6 +21,9 @@ def connect():
 
     print("\nSubscribing... - " + time)
     sub_client.subscribe_aggregate_trade_event(instrument, get_trades_callback, error)
+
+    print("Connecting to user data... - " + time)
+    #sub_client.subscribe_aggregate_trade_event(instrument, user_data_callback, error)
 
 def disconnect():
     global title_instrument_info
@@ -116,6 +120,8 @@ def refresh():
             eval(olabel.format(i))["text"] = ""
 
     print("Refresh - " + time)
+
+    get_orders()
 
     #volume cell update
 def volume_column_populate(clean):
@@ -248,6 +254,10 @@ def place_order(coord):
         prices[price]["order"] += round(order_size, 2)
         exec(f"order_label{coord}['text'] = '%.{precision}f' % prices[{price}]['order']")
         print(f"Order {prices[price]['order']} placed at {price}")
+
+def get_orders():
+    result = request_client.get_all_orders(symbol=instrument)
+    PrintMix.print_data(result)
 
 #CLASSES
 
@@ -498,6 +508,7 @@ if __name__ == "__main__":
         ladder_dict[i] = 0
 
     sub_client = SubscriptionClient(api_key=keys.api, secret_key=keys.secret)
+    request_client = RequestClient(api_key=keys.api, secret_key=keys.secret)
 
     #Window setup
     root = tk.Tk()
