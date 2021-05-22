@@ -58,11 +58,13 @@ def get_trades_callback(data_type: 'SubscribeMessageType', event: 'any'):
 
         #Populate price levels dictionary
         if dict_setup == False:
-            print("Set up dictionary - " + time + "\n")
-            for i in range(0, local_lastprice + local_lastprice):
-                prices[i] = {"volume" : 0, "buy" : 0, "sell" : 0, "order" : 0}   #only adding the total level volume information for the moment
             dict_setup = True
-            refresh()
+            print("Set up dictionary - " + time + "\n")
+
+            for i in range(0, local_lastprice + local_lastprice):
+                prices[i] = {"volume" : 0, "buy" : 0, "sell" : 0, "order" : {"side" : "", "qty" : 0}}   #only adding the total level volume information for the moment
+
+            highlight_trade_price()
             volume_column_populate(False)
             buy_column_populate(False)
             sell_column_populate(False)
@@ -114,14 +116,12 @@ def refresh():
         eval(vlabel.format(i))["text"] = str(prices[ladder_dict[i]]["volume"])[:-2]
         eval(blabel.format(i))["text"] = str(prices[ladder_dict[i]]["buy"])[:-2]
         eval(slabel.format(i))["text"] = str(prices[ladder_dict[i]]["sell"])[:-2]
-        if prices[ladder_dict[i]]["order"] > 0:
-            eval(olabel.format(i))["text"] = str(f"%.{precision}f" % prices[ladder_dict[i]]["order"])
+        if prices[ladder_dict[i]]["order"]['qty'] > 0:
+            eval(olabel.format(i))["text"] = str(f"%.{precision}f" % prices[ladder_dict[i]]["order"]["qty"])
         else:
             eval(olabel.format(i))["text"] = ""
 
     print("Refresh - " + time)
-
-    get_orders()
 
     #volume cell update
 def volume_column_populate(clean):
@@ -247,22 +247,23 @@ def clean_volume():
 
     print("clean volume - " + time)
 
+    get_orders()
+
 def place_order(coord):
     if subscribed_bool == True and dict_setup == True:
         price = ladder_dict[coord]
 
-        prices[price]["order"] += round(order_size, 2)
-        exec(f"order_label{coord}['text'] = '%.{precision}f' % prices[{price}]['order']")
-        print(f"Order {prices[price]['order']} placed at {price}")
+        prices[price]["order"]['qty'] += round(order_size, 2)
+        exec(f"order_label{coord}['text'] = '%.{precision}f' % prices[{price}]['order']['qty']")
+        print(f"Order {prices[price]['order']['qty']} placed at {price}")
+
+        #refresh order column here
 
 def get_orders():
+    open_orders = request_client.get_open_orders(symbol=instrument)
 
-    #This all prints multiple times for some reason?
-    #called in refresh() currently.
-
-    #result = request_client.get_balance_v2()
-    result = request_client.get_all_orders(symbol=instrument)
-    PrintMix.print_data(result)
+    for i in range(len(open_orders)):
+        print(open_orders[i].side, int(round(open_orders[i].price, 0)), open_orders[i].origQty)
 
 #CLASSES
 
@@ -498,6 +499,7 @@ if __name__ == "__main__":
     #trading variables
     precision = 1
     order_size = 0.1
+    open_orders = None
 
     ladder_dict = {}
     for i in range(window_price_levels):
