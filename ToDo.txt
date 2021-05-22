@@ -9,21 +9,21 @@ LAG
       so it just added more and more recursive functions firing with each cycle.)
 
 
-DONE -Build price axis grid
-DONE -Populate grid with price dictionary
-
 
 IDEAS
+
 DONE -Price ladder column cells as dictionary items???
     DONE -Would allow for more info to be stored about each.
 
 
 PRICE AXIS
-    -Make highlight_trade_price() activate on recenter/refresh, there are leftover highlights when function is called
 
+    DONE -Make highlight_trade_price() activate on recenter/refresh, there are leftover highlights when function is called
     DONE -Add selective auto-recenter
     DONE -Make highlighted price label actually reflect changing current price (not just stuck on the first price change on init)
     DONE -Make highlighted price move within column
+    DONE -Build price axis grid
+    DONE -Populate grid with price dictionary
 
 
 VOLUME COLUMN
@@ -31,4 +31,14 @@ VOLUME COLUMN
 
 
 TOOLBAR
+
     DONE -Add functionality to Recenter button
+
+ORDER COLUMN
+    -Implement Binance user account functionality
+        -Display account balance
+        -Display orders
+        -Add Buy
+        -Add Sell
+        -Cancel individual
+        -Cancel all
