@@ -258,6 +258,7 @@ def place_order(coord):
 def get_orders():
 
     #This all prints multiple times for some reason?
+    #called in refresh() currently.
 
     #result = request_client.get_balance_v2()
     result = request_client.get_all_orders(symbol=instrument)
