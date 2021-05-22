@@ -35,6 +35,10 @@ TOOLBAR
     DONE -Add functionality to Recenter button
 
 ORDER COLUMN
+    -Getting orders is very slow.
+        -get_open_orders() potentially being called multiple times?
+        -Need to stop it from printing the request data.
+
     -Implement Binance user account functionality
         -Display account balance
         -Display orders
