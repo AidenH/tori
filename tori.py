@@ -56,7 +56,7 @@ def callback(data_type: 'SubscribeMessageType', event: 'any'):
         if dict_setup == False:
             print("Set up dictionary - " + time + "\n")
             for i in range(0, local_lastprice + local_lastprice):
-                prices[i] = {"volume" : 0, "buy" : 0, "sell" : 0}   #only adding the total level volume information for the moment
+                prices[i] = {"volume" : 0, "buy" : 0, "sell" : 0, "order" : 0}   #only adding the total level volume information for the moment
             dict_setup = True
             refresh()
             volume_column_populate(False)
@@ -94,6 +94,7 @@ def refresh():
     vlabel = "volume_label{0}"
     blabel = "buy_label{0}"
     slabel = "sell_label{0}"
+    olabel = "order_label{0}"
 
     #populate the ladder cell dictionary
     for i in range(window_price_levels):
@@ -105,16 +106,12 @@ def refresh():
         eval(vlabel.format(i))["text"] = str(prices[ladder_dict[i]]["volume"])[:-2]
         eval(blabel.format(i))["text"] = str(prices[ladder_dict[i]]["buy"])[:-2]
         eval(slabel.format(i))["text"] = str(prices[ladder_dict[i]]["sell"])[:-2]
+        if prices[ladder_dict[i]]["order"] > 0:
+            eval(olabel.format(i))["text"] = str(prices[ladder_dict[i]]["order"])
+        else:
+            eval(olabel.format(i))["text"] = ""
 
     print("Refresh - " + time)
-
-    #volume_column_populate(True)
-
-    #OLD, bad performance
-    '''for i in range(window_price_levels):
-        global_lastprice["coordinate"] = ladder_midpoint
-        exec(f"price_label{i}['text'] = str((global_lastprice['price']-ladder_midpoint)+{i})")
-        #each label is referenced around the 23th (middle) row price level'''
 
     #volume cell update
 def volume_column_populate(clean):
@@ -240,9 +237,14 @@ def clean_volume():
 
     print("clean volume - " + time)
 
-def test(i):
-    exec(f"order_label{i}['text'] = '0.1'")
-    print(f"clickable: {i}")
+def place_order(coord):
+    if subscribed_bool == True and dict_setup == True:
+        price = ladder_dict[coord]
+
+        prices[price]["order"] += round(order_size, 2)
+        exec(f"order_label{coord}['text'] = prices[{price}]['order']")
+        print(f"Order placed at: {price}")
+        print(prices[price])
 
 #CLASSES
 
@@ -312,7 +314,7 @@ order_label{i} = tk.Label(
             bg = "gainsboro"
         )
 order_label{i}.pack(fill="x")
-order_label{i}.bind("<Button-1>", lambda e: test({i}))''')
+order_label{i}.bind("<Button-1>", lambda e: place_order({i}))''')
 
 class Priceaxis(tk.Frame):
     def __init__(self, master):
@@ -483,6 +485,9 @@ if __name__ == "__main__":
     prices = {}
     coord = 0
     last_trade = {"qty" : 0, "buyer" : False}
+
+    #trading variables
+    order_size = 0.1
 
     ladder_dict = {}
     for i in range(window_price_levels):
