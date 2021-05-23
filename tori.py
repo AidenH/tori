@@ -25,7 +25,7 @@ def connect():
     print("\nSubscribing... - " + time)
     sub_client.subscribe_aggregate_trade_event(instrument, get_trades_callback, error)
 
-    print("Connecting to user data... - " + time)
+    print("Connecting to user data stream... - " + time)
     #sub_client.subscribe_aggregate_trade_event(instrument, user_data_callback, error)
 
 def disconnect():
@@ -60,7 +60,6 @@ def get_trades_callback(data_type: 'SubscribeMessageType', event: 'any'):
         global_lastprice = int(round(event.price, 0))   #set current global_lastprice
         local_lastprice = global_lastprice #set local price variable
         title_instrument_info = instrument + " " + str(local_lastprice) #update window title ticker info
-        #print(str(local_lastprice) + " " + str(event.time))   #log price & time to console
 
         #Populate price levels dictionary
         if dict_setup == False:
@@ -77,7 +76,6 @@ def get_trades_callback(data_type: 'SubscribeMessageType', event: 'any'):
 
             get_orders_process.start()
             orders_process_listener_thread.start()
-            #main.priceaxis.highlight_trade_price(local_lastprice)
 
         prices[local_lastprice]["volume"] += round(event.qty, 0)   #add event order quantity to price volume dict key
         last_trade["qty"] = int(round(event.qty, 0))
@@ -90,8 +88,6 @@ def get_trades_callback(data_type: 'SubscribeMessageType', event: 'any'):
             #if seller
             last_trade["buyer"] = False
             prices[local_lastprice]["sell"] += round(event.qty, 0)
-
-        #print("cum. qty.: " + str(int(prices[local_lastprice]["volume"])))
 
     else:
         print("Unknown Data:")
@@ -260,7 +256,16 @@ def place_order(coord):
     if subscribed_bool == True and dict_setup == True:
         price = ladder_dict[coord]
 
-        prices[price]["order"]['qty'] += round(order_size, 2)
+        #Send order to binance
+        result = request_client.post_order(symbol=instrument, side=OrderSide.BUY,
+            ordertype=OrderType.LIMIT, price=price, quantity=order_size, timeInForce=TimeInForce.GTC,)
+
+        if result:
+            PrintBasic.print_obj(result)
+
+        #Refresh order column -OR- write value to specific order column cell
+
+        #prices[price]["order"]['qty'] += round(order_size, 2)
         exec(f"order_label{coord}['text'] = '%.{precision}f' % prices[{price}]['order']['qty']")
         print(f"Order {prices[price]['order']['qty']} placed at {price}")
 
@@ -336,7 +341,7 @@ class Ordercolumn(tk.Frame):
     global window_price_levels
 
     def __init__(self, master):
-        tk.Frame.__init__(self, master, bg="yellow", width = wwidth / 20)
+        tk.Frame.__init__(self, master, bg="yellow", width = wwidth / 15)
         self.parent = master
 
         for i in range(window_price_levels):
@@ -522,7 +527,7 @@ if __name__ == "__main__":
 
     #trading variables
     precision = 1
-    order_size = 0.1
+    order_size = 0.01
     open_orders = None
 
     ladder_dict = {}
