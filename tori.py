@@ -529,7 +529,7 @@ if __name__ == "__main__":
     sub_client = SubscriptionClient(api_key=keys.api, secret_key=keys.secret)
     request_client = RequestClient(api_key=keys.api, secret_key=keys.secret)
 
-    queue = multiprocessing.Queue()
+    queue = multiprocessing.Manager().Queue()
 
     get_orders_process = multiprocessing.Process(target=get_orders, args=(queue, instrument, request_client,))
     orders_process_listener_thread = threading.Thread(target=orders_process_listener)
