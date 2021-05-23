@@ -3,7 +3,7 @@ from datetime import datetime
 import tkinter as tk
 import multiprocessing
 import threading
-import time
+import time as t
 
 from binance_f import RequestClient
 from binance_f import SubscriptionClient
@@ -27,6 +27,7 @@ def connect():
 
     print("Connecting to user data stream... - " + time)
     #sub_client.subscribe_aggregate_trade_event(instrument, user_data_callback, error)
+    pass
 
 def disconnect():
     global title_instrument_info
@@ -39,6 +40,7 @@ def disconnect():
 
     #get_orders_process.terminate()
     #orders_process_listener_thread.join()
+    pass
 
     #main subscription functionality
 def get_trades_callback(data_type: 'SubscribeMessageType', event: 'any'):
@@ -209,7 +211,7 @@ def highlight_trade_price():
 
     prev_coord = coord
 
-    if dict_setup == True and (coord < 5 or coord > (window_price_levels-5)):
+    if dict_setup == True and (coord < 6 or coord > (window_price_levels-6)):
         refresh()
 
     root.after(100, highlight_trade_price)
@@ -238,15 +240,17 @@ def place_order(coord):
             ordertype=OrderType.LIMIT, price=price, quantity=order_size, timeInForce=TimeInForce.GTC,)
 
         if result:
-            PrintBasic.print_obj(result)
+            #PrintBasic.print_obj(result)
+            pass
 
-        #Refresh order column -OR- write value to specific order column cell
+        print(f"Order {order_size} sent to exchange at {price}")
 
-        exec(f"order_label{coord}['text'] = '%.{precision}f' % prices[{price}]['order']['qty']")
-        print(f"Order {prices[price]['order']['qty']} placed at {price}")
-
+#Process
 def get_orders(q, instrument, request_client):
     orders = {}
+
+    '''for i in range(5):
+        q.put("a")'''
 
     while 1 != 0:
         open_orders = request_client.get_open_orders(symbol=instrument)
@@ -255,16 +259,42 @@ def get_orders(q, instrument, request_client):
             orders[i] = {"price" : int(round(open_orders[i].price, 0)), "side" : open_orders[i].side,
                 "qty" : open_orders[i].origQty}
             q.put(orders)
-        time.sleep(0.2)
+        t.sleep(0.2)
 
+#Thread
 def orders_process_listener():
-    response = queue.get()
+    for i in range(window_price_levels):
+        price = ladder_dict[i]
+        print(f"{price}: {prices[price]['order']['qty']}")
 
-    for i in range(len(response)):
-        prices[response[i]["price"]]["order"]["side"] = response[i]["side"]
-        prices[response[i]["price"]]["order"]["qty"] = response[i]["qty"]
+        if prices[price]["order"]["qty"] > 0:
+            #originally from place_order
+            exec(f"order_label{i}['text'] = '%.{precision}f' % prices[{price}]['order']['qty']")
+        else:
+            exec(f"order_label{i}['text'] = ''")
 
-    print(f"Thread: {response}")
+    while True:
+        response = queue.get()
+        if response is None:
+            break
+
+        for i in range(len(response)):
+            prices[response[i]["price"]]["order"]["side"] = response[i]["side"]
+            prices[response[i]["price"]]["order"]["qty"] = response[i]["qty"]
+
+        for i in range(window_price_levels):
+            price = ladder_dict[i]
+            print(f"{price}: {prices[price]['order']['qty']}")
+
+            if prices[price]["order"]["qty"] > 0:
+                #originally from place_order
+                exec(f"order_label{i}['text'] = '%.{precision}f' % prices[{price}]['order']['qty']")
+            else:
+                exec(f"order_label{i}['text'] = ''")
+
+        print(f"Thread: {response}")
+        t.sleep(0.5)
+
     root.after(500, orders_process_listener)
 
 #CLASSES
@@ -503,7 +533,7 @@ if __name__ == "__main__":
     last_trade = {"qty" : 0, "buyer" : False}
 
     #Trading variables
-    precision = 1
+    precision = 2
     order_size = 0.01
     open_orders = None
 
