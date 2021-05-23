@@ -145,10 +145,6 @@ def volume_column_populate(clean):
             #print(str(prices[ladder_dict[i]]["volume"]))
             eval(label.format(i))["text"] = str(prices[ladder_dict[i]]["volume"])[:-2]'''
 
-        #OLD, poor performance
-        #exec(f"volume_label{i}['text'] = str(int(prices[global_lastprice-ladder_midpoint+{i}]['volume']))")
-        #needs to only recenter when price axis recenters!
-
     if clean == False:
         root.after(100, volume_column_populate, False)
 
@@ -162,15 +158,6 @@ def buy_column_populate(clean):
 
     eval(label.format(coord))["text"] = str(prices[ladder_dict[coord]]["buy"])[:-2]
 
-    '''for i in range(0, window_price_levels):
-        if subscribed_bool == True:
-            #print(str(prices[ladder_dict[i]]["volume"]))
-            eval(label.format(i))["text"] = str(prices[ladder_dict[i]]["buy"])[:-2]'''
-
-        #OLD, poor performance
-        #exec(f"volume_label{i}['text'] = str(int(prices[global_lastprice-ladder_midpoint+{i}]['volume']))")
-        #needs to only recenter when price axis recenters!
-
     if clean == False:
         root.after(100, buy_column_populate, False)
 
@@ -183,16 +170,6 @@ def sell_column_populate(clean):
     label = "sell_label{0}"
 
     eval(label.format(coord))["text"] = str(prices[ladder_dict[coord]]["sell"])[:-2]
-
-    '''for i in range(0, window_price_levels):
-        if subscribed_bool == True:
-            #print(str(prices[ladder_dict[i]]["volume"]))
-            eval(label.format(i))["text"] = str(prices[ladder_dict[i]]["sell"])[:-2]
-        '''
-
-        #OLD, poor performance
-        #exec(f"volume_label{i}['text'] = str(int(prices[global_lastprice-ladder_midpoint+{i}]['volume']))")
-        #needs to only recenter when price axis recenters!
 
     if clean == False:
         root.after(100, sell_column_populate, False)
@@ -265,12 +242,8 @@ def place_order(coord):
 
         #Refresh order column -OR- write value to specific order column cell
 
-        #prices[price]["order"]['qty'] += round(order_size, 2)
         exec(f"order_label{coord}['text'] = '%.{precision}f' % prices[{price}]['order']['qty']")
         print(f"Order {prices[price]['order']['qty']} placed at {price}")
-
-        #refresh order column here
-        pass
 
 def get_orders(q, instrument, request_client):
     orders = {}
