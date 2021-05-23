@@ -265,18 +265,26 @@ def place_order(coord):
         pass
 
 def get_orders(q, instrument, request_client):
+    orders = {}
+
     while 1 != 0:
         open_orders = request_client.get_open_orders(symbol=instrument)
         for i in range(len(open_orders)):
-            print(open_orders[i].side, int(round(open_orders[i].price, 0)), open_orders[i].origQty)
-            q.put([open_orders[i].side, int(round(open_orders[i].price, 0)), open_orders[i].origQty])
+            print("process: ", open_orders[i].side, int(round(open_orders[i].price, 0)), open_orders[i].origQty)
+            orders[i] = {"price" : int(round(open_orders[i].price, 0)), "side" : open_orders[i].side,
+                "qty" : open_orders[i].origQty}
+            q.put(orders)
         time.sleep(0.2)
 
 def orders_process_listener():
-    #This is causing BIG freeze!
-    a = queue.get()
-    print(a)
-    root.after(200, orders_process_listener)
+    response = queue.get()
+
+    for i in range(len(response)):
+        prices[response[i]["price"]]["order"]["side"] = response[i]["side"]
+        prices[response[i]["price"]]["order"]["qty"] = response[i]["qty"]
+
+    print(f"Thread: {response}")
+    root.after(500, orders_process_listener)
 
 #CLASSES
 
