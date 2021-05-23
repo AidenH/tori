@@ -449,6 +449,10 @@ class MainApplication(tk.Frame):
         #toolbars
         self.toolbar = Toolbar(self)
         self.toolbar.pack(side="top", fill="x")
+        #Need to add:
+            #Menu bar
+            #Account info toolbar
+            #Order/position parameters and info
 
         #columns
         self.ordercolumn = Ordercolumn(self)
@@ -498,7 +502,7 @@ if __name__ == "__main__":
     coord = 0
     last_trade = {"qty" : 0, "buyer" : False}
 
-    #trading variables
+    #Trading variables
     precision = 1
     order_size = 0.01
     open_orders = None
