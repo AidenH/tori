@@ -37,6 +37,9 @@ def disconnect():
     print("\n\nDisconnected.\n")
     sub_client.unsubscribe_all()
 
+    #get_orders_process.terminate()
+    #orders_process_listener_thread.join()
+
     #main subscription functionality
 def get_trades_callback(data_type: 'SubscribeMessageType', event: 'any'):
     global dict_setup
