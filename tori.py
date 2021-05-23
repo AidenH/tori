@@ -1,6 +1,8 @@
 import websockets
 from datetime import datetime
 import tkinter as tk
+import multiprocessing
+import time
 
 from binance_f import RequestClient
 from binance_f import SubscriptionClient
@@ -68,6 +70,8 @@ def get_trades_callback(data_type: 'SubscribeMessageType', event: 'any'):
             volume_column_populate(False)
             buy_column_populate(False)
             sell_column_populate(False)
+
+            get_orders_process.start()
             #main.priceaxis.highlight_trade_price(local_lastprice)
 
         prices[local_lastprice]["volume"] += round(event.qty, 0)   #add event order quantity to price volume dict key
@@ -247,8 +251,6 @@ def clean_volume():
 
     print("clean volume - " + time)
 
-    get_orders()
-
 def place_order(coord):
     if subscribed_bool == True and dict_setup == True:
         price = ladder_dict[coord]
@@ -258,9 +260,15 @@ def place_order(coord):
         print(f"Order {prices[price]['order']['qty']} placed at {price}")
 
         #refresh order column here
+        pass
 
-def get_orders():
-    open_orders = request_client.get_open_orders(symbol=instrument)
+def get_orders(q, instrument, request_client):
+    while 1 != 0:
+        open_orders = request_client.get_open_orders(symbol=instrument)
+        for i in range(len(open_orders)):
+            print(open_orders[i].side, int(round(open_orders[i].price, 0)), open_orders[i].origQty)
+            q.put([open_orders[i].side, int(round(open_orders[i].price, 0)), open_orders[i].origQty])
+        time.sleep(0.2)
 
     for i in range(len(open_orders)):
         print(open_orders[i].side, int(round(open_orders[i].price, 0)), open_orders[i].origQty)
@@ -508,6 +516,8 @@ if __name__ == "__main__":
     sub_client = SubscriptionClient(api_key=keys.api, secret_key=keys.secret)
     request_client = RequestClient(api_key=keys.api, secret_key=keys.secret)
 
+    queue = multiprocessing.Queue()
+    get_orders_process = multiprocessing.Process(target=get_orders, args=(queue, instrument, request_client,))
     #Window setup
     root = tk.Tk()
     root.geometry(str(wwidth)+"x"+str(wheight))
