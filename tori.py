@@ -273,6 +273,7 @@ def get_orders(q, instrument, request_client):
         time.sleep(0.2)
 
 def orders_process_listener():
+    #This is causing BIG freeze!
     a = queue.get()
     print(a)
     root.after(200, orders_process_listener)
