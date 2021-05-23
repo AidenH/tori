@@ -2,6 +2,7 @@ import websockets
 from datetime import datetime
 import tkinter as tk
 import multiprocessing
+import threading
 import time
 
 from binance_f import RequestClient
@@ -72,6 +73,7 @@ def get_trades_callback(data_type: 'SubscribeMessageType', event: 'any'):
             sell_column_populate(False)
 
             get_orders_process.start()
+            orders_process_listener_thread.start()
             #main.priceaxis.highlight_trade_price(local_lastprice)
 
         prices[local_lastprice]["volume"] += round(event.qty, 0)   #add event order quantity to price volume dict key
@@ -270,8 +272,10 @@ def get_orders(q, instrument, request_client):
             q.put([open_orders[i].side, int(round(open_orders[i].price, 0)), open_orders[i].origQty])
         time.sleep(0.2)
 
-    for i in range(len(open_orders)):
-        print(open_orders[i].side, int(round(open_orders[i].price, 0)), open_orders[i].origQty)
+def orders_process_listener():
+    a = queue.get()
+    print(a)
+    root.after(200, orders_process_listener)
 
 #CLASSES
 
@@ -517,7 +521,10 @@ if __name__ == "__main__":
     request_client = RequestClient(api_key=keys.api, secret_key=keys.secret)
 
     queue = multiprocessing.Queue()
+
     get_orders_process = multiprocessing.Process(target=get_orders, args=(queue, instrument, request_client,))
+    orders_process_listener_thread = threading.Thread(target=orders_process_listener)
+
     #Window setup
     root = tk.Tk()
     root.geometry(str(wwidth)+"x"+str(wheight))
@@ -531,3 +538,5 @@ if __name__ == "__main__":
     highlight_trade_price()
 
     root.mainloop()
+
+    orders_process_listener_thread.join()
