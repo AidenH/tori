@@ -60,20 +60,22 @@ def get_trades_callback(data_type: 'SubscribeMessageType', event: 'any'):
         print("EventID: ", event)
 
     elif data_type == SubscribeMessageType.PAYLOAD:
-        #PrintBasic.print_obj(event)    #keep for full aggtrade payload example
+        PrintBasic.print_obj(event)    #keep for full aggtrade payload example
 
         global_lastprice = int(round(event.price, 0))   #set current global_lastprice
         local_lastprice = global_lastprice #set local price variable
         title_instrument_info = instrument + " " + str(local_lastprice) #update window title ticker info
 
+        print(global_lastprice)
         #Populate price levels dictionary
         if dict_setup == False:
-            dict_setup = True
             print("Set up dictionary - " + time + "\n")
 
             for i in range(0, local_lastprice + local_lastprice):
                 prices[i] = {"volume" : 0, "buy" : 0, "sell" : 0}   #only adding the total level volume information for the moment
                 #prices[i] = {"volume" : 0, "buy" : 0, "sell" : 0, "orders" : {}}
+
+            dict_setup = True
 
             highlight_trade_price()
             volume_column_populate(False)
@@ -100,8 +102,18 @@ def user_data_callback(data_type: 'SubscribeMessageType', event: 'any'):
         print("EventID: ", event)
 
     elif data_type == SubscribeMessageType.PAYLOAD:
-        print("event")
+        print("event------------------")
         PrintBasic.print_obj(event)
+        print("-----------------------")
+
+        if event.eventType == "ORDER_TRADE_UPDATE" and event.orderStatus == "NEW":
+            open_orders[event.orderId] = {"price" : event.price, "side" : event.side, "qty" : event.origQty}
+            print(f"Order {event.side} {event.origQty} at {int(event.price)} placed.")
+
+        if event.eventType == "ACCOUNT_UPDATE":
+            print("-----------POSITIONS-------------")
+            PrintBasic.print_obj(event.positions)
+            print("---------------------------------")
 
     else:
         print("Unknown Data:")
@@ -195,6 +207,7 @@ def highlight_trade_price():
 
     #highlight["text"] = global_lastprice
     #highlight["master"] = price_frame2     #this would be ideal
+
     if dict_setup == True:
         if last_trade["qty"] > vol_filter:
             exec(f"price_label{coord}['text'] = last_trade['qty']")
@@ -247,10 +260,6 @@ def place_order(coord):
         result = request_client.post_order(symbol=instrument, side=OrderSide.BUY,
             ordertype=OrderType.LIMIT, price=price, quantity=order_size, timeInForce=TimeInForce.GTC,)
 
-        open_orders[result.orderId] = {"price" : result.price, "side" : result.side, "qty" : result.origQty}
-
-        print(open_orders)
-
         print(f"Order {order_size} sent to exchange at {price}")
 
 def cancel_order(coord):
@@ -266,25 +275,27 @@ def cancel_order(coord):
                 open_orders.pop(i, None)
                 eval(label.format(coord))["text"] = ""
 
-        #Send cancel to binance
+        print(f"after cancel: {open_orders}")
+
+        #cancel all:
         #result = request_client.post_order(symbol=instrument, side=OrderSide.BUY,
             #ordertype=OrderType.LIMIT, price=price, quantity=order_size, timeInForce=TimeInForce.GTC,)
 
 #Thread
-def orders_listener():
+def listener():
     label = "order_label{0}"
 
     if subscribed_bool == True and dict_setup == True:
         print(f"\nlistener - open orders: {open_orders}")
 
-        for i in list(open_orders):
+        for i in open_orders:
             print(f"i ======= {open_orders[i]['price']}")
             coord = int(price_label0["text"]) - int(open_orders[i]["price"])
             print(coord)
             if coord >= 0 and coord <= 49:
                 eval(label.format(coord))["text"] = str(open_orders[i]["qty"])
 
-    root.after(500, orders_listener)
+    root.after(500, listener)
 
 #CLASSES
 
@@ -534,7 +545,7 @@ if __name__ == "__main__":
     sub_client = SubscriptionClient(api_key=keys.api, secret_key=keys.secret)
     request_client = RequestClient(api_key=keys.api, secret_key=keys.secret)
 
-    orders_listener_thread = threading.Thread(target=orders_listener)
+    listener_thread = threading.Thread(target=listener)
 
     #Window setup
     root = tk.Tk()
@@ -548,9 +559,9 @@ if __name__ == "__main__":
 
     print("Ready to connect.")
 
-    highlight_trade_price()
-    orders_listener_thread.start()
+    #highlight_trade_price()
+    listener_thread.start()
 
     root.mainloop()
 
-    orders_listener_thread.join()
+    listener_thread.join()
