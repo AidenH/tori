@@ -80,8 +80,6 @@ def get_trades_callback(data_type: 'SubscribeMessageType', event: 'any'):
             buy_column_populate(False)
             sell_column_populate(False)
 
-            orders_listener_thread.start()
-
         prices[local_lastprice]["volume"] += round(event.qty, 0)   #add event order quantity to price volume dict key
         last_trade["qty"] = int(round(event.qty, 0))
 
@@ -276,14 +274,15 @@ def cancel_order(coord):
 def orders_listener():
     label = "order_label{0}"
 
-    print(f"listener - open orders: {open_orders}")
+    if subscribed_bool == True and dict_setup == True:
+        print(f"\nlistener - open orders: {open_orders}")
 
-    for i in list(open_orders):
-        print(f"i ======= {open_orders[i]['price']}")
-        coord = int(price_label0["text"]) - int(open_orders[i]["price"])
-        print(coord)
-        if coord >= 0 and coord <= 49:
-            eval(label.format(coord))["text"] = str(open_orders[i]["qty"])
+        for i in list(open_orders):
+            print(f"i ======= {open_orders[i]['price']}")
+            coord = int(price_label0["text"]) - int(open_orders[i]["price"])
+            print(coord)
+            if coord >= 0 and coord <= 49:
+                eval(label.format(coord))["text"] = str(open_orders[i]["qty"])
 
     root.after(500, orders_listener)
 
@@ -550,6 +549,7 @@ if __name__ == "__main__":
     print("Ready to connect.")
 
     highlight_trade_price()
+    orders_listener_thread.start()
 
     root.mainloop()
 
