@@ -80,8 +80,7 @@ def get_trades_callback(data_type: 'SubscribeMessageType', event: 'any'):
             buy_column_populate(False)
             sell_column_populate(False)
 
-            #get_orders_process.start()
-            #orders_process_listener_thread.start()
+            orders_listener_thread.start()
 
         prices[local_lastprice]["volume"] += round(event.qty, 0)   #add event order quantity to price volume dict key
         last_trade["qty"] = int(round(event.qty, 0))
@@ -252,64 +251,41 @@ def place_order(coord):
 
         open_orders[result.orderId] = {"price" : result.price, "side" : result.side, "qty" : result.origQty}
 
-        print(prices[price]["orders"])
+        print(open_orders)
 
         print(f"Order {order_size} sent to exchange at {price}")
 
 def cancel_order(coord):
     if subscribed_bool == True and dict_setup == True:
         price = ladder_dict[coord]
+        label = "order_label{0}"
 
-        print(f"before: {prices[price]['orders']}")
-        for i in list(prices[price]["orders"]):
-            request_client.cancel_order(symbol=instrument, orderId=i)
-            prices[price]["orders"].pop(i, None)
-            print(f"after: {prices[price]['orders']}")
+        for i in list(open_orders):
+            if open_orders[i]["price"] == price:
+                coord = int(price_label0["text"]) - int(open_orders[i]["price"])
+
+                request_client.cancel_order(symbol=instrument, orderId=i)
+                open_orders.pop(i, None)
+                eval(label.format(coord))["text"] = ""
 
         #Send cancel to binance
         #result = request_client.post_order(symbol=instrument, side=OrderSide.BUY,
             #ordertype=OrderType.LIMIT, price=price, quantity=order_size, timeInForce=TimeInForce.GTC,)
 
-#Process
-'''def get_orders(q, instrument, request_client):
-    orders = {}
-
-    #for i in range(5):
-        #q.put("a")
-
-    while 1 != 0:
-        open_orders = request_client.get_open_orders(symbol=instrument)
-        for i in range(len(open_orders)):
-            print("process: ", open_orders[i].side, int(round(open_orders[i].price, 0)), open_orders[i].origQty)
-            orders[i] = {"price" : int(round(open_orders[i].price, 0)), "side" : open_orders[i].side,
-                "qty" : open_orders[i].origQty}
-            q.put(orders)
-        t.sleep(0.2)
-
 #Thread
-def orders_process_listener():
-    response = {}
-    try:
-        response = queue.get(block=False)
-    except:
-        pass
+def orders_listener():
+    label = "order_label{0}"
 
-    for i in range(len(response)):
-        prices[response[i]["price"]]["order"]["side"] = response[i]["side"]
-        prices[response[i]["price"]]["order"]["qty"] = response[i]["qty"]
+    print(f"listener - open orders: {open_orders}")
 
-    for i in range(window_price_levels):
-        price = ladder_dict[i]
-        #print(f"{price}: {prices[price]['order']['qty']}")
+    for i in list(open_orders):
+        print(f"i ======= {open_orders[i]['price']}")
+        coord = int(price_label0["text"]) - int(open_orders[i]["price"])
+        print(coord)
+        if coord >= 0 and coord <= 49:
+            eval(label.format(coord))["text"] = str(open_orders[i]["qty"])
 
-        if prices[price]["order"]["qty"] > 0:
-            #originally from place_order
-            exec(f"order_label{i}['text'] = '%.{precision}f' % prices[{price}]['order']['qty']")
-        else:
-            exec(f"order_label{i}['text'] = ''")
-            print(f"{price} - empty - {time}")
-
-    root.after(500, orders_process_listener)'''
+    root.after(500, orders_listener)
 
 #CLASSES
 
@@ -358,7 +334,7 @@ class Ordercolumn(tk.Frame):
     global window_price_levels
 
     def __init__(self, master):
-        tk.Frame.__init__(self, master, bg="yellow", width = wwidth / 15)
+        tk.Frame.__init__(self, master, bg="yellow", width = wwidth / 5)
         self.parent = master
 
         for i in range(window_price_levels):
@@ -559,10 +535,7 @@ if __name__ == "__main__":
     sub_client = SubscriptionClient(api_key=keys.api, secret_key=keys.secret)
     request_client = RequestClient(api_key=keys.api, secret_key=keys.secret)
 
-    #queue = multiprocessing.Manager().Queue()
-
-    #get_orders_process = multiprocessing.Process(target=get_orders, args=(queue, instrument, request_client,))
-    #orders_process_listener_thread = threading.Thread(target=orders_process_listener)
+    orders_listener_thread = threading.Thread(target=orders_listener)
 
     #Window setup
     root = tk.Tk()
@@ -580,4 +553,4 @@ if __name__ == "__main__":
 
     root.mainloop()
 
-    #orders_process_listener_thread.join()
+    orders_listener_thread.join()
