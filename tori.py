@@ -1,4 +1,3 @@
-#import websockets
 import requests
 from datetime import datetime
 import tkinter as tk
@@ -29,7 +28,9 @@ def connect():
     print("Connecting to user data stream... - " + time)
     listenkey = request_client.start_user_data_stream()
     sub_client.subscribe_user_data_event(listenkey, user_data_callback, error)
+
     #Add keepalive?
+    pass
 
 def disconnect():
     global title_instrument_info
@@ -71,7 +72,8 @@ def get_trades_callback(data_type: 'SubscribeMessageType', event: 'any'):
             print("Set up dictionary - " + time + "\n")
 
             for i in range(0, local_lastprice + local_lastprice):
-                prices[i] = {"volume" : 0, "buy" : 0, "sell" : 0, "orders" : {}}   #only adding the total level volume information for the moment
+                prices[i] = {"volume" : 0, "buy" : 0, "sell" : 0}   #only adding the total level volume information for the moment
+                #prices[i] = {"volume" : 0, "buy" : 0, "sell" : 0, "orders" : {}}
 
             highlight_trade_price()
             volume_column_populate(False)
@@ -248,7 +250,7 @@ def place_order(coord):
         result = request_client.post_order(symbol=instrument, side=OrderSide.BUY,
             ordertype=OrderType.LIMIT, price=price, quantity=order_size, timeInForce=TimeInForce.GTC,)
 
-        prices[price]["orders"][result.orderId] = {"price" : result.price, "side" : result.side, "qty" : result.origQty}
+        open_orders[result.orderId] = {"price" : result.price, "side" : result.side, "qty" : result.origQty}
 
         print(prices[price]["orders"])
 
@@ -548,7 +550,7 @@ if __name__ == "__main__":
     #Trading variables
     precision = 2
     order_size = 0.01
-    open_orders = None
+    open_orders = {}
 
     ladder_dict = {}
     for i in range(window_price_levels):
