@@ -85,7 +85,7 @@ price_axis_frame = tk.Frame(
     master = window,
     width = wwidth / 5,
     height = wheight,
-    bg = "red",
+    bg = "gray",
 )
 
 #tkinter packs
