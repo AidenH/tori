@@ -66,17 +66,22 @@ def get_trades_callback(data_type: 'SubscribeMessageType', event: 'any'):
         local_lastprice = global_lastprice #set local price variable
         title_instrument_info = instrument + " " + str(local_lastprice) #update window title ticker info
 
-        print(global_lastprice)
         #Populate price levels dictionary
         if dict_setup == False:
             print("Set up dictionary - " + time + "\n")
 
             for i in range(0, local_lastprice + local_lastprice):
                 prices[i] = {"volume" : 0, "buy" : 0, "sell" : 0}   #only adding the total level volume information for the moment
-                #prices[i] = {"volume" : 0, "buy" : 0, "sell" : 0, "orders" : {}}
+
+            #This and refresh() for us to have a midpoint coord on first startup
+            #   in order to avoid refresh() spamming because highlight_trade_price hasn't received
+            #   a coord over the auto-recenter trigger
+            price_label0["text"] = global_lastprice+ladder_midpoint
+            coord = int(price_label0["text"]) - global_lastprice
 
             dict_setup = True
 
+            refresh()
             highlight_trade_price()
             volume_column_populate(False)
             buy_column_populate(False)
