@@ -226,11 +226,6 @@ def highlight_trade_price():
     global coord
     global prev_coord
     global last_trade
-    #coord = int(price_label0["text"]) - global_lastprice
-    #label = 'price_label{0}["{1}"] = "blue"'
-
-    #highlight["text"] = global_lastprice
-    #highlight["master"] = price_frame2     #this would be ideal
 
     if dict_setup == True:
         #If there is an open position, mark it at entry_coord location
