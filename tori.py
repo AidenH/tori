@@ -297,7 +297,7 @@ def clean_volume():
     print("clean volume - " + time)
 
 def place_order(coord):
-    if subscribed_bool == True and dict_setup == True:
+    if subscribed_bool == True and dict_setup == True and trade_mode == True:
         price = ladder_dict[coord]
 
         #Send order to binance
@@ -307,7 +307,7 @@ def place_order(coord):
         print(f"Order {order_size} sent to exchange at {price}")
 
 def cancel_order(coord):
-    if subscribed_bool == True and dict_setup == True:
+    if subscribed_bool == True and dict_setup == True and trade_mode == True:
         price = ladder_dict[coord]
         label = "order_label{0}"
         print(price)
