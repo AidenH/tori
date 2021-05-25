@@ -346,10 +346,10 @@ def listener():
             #check whether pnl should be in point mode or cash mode
             if pnl_point_mode == False:
                 pnllabel["text"] = "PnL: " + str(open_position["pnl"])
-                print(f"{open_position}")
             else:
                 pnllabel["text"] = "PnL: " + str(global_lastprice - open_position["entry"]) + "pt"
-                print(f"{open_position}")
+
+            positionlabel["text"] = f"Position: {open_position['qty']}"
 
         #SHORT
         elif open_position["qty"] < 0:
@@ -357,8 +357,8 @@ def listener():
 
         #NO POSITION
         else:
+            positionlabel["text"] = "Position: ---"
             pnllabel["text"] = "PnL: ---"
-            print("PnL: ---")
 
     root.after(500, listener)
 
@@ -425,6 +425,7 @@ class Tradetools(tk.Frame):
 
         global trademodebutton
         global pnllabel
+        global positionlabel
 
         trademodebutton = tk.Button(
             master = self,
@@ -444,14 +445,21 @@ class Tradetools(tk.Frame):
             bg = "whitesmoke"
         )
 
+        positionlabel = tk.Label(
+            master = self,
+            text = "Position: ---",
+            bg = "silver"
+        )
+
         pnllabel = tk.Label(
             master = self,
-            text = "---",
+            text = "PnL: ---",
             bg = "silver"
         )
 
         trademodebutton.pack(side="top", pady=5)
         cancelallbutton.pack(side="top", pady=5)
+        positionlabel.pack(side="top")
         pnllabel.pack(side="top")
 
 class Ordercolumn(tk.Frame):
