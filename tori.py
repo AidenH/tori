@@ -321,23 +321,33 @@ def listener():
     label = "order_label{0}"
 
     if subscribed_bool == True and dict_setup == True:
-        #print(f"\nlistener - open orders: {open_orders}")
 
         for i in open_orders:
-            #print(f"i ======= {open_orders[i]['price']}")
             coord = int(price_label0["text"]) - int(open_orders[i]["price"])
-            #print(coord)
             if coord >= 0 and coord <= 49:
                 eval(label.format(coord))["text"] = str(open_orders[i]["qty"])
 
-        if open_position["qty"] > 0: #LONG
+        #LONG
+        if open_position["qty"] > 0:
             open_position["pnl"] = round((global_lastprice * open_position["qty"])
                 - (open_position["entry"] * open_position["qty"]), 3)
-            print(f"{open_position}")
-        elif open_position["qty"] < 0:  #SHORT
+
+            #check whether pnl should be in point mode or cash mode
+            if pnl_point_mode == False:
+                pnllabel["text"] = "PnL: " + str(open_position["pnl"])
+                print(f"{open_position}")
+            else:
+                pnllabel["text"] = "PnL: " + str(global_lastprice - open_position["entry"]) + "pt"
+                print(f"{open_position}")
+
+        #SHORT
+        elif open_position["qty"] < 0:
             pass
+
+        #NO POSITION
         else:
-            print("Open PnL: ---")
+            pnllabel["text"] = "PnL: ---"
+            print("PnL: ---")
 
     root.after(500, listener)
 
@@ -616,6 +626,7 @@ if __name__ == "__main__":
 
     #Trading variables
     trade_mode = False
+    pnl_point_mode = True
     precision = 2
     order_size = 0.01
     open_orders = {}
