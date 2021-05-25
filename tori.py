@@ -233,6 +233,19 @@ def highlight_trade_price():
     #highlight["master"] = price_frame2     #this would be ideal
 
     if dict_setup == True:
+        #If there is an open position, mark it at entry_coord location
+        if open_position["qty"] != 0:
+            entry_coord = int(price_label0["text"]) - open_position["entry"]
+
+            if if open_position["qty"] > 0:
+                exec(f"price_label{entry_coord}['bg'] = 'mediumpurple'")
+
+            elif if open_position["qty"] < 0:
+                exec(f"price_label{entry_coord}['bg'] = 'coral'")
+
+        #Need to be able to remove position marking dynamically as well!
+
+        #Mark last trade qty and side on price axis
         if last_trade["qty"] > vol_filter:
             exec(f"price_label{coord}['text'] = last_trade['qty']")
 
@@ -241,12 +254,13 @@ def highlight_trade_price():
             else:
                 exec(f"price_label{coord}['fg'] = 'red'")
 
+        #Highlight current trade price coord on axis
         exec(f"price_label{coord}['bg'] = 'blue'")
         exec(f"buy_label{coord}['bg'] = 'silver'")
         exec(f"sell_label{coord}['bg'] = 'silver'")
 
+        #If new price from last coord, reset previous coord's label style
         if coord != prev_coord:
-            #for i in range(window_price_levels):
             exec(f"price_label{prev_coord}['text'] = ladder_dict[prev_coord]")
 
             exec(f"price_label{prev_coord}['bg'] = 'gray'")
