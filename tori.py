@@ -342,11 +342,21 @@ def listener():
     label = "order_label{0}"
 
     if subscribed_bool == True and dict_setup == True:
-
+        print(open_orders)
         for i in open_orders:
             coord = int(price_label0["text"]) - int(open_orders[i]["price"])
+
             if coord >= 0 and coord <= 49:
-                eval(label.format(coord))["text"] = str(open_orders[i]["qty"])
+
+                #If order is buy
+                if open_orders[i]["side"] == "BUY":
+                    pass
+                    eval(label.format(coord))["text"] = str(open_orders[i]["qty"])
+                    eval(label.format(coord))["fg"] = "blue"
+
+                if open_orders[i]["side"] == "SELL":
+                    eval(label.format(coord))["text"] = str(open_orders[i]["qty"])
+                    eval(label.format(coord))["fg"] = "maroon"
 
         #LONG
         if open_position["qty"] > 0:
