@@ -232,11 +232,12 @@ def highlight_trade_price():
         if open_position["qty"] != 0:
             entry_coord = int(price_label0["text"]) - open_position["entry"]
 
-            if open_position["qty"] > 0:
-                exec(f"price_label{entry_coord}['bg'] = 'mediumpurple'")
+            if entry_coord >= 0 and entry_coord <= (window_price_levels - 1):
+                if open_position["qty"] > 0:
+                    exec(f"price_label{entry_coord}['bg'] = 'mediumpurple'")
 
-            elif open_position["qty"] < 0:
-                exec(f"price_label{entry_coord}['bg'] = 'coral'")
+                elif open_position["qty"] < 0:
+                    exec(f"price_label{entry_coord}['bg'] = 'coral'")
 
         #Need to be able to remove position marking dynamically as well!
 
