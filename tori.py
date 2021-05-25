@@ -300,6 +300,7 @@ def cancel_order(coord):
     if subscribed_bool == True and dict_setup == True:
         price = ladder_dict[coord]
         label = "order_label{0}"
+        print(price)
 
         for i in list(open_orders):
             if open_orders[i]["price"] == price:
@@ -368,7 +369,7 @@ def trade_mode_swap():
 
 class Toolbar(tk.Frame):
     def __init__(self, master):
-        tk.Frame.__init__(self, master, bg="gainsboro", height=30, padx=3, pady=3, bd=3)
+        tk.Frame.__init__(self, master, bg="gainsboro", height=30, padx=3, pady=4, bd=3)
         self.parent = master
 
         subbutton = tk.Button(
@@ -413,6 +414,7 @@ class Tradetools(tk.Frame):
         self.parent = master
 
         global trademodebutton
+        global pnllabel
 
         trademodebutton = tk.Button(
             master = self,
@@ -423,7 +425,24 @@ class Tradetools(tk.Frame):
             bg = "whitesmoke"
         )
 
+        cancelallbutton = tk.Button(
+            master = self,
+            command = trade_mode_swap,
+            text = "Cancel all",
+            width = 10,
+            relief = "flat",
+            bg = "whitesmoke"
+        )
+
+        pnllabel = tk.Label(
+            master = self,
+            text = "---",
+            bg = "silver"
+        )
+
         trademodebutton.pack(side="top", pady=5)
+        cancelallbutton.pack(side="top", pady=5)
+        pnllabel.pack(side="top")
 
 class Ordercolumn(tk.Frame):
     def __init__(self, master):
