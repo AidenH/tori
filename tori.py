@@ -20,14 +20,17 @@ def connect():
     global dict_setup
     global subscribed_bool
     dict_setup = False
-    subscribed_bool = True
 
-    print("\nSubscribing... - " + time)
-    sub_client.subscribe_aggregate_trade_event(instrument, get_trades_callback, error)
+    if subscribed_bool == False:
+        subscribed_bool = True
+        print("\nSubscribing... - " + time)
+        sub_client.subscribe_aggregate_trade_event(instrument, get_trades_callback, error)
 
-    print("Connecting to user data stream... - " + time)
-    listenkey = request_client.start_user_data_stream()
-    sub_client.subscribe_user_data_event(listenkey, user_data_callback, error)
+        print("Connecting to user data stream... - " + time)
+        listenkey = request_client.start_user_data_stream()
+        sub_client.subscribe_user_data_event(listenkey, user_data_callback, error)
+    else:
+        print("Already running.")
 
     #Add keepalive?
     pass
