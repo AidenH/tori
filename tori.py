@@ -232,10 +232,10 @@ def highlight_trade_price():
         if open_position["qty"] != 0:
             entry_coord = int(price_label0["text"]) - open_position["entry"]
 
-            if if open_position["qty"] > 0:
+            if open_position["qty"] > 0:
                 exec(f"price_label{entry_coord}['bg'] = 'mediumpurple'")
 
-            elif if open_position["qty"] < 0:
+            elif open_position["qty"] < 0:
                 exec(f"price_label{entry_coord}['bg'] = 'coral'")
 
         #Need to be able to remove position marking dynamically as well!
@@ -340,6 +340,19 @@ def listener():
 
     root.after(500, listener)
 
+def trade_mode_swap():
+    global trade_mode
+
+    if trade_mode == False:
+        trade_mode = True
+        trademodebutton["bg"] = "lightcoral"
+        print("Trade mode activated.")
+
+    else:
+        trade_mode = False
+        trademodebutton["bg"] = "whitesmoke"
+        print("Trade mode disabled.")
+
 #CLASSES
 
 class Toolbar(tk.Frame):
@@ -383,11 +396,27 @@ class Toolbar(tk.Frame):
         recenter.pack(side="left")
         clean.pack(side="left")
 
-class Ordercolumn(tk.Frame):
-    global window_price_levels
-
+class Tradetools(tk.Frame):
     def __init__(self, master):
-        tk.Frame.__init__(self, master, bg="yellow", width = wwidth / 5)
+        tk.Frame.__init__(self, master, bg="silver", width = wwidth / 4)
+        self.parent = master
+
+        global trademodebutton
+
+        trademodebutton = tk.Button(
+            master = self,
+            command = trade_mode_swap,
+            text = "Trade mode",
+            width = 10,
+            relief = "flat",
+            bg = "whitesmoke"
+        )
+
+        trademodebutton.pack(side="top", pady=5)
+
+class Ordercolumn(tk.Frame):
+    def __init__(self, master):
+        tk.Frame.__init__(self, master, bg="yellow", width = wwidth / 15)
         self.parent = master
 
         for i in range(window_price_levels):
@@ -529,20 +558,28 @@ class MainApplication(tk.Frame):
             #Order/position parameters and info
 
         #columns
+        self.tradetools = Tradetools(self)
         self.ordercolumn = Ordercolumn(self)
         self.priceaxis = Priceaxis(self)
         self.volumecolumn = Volumecolumn(self)
         self.buycolumn = Buycolumn(self)
         self.sellcolumn = Sellcolumn(self)
 
+        self.tradetools.pack(side="left", fill="y")
+        self.tradetools.pack_propagate(False)
+
         self.ordercolumn.pack(side="left", fill="y")
         self.ordercolumn.pack_propagate(False)
+
         self.priceaxis.pack(side="left", fill="y")
         self.priceaxis.pack_propagate(False)
+
         self.sellcolumn.pack(side="left", fill="y")
         self.sellcolumn.pack_propagate(False)
+
         self.buycolumn.pack(side="left", fill="y")
         self.buycolumn.pack_propagate(False)
+
         self.volumecolumn.pack(side="left", fill="y")
         self.volumecolumn.pack_propagate(False)
 
@@ -577,6 +614,7 @@ if __name__ == "__main__":
     last_trade = {"qty" : 0, "buyer" : False}
 
     #Trading variables
+    trade_mode = False
     precision = 2
     order_size = 0.01
     open_orders = {}
