@@ -63,7 +63,7 @@ def get_trades_callback(data_type: 'SubscribeMessageType', event: 'any'):
         print("EventID: ", event)
 
     elif data_type == SubscribeMessageType.PAYLOAD:
-        PrintBasic.print_obj(event)    #keep for full aggtrade payload example
+        #PrintBasic.print_obj(event)    #keep for full aggtrade payload example
 
         global_lastprice = int(round(event.price, 0))   #set current global_lastprice
         local_lastprice = global_lastprice #set local price variable
@@ -110,18 +110,17 @@ def user_data_callback(data_type: 'SubscribeMessageType', event: 'any'):
         print("EventID: ", event)
 
     elif data_type == SubscribeMessageType.PAYLOAD:
-        print("event------------------")
+        print("\n--------------EVENT--------------")
         PrintBasic.print_obj(event)
-        print("-----------------------")
+        print("------------END EVENT------------")
 
         if event.eventType == "ORDER_TRADE_UPDATE" and event.orderStatus == "NEW":
             open_orders[event.orderId] = {"price" : event.price, "side" : event.side, "qty" : event.origQty}
             print(f"Order {event.side} {event.origQty} at {int(event.price)} placed.")
 
         if event.eventType == "ACCOUNT_UPDATE":
-            print("-----------POSITIONS-------------")
-            PrintBasic.print_obj(event.positions)
-            print("---------------------------------")
+
+            print("\n-----------POSITIONS-------------")
 
     else:
         print("Unknown Data:")
