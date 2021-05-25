@@ -298,15 +298,23 @@ def clean_volume():
 
     print("clean volume - " + time)
 
-def place_order(coord):
+def place_order(coord, side):
     if subscribed_bool == True and dict_setup == True and trade_mode == True:
         price = ladder_dict[coord]
 
         #Send order to binance
-        result = request_client.post_order(symbol=instrument, side=OrderSide.BUY,
-            ordertype=OrderType.LIMIT, price=price, quantity=order_size, timeInForce=TimeInForce.GTC,)
+        if side == "BUY":
+            result = request_client.post_order(symbol=instrument, side=OrderSide.BUY,
+                ordertype=OrderType.LIMIT, price=price, quantity=order_size, timeInForce=TimeInForce.GTC,)
 
-        print(f"Order {order_size} sent to exchange at {price}")
+            #eval(label.format(coord))["text"] = str(open_orders[i]["qty"])
+            #open_orders[event.orderId]["qty"] += order_size
+
+        elif side == "SELL":
+            result = request_client.post_order(symbol=instrument, side=OrderSide.SELL,
+                ordertype=OrderType.LIMIT, price=price, quantity=order_size, timeInForce=TimeInForce.GTC,)
+
+        print(f"Order {side} {order_size} at {price} sent to exchange.")
 
 def cancel_order(coord):
     if subscribed_bool == True and dict_setup == True and trade_mode == True:
@@ -487,8 +495,9 @@ order_label{i} = tk.Label(
             bg = "gainsboro"
         )
 order_label{i}.pack(fill="x")
-order_label{i}.bind("<Button-1>", lambda e: place_order({i}))
-order_label{i}.bind("<Button-3>", lambda e: cancel_order({i}))''')
+order_label{i}.bind("<Button-1>", lambda e: place_order({i}, "BUY"))
+order_label{i}.bind("<Button-2>", lambda e: cancel_order({i}))
+order_label{i}.bind("<Button-3>", lambda e: place_order({i}, "SELL"))''')
 
 class Priceaxis(tk.Frame):
     def __init__(self, master):
