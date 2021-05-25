@@ -129,13 +129,19 @@ def user_data_callback(data_type: 'SubscribeMessageType', event: 'any'):
 
                         open_position["entry"] = int(round(event.positions[i].entryPrice, 0))
                         open_position["qty"] = event.positions[i].amount
+                        open_position["coord"] = int(price_label0["text"]) - open_position["entry"]
                         print(f"Position: {open_position}")
 
                     #If account update event details no open position, clear open_position
                     elif event.positions[i].amount == 0:
                         PrintBasic.print_obj(event.positions[i])
+                        entry_coord = open_position["coord"]
+
+                        exec(f"price_label{entry_coord}['text'] = '{ladder_dict[entry_coord]}'")
+                        exec(f"price_label{entry_coord}['fg'] = 'white'")
 
                         open_position["entry"] = 0
+                        open_position["coord"] = 0
                         open_position["qty"] = 0
                         print(f"Position closed: {open_position}")
 
