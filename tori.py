@@ -691,7 +691,7 @@ if __name__ == "__main__":
 
     main.update_title()
 
-    print("Ready to connect.")
+    print("\ntori\n\nReady to connect.")
 
     #highlight_trade_price()
     listener_thread.start()
