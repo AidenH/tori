@@ -145,6 +145,8 @@ def user_data_callback(data_type: 'SubscribeMessageType', event: 'any'):
                         open_position["qty"] = 0
                         print(f"Position closed: {open_position}")
 
+            print("\n---------END POSITIONS-----------")
+
     else:
         print("Unknown Data:")
 
