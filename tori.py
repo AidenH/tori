@@ -585,6 +585,7 @@ if __name__ == "__main__":
     precision = 2
     order_size = 0.01
     open_orders = {}
+    open_position = {"entry" : 0, "qty" : 0, "pnl": 0}
 
     ladder_dict = {}
     for i in range(window_price_levels):
