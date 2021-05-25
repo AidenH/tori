@@ -236,7 +236,9 @@ def highlight_trade_price():
     if dict_setup == True:
         #If there is an open position, mark it at entry_coord location
         if open_position["qty"] != 0:
-            entry_coord = int(price_label0["text"]) - open_position["entry"]
+            entry_coord = open_position["coord"]
+            e = open_position["entry"]
+            q = open_position["qty"]
 
             if entry_coord >= 0 and entry_coord <= (window_price_levels - 1):
                 if open_position["qty"] > 0:
@@ -244,6 +246,8 @@ def highlight_trade_price():
 
                 elif open_position["qty"] < 0:
                     exec(f"price_label{entry_coord}['bg'] = 'coral'")
+
+                exec(f"price_label{entry_coord}['text'] = '{e} {q}'")
 
         #Need to be able to remove position marking dynamically as well!
 
