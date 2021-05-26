@@ -110,9 +110,10 @@ def user_data_callback(data_type: 'SubscribeMessageType', event: 'any'):
         print("EventID: ", event)
 
     elif data_type == SubscribeMessageType.PAYLOAD:
-        print("\n--------------EVENT--------------")
+        '''print("\n--------------EVENT--------------")
         PrintBasic.print_obj(event)
-        print("------------END EVENT------------")
+        print("------------END EVENT------------")'''
+        '''-----------------START HERE-------------------'''
 
         if event.eventType == "ORDER_TRADE_UPDATE" and event.orderStatus == "NEW":
             open_orders[event.orderId] = {"price" : event.price, "side" : event.side, "qty" : event.origQty}
