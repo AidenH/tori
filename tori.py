@@ -350,9 +350,16 @@ def cancel_order(coord):
 
         print(f"after cancel: {open_orders}")
 
-        #cancel all:
-        #result = request_client.post_order(symbol=instrument, side=OrderSide.BUY,
-            #ordertype=OrderType.LIMIT, price=price, quantity=order_size, timeInForce=TimeInForce.GTC,)
+def cancel_all():
+    label = "order_label{0}"
+
+    request_client.cancel_all_orders(symbol=instrument)
+
+    for order in list(open_orders):
+        coord = int(price_label0["text"]) - order
+
+        open_orders.pop(order, None)
+        eval(label.format(coord))["text"] = ""
 
 #Thread
 def listener():
@@ -476,7 +483,7 @@ class Tradetools(tk.Frame):
 
         cancelallbutton = tk.Button(
             master = self,
-            command = trade_mode_swap,
+            command = cancel_all,
             text = "Cancel all",
             width = 10,
             relief = "flat",
