@@ -339,15 +339,20 @@ def cancel_order(coord):
         price = ladder_dict[coord]
         label = "order_label{0}"
 
+        #For every order id at logged at a particular price level, cancel.
         for id in list(open_orders[price]["ids"]):
             result = request_client.cancel_order(symbol=instrument, orderId=id)
 
+            #Double check that order has been cancelled at exchange before removing from list
+            #Ideally there should be a "try: except:" here
             if result.status == "CANCELED" and result.orderId == id:
                 open_orders[price]["ids"].remove(id)
 
+        #Once every id is deleted at a price level, remove level from open orders list
         if open_orders[price]["ids"] == []:
             open_orders.pop(price, None)
 
+        #Reset label text
         eval(label.format(coord))["text"] = ""
 
         print(f"after cancel: {open_orders}")
