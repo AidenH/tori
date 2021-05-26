@@ -344,11 +344,12 @@ def cancel_order(coord):
             result = request_client.cancel_order(symbol=instrument, orderId=id)
 
             #Double check that order has been cancelled at exchange before removing from list
-            #Ideally there should be a "try: except:" here
+            #Ideally there should be a try: & except: here
             if result.status == "CANCELED" and result.orderId == id:
                 open_orders[price]["ids"].remove(id)
 
         #Once every id is deleted at a price level, remove level from open orders list
+        #Another try: & except: here.
         if open_orders[price]["ids"] == []:
             open_orders.pop(price, None)
 
