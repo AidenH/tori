@@ -340,9 +340,14 @@ def cancel_order(coord):
         label = "order_label{0}"
 
         for id in list(open_orders[price]["ids"]):
-            request_client.cancel_order(symbol=instrument, orderId=id)
+            result = request_client.cancel_order(symbol=instrument, orderId=id)
 
-        open_orders.pop(price, None)
+            if result.status == "CANCELED" and result.orderId == id:
+                open_orders[price]["ids"].remove(id)
+
+        if open_orders[price]["ids"] == []:
+            open_orders.pop(price, None)
+
         eval(label.format(coord))["text"] = ""
 
         print(f"after cancel: {open_orders}")
@@ -364,7 +369,6 @@ def listener():
     label = "order_label{0}"
 
     if subscribed_bool == True and dict_setup == True:
-        print(open_orders)
         for i in open_orders:
             coord = int(price_label0["text"]) - i
 
