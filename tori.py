@@ -338,15 +338,12 @@ def cancel_order(coord):
     if subscribed_bool == True and dict_setup == True and trade_mode == True:
         price = ladder_dict[coord]
         label = "order_label{0}"
-        print(price)
 
-        for i in list(open_orders):
-            if open_orders[i]["price"] == price:
-                coord = int(price_label0["text"]) - int(open_orders[i]["price"])
+        for id in list(open_orders[price]["ids"]):
+            request_client.cancel_order(symbol=instrument, orderId=id)
 
-                request_client.cancel_order(symbol=instrument, orderId=i)
-                open_orders.pop(i, None)
-                eval(label.format(coord))["text"] = ""
+        open_orders.pop(price, None)
+        eval(label.format(coord))["text"] = ""
 
         print(f"after cancel: {open_orders}")
 
