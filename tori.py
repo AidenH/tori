@@ -116,8 +116,25 @@ def user_data_callback(data_type: 'SubscribeMessageType', event: 'any'):
         '''-----------------START HERE-------------------'''
 
         if event.eventType == "ORDER_TRADE_UPDATE" and event.orderStatus == "NEW":
-            open_orders[event.orderId] = {"price" : event.price, "side" : event.side, "qty" : event.origQty}
-            print(f"Order {event.side} {event.origQty} at {int(event.price)} placed.")
+            #open_orders[event.orderId] = {"price" : event.price, "side" : event.side, "qty" : event.origQty}
+
+            if event.price not in open_orders:
+                open_orders[int(event.price)] = {}
+
+            open_orders[event.price]["side"] = event.side
+
+            if "ids" in open_orders[event.price]:
+                open_orders[event.price]["ids"].append(event.orderId)
+            else:
+                open_orders[event.price]["ids"] = []
+                open_orders[event.price]["ids"] = [event.orderId]
+
+            if "qty" in open_orders[event.price]:
+                open_orders[event.price]["qty"] += event.origQty
+            else:
+                open_orders[event.price]["qty"] = event.origQty
+
+            print(f"Order {event.side} {event.origQty} at {int(event.price)} placed. - {time}\n")
 
         if event.eventType == "ACCOUNT_UPDATE":
             print("\n-----------POSITIONS-------------")
