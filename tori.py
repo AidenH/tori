@@ -366,7 +366,7 @@ def listener():
     if subscribed_bool == True and dict_setup == True:
         print(open_orders)
         for i in open_orders:
-            coord = int(price_label0["text"]) - int(open_orders[i]["price"])
+            coord = int(price_label0["text"]) - i
 
             if coord >= 0 and coord <= 49:
 
