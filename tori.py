@@ -332,7 +332,7 @@ def place_order(coord, side):
             result = request_client.post_order(symbol=instrument, side=OrderSide.SELL,
                 ordertype=OrderType.LIMIT, price=price, quantity=order_size, timeInForce=TimeInForce.GTC,)
 
-        print(f"Order {side} {order_size} at {price} sent to exchange.")
+        print(f"Order {side} {order_size} at {price} sent to exchange. - {time}\n")
 
 def cancel_order(coord):
     if subscribed_bool == True and dict_setup == True and trade_mode == True:
