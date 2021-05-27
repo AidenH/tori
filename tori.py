@@ -13,6 +13,7 @@ from binance_f.exception.binanceapiexception import BinanceApiException
 from binance_f.base.printobject import *
 
 import keys
+from settings import *
 
 #FUNCTIONS
 
@@ -113,7 +114,6 @@ def user_data_callback(data_type: 'SubscribeMessageType', event: 'any'):
         '''print("\n--------------EVENT--------------")
         PrintBasic.print_obj(event)
         print("------------END EVENT------------")'''
-        '''-----------------START HERE-------------------'''
 
         if event.eventType == "ORDER_TRADE_UPDATE" and event.orderStatus == "NEW":
             #open_orders[event.orderId] = {"price" : event.price, "side" : event.side, "qty" : event.origQty}
@@ -696,15 +696,15 @@ class MainApplication(tk.Frame):
 if __name__ == "__main__":
 
     #Root environment variables
-    instrument = "ethusdt"
+    #instrument = "ethusdt"
     wwidth = 400
     wheight = 988
     font = "arial 7 bold"
-    window_price_levels = 50    #need to generate this dynamically based on the window size at some point
+    #window_price_levels = 50    #need to generate this dynamically based on the window size at some point
     title_instrument_info = "none"
 
     #Dom-related variables
-    vol_filter = 5
+    #vol_filter = 5
     dict_setup = False
     ladder_midpoint = 23
     subscribed_bool = False
@@ -716,9 +716,9 @@ if __name__ == "__main__":
 
     #Trading variables
     trade_mode = False
-    pnl_point_mode = True
+    #pnl_point_mode = True
     precision = 2
-    order_size = 0.01
+    #order_size = 0.01
     open_orders = {}
     open_position = {"entry" : 0, "coord" : 0, "qty" : 0, "pnl": 0}
 
@@ -746,6 +746,9 @@ if __name__ == "__main__":
 
     #highlight_trade_price()
     listener_thread.start()
+
+    if auto_subscribe == True:
+        connect()
 
     root.mainloop()
 
