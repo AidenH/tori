@@ -696,7 +696,6 @@ class MainApplication(tk.Frame):
 if __name__ == "__main__":
 
     #Root environment variables
-    #instrument = "ethusdt"
     wwidth = 400
     wheight = 988
     font = "arial 7 bold"
@@ -704,7 +703,6 @@ if __name__ == "__main__":
     title_instrument_info = "none"
 
     #Dom-related variables
-    #vol_filter = 5
     dict_setup = False
     ladder_midpoint = 23
     subscribed_bool = False
@@ -716,9 +714,6 @@ if __name__ == "__main__":
 
     #Trading variables
     trade_mode = False
-    #pnl_point_mode = True
-    precision = 2
-    #order_size = 0.01
     open_orders = {}
     open_position = {"entry" : 0, "coord" : 0, "qty" : 0, "pnl": 0}
 
