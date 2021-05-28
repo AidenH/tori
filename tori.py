@@ -30,7 +30,6 @@ def connect():
         sub_client.subscribe_aggregate_trade_event(instrument, get_trades_callback, error)
 
         #Start orderbook websocket thread
-        orderbook_thread.start()
 
         #Subscribe to user data
         print("Connecting to user data stream... - " + time)
@@ -455,13 +454,40 @@ def orderbook_listener():
             print("Event ID: ", event)
 
         elif data_type == SubscribeMessageType.PAYLOAD:
-            PrintMix.print_data(event.bids)
+            for i in range(window_price_levels):
+                blabel = "bid_bar{0}"
+                alabel = "ask_label{0}"
+
+                eval(blabel.format(i))["width"] = 0
+                eval(alabel.format(i))["width"] = 0
+
+
+            if subscribed_bool == True and dict_setup == True:
+                for i in event.bids:
+                    #PrintMix.print_data(i)
+                    coord = int(price_label0["text"]) - int(round(float(i.price), 0))
+                    qty = int(round(float(i.qty), 0))
+                    #label = "bid_bar{0}"
+
+                    eval(blabel.format(coord))["width"] += qty
+                    #print(coord)
+                    #print(f"qty: {qty}\n")
+
+                for i in event.asks:
+                    coord = int(price_label0["text"]) - int(round(float(i.price), 0))
+                    qty = int(round(float(i.qty), 0))
+                    #label = "ask_label{0}"
+
+                    eval(alabel.format(coord))["width"] = qty
+                    print(int(round(float(i.price), 0)))
+                    print(coord)
+                    print(f"qty: {qty}\n")
 
         else:
             print("Unknown Data:")
 
     if orderbook_subscribed_bool == False:
-        sub_client.subscribe_book_depth_event(instrument, 10, orderbook_callback, error, update_time=UpdateTime.FAST)
+        result = sub_client.subscribe_book_depth_event(instrument, 20, orderbook_callback, error, update_time=UpdateTime.FAST)
         orderbook_subscribed_bool == True
 
 #CLASSES
@@ -675,6 +701,61 @@ sell_label{i} = tk.Label(
         )
 sell_label{i}.pack(fill="x")''')
 
+class Bidcolumn(tk.Frame):
+    def __init__(self, master):
+        tk.Frame.__init__(self, master, bg="pink", width = wwidth / 12)
+        self.parent = master
+
+        for i in range(window_price_levels):
+            exec(f'''global bid_frame{i}
+global bid_bar{i}
+bid_frame{i} = tk.Frame(
+            master = self,
+            borderwidth = 1,
+            bg = "navy"
+        )
+bid_frame{i}.pack(fill="x", side="top")
+
+bid_bar{i} = tk.Frame(
+            master = bid_frame{i},
+            width = 0,
+            height = 17,
+            bg = "#468c57"
+        )
+bid_bar{i}.pack(side="left")
+
+bid_label{i} = tk.Label(
+            master = bid_bar{i},
+            text = "0",
+            width = 0,
+            fg = "white",
+            bg = "#468c57"
+        )
+#bid_label{i}.pack(side="left")''')
+
+class Askcolumn(tk.Frame):
+    def __init__(self, master):
+        tk.Frame.__init__(self, master, bg="orange", width = wwidth / 12)
+        self.parent = master
+
+        for i in range(window_price_levels):
+            exec(f'''global ask_frame{i}
+global ask_label{i}
+ask_frame{i} = tk.Frame(
+            master = self,
+            borderwidth = 1,
+            bg = "maroon"
+        )
+ask_frame{i}.pack(fill="x", side="top")
+
+ask_label{i} = tk.Frame(
+            master = ask_frame{i},
+            width = 0,
+            height = 17,
+            bg = "firebrick"
+        )
+ask_label{i}.pack(side="right")''')
+
 class MainApplication(tk.Frame):
     def __init__(self, master, *args, **kwargs):
         tk.Frame.__init__(self, master, *args, **kwargs)
@@ -694,22 +775,38 @@ class MainApplication(tk.Frame):
         self.volumecolumn = Volumecolumn(self)
         self.buycolumn = Buycolumn(self)
         self.sellcolumn = Sellcolumn(self)
+        self.bidcolumn = Bidcolumn(self)
+        self.askcolumn = Askcolumn(self)
 
+        #Trading toolbar
         self.tradetools.pack(side="left", fill="y")
         self.tradetools.pack_propagate(False)
 
+        #Active orders
         self.ordercolumn.pack(side="left", fill="y")
         self.ordercolumn.pack_propagate(False)
 
+        #Price levels
         self.priceaxis.pack(side="left", fill="y")
         self.priceaxis.pack_propagate(False)
 
+        #Resting bids
+        self.bidcolumn.pack(side="left", fill="y")
+        self.bidcolumn.pack_propagate(False)
+
+        #Sell volume
         self.sellcolumn.pack(side="left", fill="y")
         self.sellcolumn.pack_propagate(False)
 
+        #Buy volume
         self.buycolumn.pack(side="left", fill="y")
         self.buycolumn.pack_propagate(False)
 
+        #Resting asks
+        self.askcolumn.pack(side="left", fill="y")
+        self.askcolumn.pack_propagate(False)
+
+        #Total volume
         self.volumecolumn.pack(side="left", fill="y")
         self.volumecolumn.pack_propagate(False)
 
@@ -771,6 +868,7 @@ if __name__ == "__main__":
     print("\ntori\n\nReady to connect.")
 
     listener_thread.start()
+    orderbook_thread.start()
 
     if auto_subscribe == True:
         connect()
