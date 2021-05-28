@@ -19,27 +19,31 @@ from settings import *
 def connect():
     global dict_setup
     global subscribed_bool
+
     dict_setup = False
 
     if subscribed_bool == False:
         subscribed_bool = True
+
+        #Subscribe to aggregate trade stream
         print("\nSubscribing... - " + time)
         sub_client.subscribe_aggregate_trade_event(instrument, get_trades_callback, error)
 
+        #Start orderbook websocket thread
         orderbook_thread.start()
 
+        #Subscribe to user data
         print("Connecting to user data stream... - " + time)
         listenkey = request_client.start_user_data_stream()
         sub_client.subscribe_user_data_event(listenkey, user_data_callback, error)
+
     else:
         print("Already running.")
-
-    #Add keepalive?
-    pass
 
 def disconnect():
     global title_instrument_info
     global subscribed_bool
+
     title_instrument_info = "none"
     subscribed_bool = False
     orderbook_subscribed_bool = False
