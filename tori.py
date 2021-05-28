@@ -287,7 +287,7 @@ def highlight_trade_price():
                     exec(f"price_label{entry_coord}['bg'] = 'mediumpurple'")
 
                 elif open_position["qty"] < 0:
-                    exec(f"price_label{entry_coord}['bg'] = 'coral'")
+                    exec(f"price_label{entry_coord}['bg'] = 'firebrick'")
 
                 exec(f"price_label{entry_coord}['text'] = '{e} {q}'")
 
@@ -391,6 +391,22 @@ def cancel_all():
         open_orders.pop(order, None)
         eval(label.format(coord))["text"] = ""
 
+def flatten():
+    pass
+
+def trade_mode_swap():
+    global trade_mode
+
+    if trade_mode == False:
+        trade_mode = True
+        trademodebutton["bg"] = "lightcoral"
+        print("Trade mode activated.")
+
+    else:
+        trade_mode = False
+        trademodebutton["bg"] = "whitesmoke"
+        print("Trade mode disabled.")
+
 #Thread
 def listener():
     global global_lastprice
@@ -435,19 +451,6 @@ def listener():
             pnllabel["text"] = "PnL: ---"
 
     root.after(500, listener)
-
-def trade_mode_swap():
-    global trade_mode
-
-    if trade_mode == False:
-        trade_mode = True
-        trademodebutton["bg"] = "lightcoral"
-        print("Trade mode activated.")
-
-    else:
-        trade_mode = False
-        trademodebutton["bg"] = "whitesmoke"
-        print("Trade mode disabled.")
 
 #CLASSES
 
