@@ -582,7 +582,6 @@ class Priceaxis(tk.Frame):
     def __init__(self, master):
         tk.Frame.__init__(self, master, bg="red", width = wwidth / 6)
         self.parent = master
-        global window_price_levels
         global highlight
 
         #arrange empty price ladder grid
@@ -606,8 +605,6 @@ price_label{i} = tk.Label(
 price_label{i}.pack(fill="x")''')
 
 class Volumecolumn(tk.Frame):
-    global window_price_levels
-
     def __init__(self, master):
         tk.Frame.__init__(self, master, bg="green", width = wwidth / 6)
         self.parent = master
@@ -631,8 +628,6 @@ volume_label{i} = tk.Label(
 volume_label{i}.pack(fill="x")''')
 
 class Buycolumn(tk.Frame):
-    global window_price_levels
-
     def __init__(self, master):
         tk.Frame.__init__(self, master, bg="blue", width = wwidth / 12)
         self.parent = master
@@ -657,8 +652,6 @@ buy_label{i} = tk.Label(
 buy_label{i}.pack(fill="x")''')
 
 class Sellcolumn(tk.Frame):
-    global window_price_levels
-
     def __init__(self, master):
         tk.Frame.__init__(self, master, bg="blue", width = wwidth / 12)
         self.parent = master
@@ -693,7 +686,6 @@ class MainApplication(tk.Frame):
         #Need to add:
             #Menu bar
             #Account info toolbar
-            #Order/position parameters and info
 
         #columns
         self.tradetools = Tradetools(self)
