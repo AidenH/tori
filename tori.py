@@ -26,8 +26,7 @@ def connect():
         print("\nSubscribing... - " + time)
         sub_client.subscribe_aggregate_trade_event(instrument, get_trades_callback, error)
 
-        #Thread? Asyncronous?
-        sub_client.subscribe_book_depth_event(instrument, 10, orderbook_callback, error, update_time=UpdateTime.FAST)
+        orderbook_thread.start()
 
         print("Connecting to user data stream... - " + time)
         listenkey = request_client.start_user_data_stream()
@@ -43,6 +42,7 @@ def disconnect():
     global subscribed_bool
     title_instrument_info = "none"
     subscribed_bool = False
+    orderbook_subscribed_bool = False
 
     print("\n\nDisconnected.\n")
     sub_client.unsubscribe_all()
@@ -176,16 +176,6 @@ def user_data_callback(data_type: 'SubscribeMessageType', event: 'any'):
                         print(f"Position closed: {open_position}")
 
             print("\n---------END POSITIONS-----------")
-
-    else:
-        print("Unknown Data:")
-
-def orderbook_callback(data_type: 'SubscribeMessageType', event: 'any'):
-    if data_type == SubscribeMessageType.RESPONSE:
-        print("Event ID: ", event)
-
-    elif data_type == SubscribeMessageType.PAYLOAD:
-        PrintMix.print_data(event.bids)
 
     else:
         print("Unknown Data:")
@@ -407,7 +397,8 @@ def trade_mode_swap():
         trademodebutton["bg"] = "whitesmoke"
         print("Trade mode disabled.")
 
-#Thread
+
+#THREADS
 def listener():
     global global_lastprice
     label = "order_label{0}"
@@ -451,6 +442,22 @@ def listener():
             pnllabel["text"] = "PnL: ---"
 
     root.after(500, listener)
+
+def orderbook_listener():
+    #Orderbook websocket responds VERY slowly on testnet
+    def orderbook_callback(data_type: 'SubscribeMessageType', event: 'any'):
+        if data_type == SubscribeMessageType.RESPONSE:
+            print("Event ID: ", event)
+
+        elif data_type == SubscribeMessageType.PAYLOAD:
+            PrintMix.print_data(event.bids)
+
+        else:
+            print("Unknown Data:")
+
+    if orderbook_subscribed_bool == False:
+        sub_client.subscribe_book_depth_event(instrument, 10, orderbook_callback, error, update_time=UpdateTime.FAST)
+        orderbook_subscribed_bool == True
 
 #CLASSES
 
@@ -731,6 +738,7 @@ if __name__ == "__main__":
     dict_setup = False
     ladder_midpoint = 23
     subscribed_bool = False
+    orderbook_subscribed_bool = False
     global_lastprice = 0
     prev_coord = 0
     prices = {}
@@ -750,6 +758,7 @@ if __name__ == "__main__":
     request_client = RequestClient(api_key=keys.api, secret_key=keys.secret)
 
     listener_thread = threading.Thread(target=listener)
+    orderbook_thread = threading.Thread(target=orderbook_listener)
 
     #Window setup
     root = tk.Tk()
@@ -764,7 +773,6 @@ if __name__ == "__main__":
 
     print("\ntori\n\nReady to connect.")
 
-    #highlight_trade_price()
     listener_thread.start()
 
     if auto_subscribe == True:
@@ -773,3 +781,4 @@ if __name__ == "__main__":
     root.mainloop()
 
     listener_thread.join()
+    orderbook_thread.join()
