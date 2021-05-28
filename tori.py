@@ -1,7 +1,6 @@
 import requests
 from datetime import datetime
 import tkinter as tk
-import multiprocessing
 import threading
 import time as t
 
@@ -27,6 +26,9 @@ def connect():
         print("\nSubscribing... - " + time)
         sub_client.subscribe_aggregate_trade_event(instrument, get_trades_callback, error)
 
+        #Thread? Asyncronous?
+        sub_client.subscribe_book_depth_event(instrument, 10, orderbook_callback, error, update_time=UpdateTime.FAST)
+
         print("Connecting to user data stream... - " + time)
         listenkey = request_client.start_user_data_stream()
         sub_client.subscribe_user_data_event(listenkey, user_data_callback, error)
@@ -44,10 +46,6 @@ def disconnect():
 
     print("\n\nDisconnected.\n")
     sub_client.unsubscribe_all()
-
-    #get_orders_process.terminate()
-    #orders_process_listener_thread.join()
-    pass
 
     #main subscription functionality
 def get_trades_callback(data_type: 'SubscribeMessageType', event: 'any'):
@@ -178,6 +176,16 @@ def user_data_callback(data_type: 'SubscribeMessageType', event: 'any'):
                         print(f"Position closed: {open_position}")
 
             print("\n---------END POSITIONS-----------")
+
+    else:
+        print("Unknown Data:")
+
+def orderbook_callback(data_type: 'SubscribeMessageType', event: 'any'):
+    if data_type == SubscribeMessageType.RESPONSE:
+        print("Event ID: ", event)
+
+    elif data_type == SubscribeMessageType.PAYLOAD:
+        PrintMix.print_data(event.bids)
 
     else:
         print("Unknown Data:")
