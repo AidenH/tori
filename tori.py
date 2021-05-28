@@ -386,6 +386,7 @@ def cancel_all():
         eval(label.format(coord))["text"] = ""
 
 def flatten():
+    #I need to be built
     pass
 
 def trade_mode_swap():
