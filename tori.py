@@ -136,6 +136,20 @@ def user_data_callback(data_type: 'SubscribeMessageType', event: 'any'):
 
             print(f"Order {event.side} {event.origQty} at {int(event.price)} placed. - {time}\n")
 
+        if event.eventType == "ORDER_TRADE_UPDATE" and event.orderStatus == "FILLED":
+            #Check for matching order id by event.price/open_orders[price]
+            for id in list(open_orders[event.price]["ids"]):
+                #If event id matches an open_orders id, then delete id from dict
+                if id == event.orderId:
+                    open_orders[event.price]["ids"].remove(id)
+
+                    #If open_orders is void of ids after this, remove that price level from dict
+                    if open_orders[event.price]["ids"] == []:
+                        open_orders.pop(event.price, None)
+                    #Otherwise just subtract order qty from dict level qty
+                    else:
+                        open_orders[event.price]["qty"] -= event.origQty
+
         if event.eventType == "ACCOUNT_UPDATE":
             print("\n-----------POSITIONS-------------")
 
