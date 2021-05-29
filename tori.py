@@ -1,4 +1,3 @@
-import requests
 from datetime import datetime
 import tkinter as tk
 import threading
@@ -456,7 +455,7 @@ def orderbook_listener():
         elif data_type == SubscribeMessageType.PAYLOAD:
             for i in range(window_price_levels):
                 blabel = "bid_bar{0}"
-                alabel = "ask_label{0}"
+                alabel = "ask_bar{0}"
 
                 eval(blabel.format(i))["width"] = 0
                 eval(alabel.format(i))["width"] = 0
@@ -467,21 +466,14 @@ def orderbook_listener():
                     #PrintMix.print_data(i)
                     coord = int(price_label0["text"]) - int(round(float(i.price), 0))
                     qty = int(round(float(i.qty), 0))
-                    #label = "bid_bar{0}"
 
                     eval(blabel.format(coord))["width"] += qty
-                    #print(coord)
-                    #print(f"qty: {qty}\n")
 
                 for i in event.asks:
                     coord = int(price_label0["text"]) - int(round(float(i.price), 0))
                     qty = int(round(float(i.qty), 0))
-                    #label = "ask_label{0}"
 
-                    eval(alabel.format(coord))["width"] = qty
-                    print(int(round(float(i.price), 0)))
-                    print(coord)
-                    print(f"qty: {qty}\n")
+                    eval(alabel.format(coord))["width"] += qty
 
         else:
             print("Unknown Data:")
@@ -725,7 +717,7 @@ bid_bar{i} = tk.Frame(
 bid_bar{i}.pack(side="left")
 
 bid_label{i} = tk.Label(
-            master = bid_bar{i},
+            master = bid_frame{i},
             text = "0",
             width = 0,
             fg = "white",
@@ -740,7 +732,7 @@ class Askcolumn(tk.Frame):
 
         for i in range(window_price_levels):
             exec(f'''global ask_frame{i}
-global ask_label{i}
+global ask_bar{i}
 ask_frame{i} = tk.Frame(
             master = self,
             borderwidth = 1,
@@ -748,13 +740,13 @@ ask_frame{i} = tk.Frame(
         )
 ask_frame{i}.pack(fill="x", side="top")
 
-ask_label{i} = tk.Frame(
+ask_bar{i} = tk.Frame(
             master = ask_frame{i},
             width = 0,
             height = 17,
             bg = "firebrick"
         )
-ask_label{i}.pack(side="right")''')
+ask_bar{i}.pack(side="right")''')
 
 class MainApplication(tk.Frame):
     def __init__(self, master, *args, **kwargs):
