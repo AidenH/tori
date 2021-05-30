@@ -1,6 +1,8 @@
 from datetime import datetime
 import tkinter as tk
 import threading
+from concurrent.futures import ThreadPoolExecutor
+import asyncio
 import time as t
 
 from binance_f import RequestClient
@@ -66,16 +68,20 @@ def get_trades_callback(data_type: 'SubscribeMessageType', event: 'any'):
     elif data_type == SubscribeMessageType.PAYLOAD:
         #PrintBasic.print_obj(event)    #keep for full aggtrade payload example
 
-        global_lastprice = int(round(event.price, 0))   #set current global_lastprice
-        local_lastprice = global_lastprice #set local price variable
-        title_instrument_info = instrument + " " + str(local_lastprice) #update window title ticker info
+        #set current global_lastprice
+        global_lastprice = int(round(event.price, 0))
+        #set local price variable
+        local_lastprice = global_lastprice
+        #update window title ticker info
+        title_instrument_info = instrument + " " + str(local_lastprice)
 
         #Populate price levels dictionary
         if dict_setup == False:
             print("Set up dictionary - " + time + "\n")
 
             for i in range(0, local_lastprice + local_lastprice):
-                prices[i] = {"volume" : 0, "buy" : 0, "sell" : 0}   #only adding the total level volume information for the moment
+                #only adding the total level volume information for the moment
+                prices[i] = {"volume" : 0, "buy" : 0, "sell" : 0}
 
             #This and refresh() for us to have a midpoint coord on first startup
             #   in order to avoid refresh() spamming because highlight_trade_price hasn't received
@@ -91,7 +97,8 @@ def get_trades_callback(data_type: 'SubscribeMessageType', event: 'any'):
             buy_column_populate(False)
             sell_column_populate(False)
 
-        prices[local_lastprice]["volume"] += round(event.qty, 0)   #add event order quantity to price volume dict key
+        #add event order quantity to price[volume] dict key
+        prices[local_lastprice]["volume"] += round(event.qty, 0)
         last_trade["qty"] = int(round(event.qty, 0))
 
         if event.isBuyerMaker == False:
@@ -447,40 +454,61 @@ def listener():
     root.after(500, listener)
 
 def orderbook_listener():
-    #Orderbook websocket responds VERY slowly on testnet
+    _executor = ThreadPoolExecutor(1)
+
+    def get_request():
+        result = request_client.get_order_book(instrument, 20)
+        return result
+
+    async def orderbook():
+        while True:
+            result = await loop.run_in_executor(_executor, get_request)
+            PrintMix.print_data(result.bids)
+            t.sleep(1)
+
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    loop.run_until_complete(orderbook())
+
+
+    ''''#Orderbook websocket responds VERY slowly on testnet
     def orderbook_callback(data_type: 'SubscribeMessageType', event: 'any'):
         if data_type == SubscribeMessageType.RESPONSE:
             print("Event ID: ", event)
 
         elif data_type == SubscribeMessageType.PAYLOAD:
-            for i in range(window_price_levels):
+            for i in range(global_lastprice-6, global_lastprice+6):
+                coord = int(price_label0["text"]) - i
                 blabel = "bid_bar{0}"
                 alabel = "ask_bar{0}"
 
-                eval(blabel.format(i))["width"] = 0
-                eval(alabel.format(i))["width"] = 0
+                eval(blabel.format(coord))["width"] = 0
+                eval(alabel.format(coord))["width"] = 0
 
 
             if subscribed_bool == True and dict_setup == True:
                 for i in event.bids:
-                    #PrintMix.print_data(i)
                     coord = int(price_label0["text"]) - int(round(float(i.price), 0))
                     qty = int(round(float(i.qty), 0))
 
-                    eval(blabel.format(coord))["width"] += qty
+                    #Check coord is within window
+                    if coord >= 0 and coord < window_price_levels:
+                        eval(blabel.format(coord))["width"] += qty
 
                 for i in event.asks:
                     coord = int(price_label0["text"]) - int(round(float(i.price), 0))
                     qty = int(round(float(i.qty), 0))
 
-                    eval(alabel.format(coord))["width"] += qty
+                    if coord >= 0 and coord < window_price_levels:
+                        eval(alabel.format(coord))["width"] += qty
 
         else:
             print("Unknown Data:")
 
     if orderbook_subscribed_bool == False:
-        result = sub_client.subscribe_book_depth_event(instrument, 20, orderbook_callback, error, update_time=UpdateTime.FAST)
-        orderbook_subscribed_bool == True
+        result = sub_client.subscribe_book_depth_event(instrument, 20,
+            orderbook_callback, error, update_time="@500ms")
+        orderbook_subscribed_bool == True'''
 
 #CLASSES
 
@@ -817,7 +845,6 @@ if __name__ == "__main__":
     wwidth = 400
     wheight = 988
     font = "arial 7 bold"
-    #window_price_levels = 50    #need to generate this dynamically based on the window size at some point
     title_instrument_info = "none"
 
     #Dom-related variables
