@@ -1,5 +1,6 @@
 #Window settings
-window_price_levels = 50    #Determines height of window
+window_price_levels = 50    #Determines height of window,
+    #need to generate this dynamically based on the window size at some point
 
 #Trading settings
 instrument = "ethusdt"
