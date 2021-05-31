@@ -51,7 +51,7 @@ def disconnect():
     print("\n\nDisconnected.\n")
     sub_client.unsubscribe_all()
 
-    #main subscription functionality
+    #get aggregate trades
 def get_trades_callback(data_type: 'SubscribeMessageType', event: 'any'):
     global dict_setup
     global prices
@@ -113,6 +113,7 @@ def get_trades_callback(data_type: 'SubscribeMessageType', event: 'any'):
     else:
         print("Unknown Data:")
 
+    #user data for position updates, balance etc.
 def user_data_callback(data_type: 'SubscribeMessageType', event: 'any'):
     if data_type == SubscribeMessageType.RESPONSE:
         print("EventID: ", event)
@@ -458,57 +459,87 @@ def orderbook_listener():
 
     def get_request():
         result = request_client.get_order_book(instrument, 20)
+        alabel = "ask_label{0}"
+        blabel = "bid_label{0}"
+
+        #Asks
+        for i in reversed(result.asks):
+            price = int(round(float(i.price), 0))
+            coord = int(price_label0["text"]) - price
+            qty = int(round(float(i.qty), 0))
+
+            #Check coord is within window
+            if coord >= 0 and coord < window_price_levels-1:
+                eval(alabel.format(coord))["text"] = 0
+                text = eval(alabel.format(coord))["text"]
+                eval(alabel.format(coord))["text"] = str(int(text or 0) + qty)
+
+        #Bids
+        for i in result.bids:
+            price = int(round(float(i.price), 0))
+            coord = int(price_label0["text"]) - price
+            qty = int(round(float(i.qty), 0))
+
+            #Check coord is within window
+            if coord >= 0 and coord < window_price_levels-1:
+                eval(blabel.format(coord))["text"] = 0
+                text = eval(blabel.format(coord))["text"]
+                eval(blabel.format(coord))["text"] = price
+
         return result
 
     async def orderbook():
         while True:
-            result = await loop.run_in_executor(_executor, get_request)
-            PrintMix.print_data(result.bids)
+            if subscribed_bool == True and dict_setup == True:
+                result = await loop.run_in_executor(_executor, get_request)
+                if result: print("Success.")
             t.sleep(1)
 
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     loop.run_until_complete(orderbook())
 
+    #Delete probably
+    def unused_orderbook():
+        '''#Orderbook websocket responds VERY slowly on testnet
+        def orderbook_callback(data_type: 'SubscribeMessageType', event: 'any'):
+            if data_type == SubscribeMessageType.RESPONSE:
+                print("Event ID: ", event)
 
-    ''''#Orderbook websocket responds VERY slowly on testnet
-    def orderbook_callback(data_type: 'SubscribeMessageType', event: 'any'):
-        if data_type == SubscribeMessageType.RESPONSE:
-            print("Event ID: ", event)
+            elif data_type == SubscribeMessageType.PAYLOAD:
+                for i in range(global_lastprice-6, global_lastprice+6):
+                    coord = int(price_label0["text"]) - i
+                    blabel = "bid_bar{0}"
+                    alabel = "ask_bar{0}"
 
-        elif data_type == SubscribeMessageType.PAYLOAD:
-            for i in range(global_lastprice-6, global_lastprice+6):
-                coord = int(price_label0["text"]) - i
-                blabel = "bid_bar{0}"
-                alabel = "ask_bar{0}"
-
-                eval(blabel.format(coord))["width"] = 0
-                eval(alabel.format(coord))["width"] = 0
+                    eval(blabel.format(coord))["width"] = 0
+                    eval(alabel.format(coord))["width"] = 0
 
 
-            if subscribed_bool == True and dict_setup == True:
-                for i in event.bids:
-                    coord = int(price_label0["text"]) - int(round(float(i.price), 0))
-                    qty = int(round(float(i.qty), 0))
+                if subscribed_bool == True and dict_setup == True:
+                    for i in event.bids:
+                        coord = int(price_label0["text"]) - int(round(float(i.price), 0))
+                        qty = int(round(float(i.qty), 0))
 
-                    #Check coord is within window
-                    if coord >= 0 and coord < window_price_levels:
-                        eval(blabel.format(coord))["width"] += qty
+                        #Check coord is within window
+                        if coord >= 0 and coord < window_price_levels:
+                            eval(blabel.format(coord))["width"] += qty
 
-                for i in event.asks:
-                    coord = int(price_label0["text"]) - int(round(float(i.price), 0))
-                    qty = int(round(float(i.qty), 0))
+                    for i in event.asks:
+                        coord = int(price_label0["text"]) - int(round(float(i.price), 0))
+                        qty = int(round(float(i.qty), 0))
 
-                    if coord >= 0 and coord < window_price_levels:
-                        eval(alabel.format(coord))["width"] += qty
+                        if coord >= 0 and coord < window_price_levels:
+                            eval(alabel.format(coord))["width"] += qty
 
-        else:
-            print("Unknown Data:")
+            else:
+                print("Unknown Data:")
 
-    if orderbook_subscribed_bool == False:
-        result = sub_client.subscribe_book_depth_event(instrument, 20,
-            orderbook_callback, error, update_time="@500ms")
-        orderbook_subscribed_bool == True'''
+        if orderbook_subscribed_bool == False:
+            result = sub_client.subscribe_book_depth_event(instrument, 20,
+                orderbook_callback, error, update_time="@500ms")
+            orderbook_subscribed_bool == True'''
+        pass
 
 #CLASSES
 
@@ -721,38 +752,6 @@ sell_label{i} = tk.Label(
         )
 sell_label{i}.pack(fill="x")''')
 
-class Bidcolumn(tk.Frame):
-    def __init__(self, master):
-        tk.Frame.__init__(self, master, bg="pink", width = wwidth / 12)
-        self.parent = master
-
-        for i in range(window_price_levels):
-            exec(f'''global bid_frame{i}
-global bid_bar{i}
-bid_frame{i} = tk.Frame(
-            master = self,
-            borderwidth = 1,
-            bg = "navy"
-        )
-bid_frame{i}.pack(fill="x", side="top")
-
-bid_bar{i} = tk.Frame(
-            master = bid_frame{i},
-            width = 0,
-            height = 17,
-            bg = "#468c57"
-        )
-bid_bar{i}.pack(side="left")
-
-bid_label{i} = tk.Label(
-            master = bid_frame{i},
-            text = "0",
-            width = 0,
-            fg = "white",
-            bg = "#468c57"
-        )
-#bid_label{i}.pack(side="left")''')
-
 class Askcolumn(tk.Frame):
     def __init__(self, master):
         tk.Frame.__init__(self, master, bg="orange", width = wwidth / 12)
@@ -760,7 +759,7 @@ class Askcolumn(tk.Frame):
 
         for i in range(window_price_levels):
             exec(f'''global ask_frame{i}
-global ask_bar{i}
+global ask_label{i}
 ask_frame{i} = tk.Frame(
             master = self,
             borderwidth = 1,
@@ -768,13 +767,58 @@ ask_frame{i} = tk.Frame(
         )
 ask_frame{i}.pack(fill="x", side="top")
 
-ask_bar{i} = tk.Frame(
+#ask_bar{i} = tk.Frame(
+#            master = ask_frame{i},
+#            width = 0,
+#            height = 17,
+#            bg = "firebrick"
+#        )
+#ask_bar{i}.pack(side="right")
+
+ask_label{i} = tk.Label(
             master = ask_frame{i},
+            text = "",
             width = 0,
-            height = 17,
-            bg = "firebrick"
+            font = font,
+            fg = "white",
+            bg = "maroon"
         )
-ask_bar{i}.pack(side="right")''')
+ask_label{i}.pack(side="right")
+print("label: ")
+print(ask_label{i})''')
+
+class Bidcolumn(tk.Frame):
+    def __init__(self, master):
+        tk.Frame.__init__(self, master, bg="pink", width = wwidth / 12)
+        self.parent = master
+
+        for i in range(window_price_levels):
+            exec(f'''global bid_frame{i}
+global bid_label{i}
+bid_frame{i} = tk.Frame(
+            master = self,
+            borderwidth = 1,
+            bg = "navy"
+        )
+bid_frame{i}.pack(fill="x", side="top")
+
+#bid_bar{i} = tk.Frame(
+#            master = bid_frame{i},
+#            width = 0,
+#            height = 17,
+#            bg = "#468c57"
+#        )
+#bid_bar{i}.pack(side="left")
+
+bid_label{i} = tk.Label(
+            master = bid_frame{i},
+            text = "",
+            width = 0,
+            font = font,
+            fg = "white",
+            bg = "navy"
+        )
+bid_label{i}.pack(side="right")''')
 
 class MainApplication(tk.Frame):
     def __init__(self, master, *args, **kwargs):
