@@ -458,7 +458,7 @@ def orderbook_listener():
     _executor = ThreadPoolExecutor(1)
 
     def get_request():
-        result = request_client.get_order_book(instrument, 20)
+        result = request_client.get_order_book(instrument, 100)
         alabel = "ask_label{0}"
         blabel = "bid_label{0}"
 
@@ -484,7 +484,7 @@ def orderbook_listener():
             if coord >= 0 and coord < window_price_levels-1:
                 eval(blabel.format(coord))["text"] = 0
                 text = eval(blabel.format(coord))["text"]
-                eval(blabel.format(coord))["text"] = price
+                eval(blabel.format(coord))["text"] = str(int(text or 0) + qty)
 
         return result
 
@@ -492,7 +492,6 @@ def orderbook_listener():
         while True:
             if subscribed_bool == True and dict_setup == True:
                 result = await loop.run_in_executor(_executor, get_request)
-                if result: print("Success.")
             t.sleep(1)
 
     loop = asyncio.new_event_loop()
