@@ -9,5 +9,6 @@ pnl_point_mode = True   #Display PnL in points or currency
 
 #Dom settings
 vol_filter = 5  #Aggregate trade size filter
+book_size = 5
 auto_subscribe = True
 precision = 2   #Decimal point precision

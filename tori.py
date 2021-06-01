@@ -457,43 +457,85 @@ def listener():
 def orderbook_listener():
     _executor = ThreadPoolExecutor(1)
 
-    def get_request():
+    #Populate orderbook dictionary
+    async def get_request():
         result = request_client.get_order_book(instrument, 100)
-        alabel = "ask_label{0}"
-        blabel = "bid_label{0}"
 
-        #Asks
-        for i in reversed(result.asks):
-            price = int(round(float(i.price), 0))
-            coord = int(price_label0["text"]) - price
-            qty = int(round(float(i.qty), 0))
-
-            #Check coord is within window
+        for price in small_book:
+            coord = price_label0["text"] - price
             if coord >= 0 and coord < window_price_levels-1:
-                eval(alabel.format(coord))["text"] = 0
-                text = eval(alabel.format(coord))["text"]
-                eval(alabel.format(coord))["text"] = str(int(text or 0) + qty)
+                eval(blabel.format(coord))["text"] = ""
+                eval(alabel.format(coord))["text"] = ""
 
-        #Bids
+        small_book.clear()
+
         for i in result.bids:
             price = int(round(float(i.price), 0))
-            coord = int(price_label0["text"]) - price
             qty = int(round(float(i.qty), 0))
 
-            #Check coord is within window
-            if coord >= 0 and coord < window_price_levels-1:
-                eval(blabel.format(coord))["text"] = 0
-                text = eval(blabel.format(coord))["text"]
-                eval(blabel.format(coord))["text"] = str(int(text or 0) + qty)
+            if price < (global_lastprice - book_size):
+                break
 
-        return result
+            if price not in small_book:
+                small_book[price] = {}
+
+            try:
+                small_book[price]["bids"] += qty
+            except:
+                small_book[price]["bids"] = 0
+
+        for i in result.asks:
+            price = int(round(float(i.price), 0))
+            qty = int(round(float(i.qty), 0))
+
+            if price > (global_lastprice + book_size):
+                break
+
+            if price not in small_book:
+                small_book[price] = {}
+
+            try:
+                small_book[price]["asks"] += qty
+            except:
+                small_book[price]["asks"] = 0
+
+        await asyncio.sleep(0.01)
+
+    #Asks
+    async def write_asks():
+        for price in small_book:
+            coord = price_label0["text"] - price
+
+            #Check coord is within window and that "asks" is a key in small_book
+            if coord >= 0 and coord < window_price_levels-1\
+                and "asks" in small_book[price]:
+                    eval(alabel.format(coord))["text"] = small_book[price]["asks"]
+
+        await asyncio.sleep(0.01)
+
+    #Bids
+    async def write_bids():
+        for price in small_book:
+            coord = price_label0["text"] - price
+
+            #Check coord is within window and that "bids" is a key in small_book
+            if coord >= 0 and coord < window_price_levels-1\
+                and "bids" in small_book[price]:
+                    eval(blabel.format(coord))["text"] = small_book[price]["bids"]
+
+        await asyncio.sleep(0.01)
 
     async def orderbook():
         while True:
             if subscribed_bool == True and dict_setup == True:
-                result = await loop.run_in_executor(_executor, get_request)
-            t.sleep(1)
+                await get_request()
+                await write_asks()
+                await write_bids()
+            await asyncio.sleep(0.5)
+            #t.sleep(0.5)
 
+    blabel = "bid_label{0}"
+    alabel = "ask_label{0}"
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     loop.run_until_complete(orderbook())
@@ -895,8 +937,9 @@ if __name__ == "__main__":
     orderbook_subscribed_bool = False
     global_lastprice = 0
     prev_coord = 0
-    prices = {}
     coord = 0
+    prices = {}
+    small_book = {0 : {"bids" : 0, "asks" : 0}}
     last_trade = {"qty" : 0, "buyer" : False}
 
     #Trading variables
