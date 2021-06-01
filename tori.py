@@ -695,8 +695,8 @@ volume_frame{i} = tk.Frame(
 volume_frame{i}.pack(fill="x")
 
 volume_label{i} = tk.Label(
-            master=volume_frame{i},
-            text="",
+            master = volume_frame{i},
+            text=None,
             font = font,
             anchor = "w",
             bg = "gainsboro"
@@ -719,7 +719,7 @@ buy_frame{i}.pack(fill="x")
 
 buy_label{i} = tk.Label(
             master=buy_frame{i},
-            text="",
+            text=None,
             font = font,
             anchor = "w",
             fg = "blue",
@@ -743,7 +743,7 @@ sell_frame{i}.pack(fill="x")
 
 sell_label{i} = tk.Label(
             master=sell_frame{i},
-            text="",
+            text=None,
             font = font,
             anchor = "w",
             fg = "maroon",
@@ -776,15 +776,13 @@ ask_frame{i}.pack(fill="x", side="top")
 
 ask_label{i} = tk.Label(
             master = ask_frame{i},
-            text = "",
+            text = None,
             width = 0,
             font = font,
             fg = "white",
             bg = "maroon"
         )
-ask_label{i}.pack(side="right")
-print("label: ")
-print(ask_label{i})''')
+ask_label{i}.pack(side="right")''')
 
 class Bidcolumn(tk.Frame):
     def __init__(self, master):
@@ -811,7 +809,7 @@ bid_frame{i}.pack(fill="x", side="top")
 
 bid_label{i} = tk.Label(
             master = bid_frame{i},
-            text = "",
+            text = None,
             width = 0,
             font = font,
             fg = "white",
