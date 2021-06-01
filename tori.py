@@ -540,48 +540,6 @@ def orderbook_listener():
     asyncio.set_event_loop(loop)
     loop.run_until_complete(orderbook())
 
-    #Delete probably
-    def unused_orderbook():
-        '''#Orderbook websocket responds VERY slowly on testnet
-        def orderbook_callback(data_type: 'SubscribeMessageType', event: 'any'):
-            if data_type == SubscribeMessageType.RESPONSE:
-                print("Event ID: ", event)
-
-            elif data_type == SubscribeMessageType.PAYLOAD:
-                for i in range(global_lastprice-6, global_lastprice+6):
-                    coord = int(price_label0["text"]) - i
-                    blabel = "bid_bar{0}"
-                    alabel = "ask_bar{0}"
-
-                    eval(blabel.format(coord))["width"] = 0
-                    eval(alabel.format(coord))["width"] = 0
-
-
-                if subscribed_bool == True and dict_setup == True:
-                    for i in event.bids:
-                        coord = int(price_label0["text"]) - int(round(float(i.price), 0))
-                        qty = int(round(float(i.qty), 0))
-
-                        #Check coord is within window
-                        if coord >= 0 and coord < window_price_levels:
-                            eval(blabel.format(coord))["width"] += qty
-
-                    for i in event.asks:
-                        coord = int(price_label0["text"]) - int(round(float(i.price), 0))
-                        qty = int(round(float(i.qty), 0))
-
-                        if coord >= 0 and coord < window_price_levels:
-                            eval(alabel.format(coord))["width"] += qty
-
-            else:
-                print("Unknown Data:")
-
-        if orderbook_subscribed_bool == False:
-            result = sub_client.subscribe_book_depth_event(instrument, 20,
-                orderbook_callback, error, update_time="@500ms")
-            orderbook_subscribed_bool == True'''
-        pass
-
 #CLASSES
 
 class Toolbar(tk.Frame):
