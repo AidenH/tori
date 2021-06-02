@@ -220,10 +220,6 @@ def refresh():
         eval(vlabel.format(i))["text"] = str(prices[ladder_dict[i]]["volume"])[:-2]
         eval(blabel.format(i))["text"] = str(prices[ladder_dict[i]]["buy"])[:-2]
         eval(slabel.format(i))["text"] = str(prices[ladder_dict[i]]["sell"])[:-2]
-        '''if prices[ladder_dict[i]]["order"]['qty'] > 0:
-            eval(olabel.format(i))["text"] = str(f"%.{precision}f" % prices[ladder_dict[i]]["order"]["qty"])
-        else:
-            eval(olabel.format(i))["text"] = ""'''
 
     print("Refresh - " + time)
 
