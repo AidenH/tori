@@ -204,10 +204,15 @@ def refresh():
     blabel = "buy_label{0}"
     slabel = "sell_label{0}"
     olabel = "order_label{0}"
+    asklabel = "ask_label{0}"
+    bidlabel = "bid_label{0}"
 
     #populate the ladder cell dictionary
     for i in range(window_price_levels):
         ladder_dict[i] = global_lastprice+ladder_midpoint-i
+
+        eval(asklabel.format(i))["text"] = ""
+        eval(bidlabel.format(i))["text"] = ""
 
     #write dictionary values to frame
     for i in range(window_price_levels-1, -1, -1):
