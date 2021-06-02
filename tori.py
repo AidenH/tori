@@ -459,7 +459,7 @@ def orderbook_listener():
 
     #Populate orderbook dictionary
     async def get_request():
-        result = request_client.get_order_book(instrument, 100)
+        result = request_client.get_order_book(instrument, 500)
 
         for price in small_book:
             coord = price_label0["text"] - price
@@ -526,7 +526,7 @@ def orderbook_listener():
         await asyncio.sleep(0.01)
 
     async def orderbook():
-        while True:
+        for i in iter(int, 1): #marginally faster than while True
             if subscribed_bool == True and dict_setup == True:
                 await get_request()
                 await write_asks()
