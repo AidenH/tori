@@ -754,7 +754,7 @@ buy_label{i} = tk.Label(
             master=buy_frame{i},
             text=None,
             font = font,
-            anchor = "w",
+            anchor = "e",
             fg = "blue",
             bg = "gainsboro"
         )
@@ -807,7 +807,7 @@ ask_label{i} = tk.Label(
             fg = "white",
             bg = "maroon"
         )
-ask_label{i}.pack(side="right")''')
+ask_label{i}.pack(side="left")''')
 
 class Bidcolumn(tk.Frame):
     def __init__(self, master):
@@ -900,7 +900,7 @@ class MainApplication(tk.Frame):
         global time
         global title_instrument_info
         time = datetime.now().strftime("%H:%M:%S.%f")[:-4]
-        root.title("tori - " + title_instrument_info + " " + time)
+        root.title("tori - " + title_instrument_info + " | " + time)
         root.after(100, self.update_title)
 
 #MAIN
