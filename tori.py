@@ -15,6 +15,36 @@ from binance_f.base.printobject import *
 import keys
 from settings import *
 
+#Root environment variables
+wwidth = 400
+wheight = 988
+font = "arial 7 bold"
+title_instrument_info = "none"
+
+#Dom-related variables
+dict_setup = False
+ladder_midpoint = 23
+subscribed_bool = False
+orderbook_subscribed_bool = False
+global_lastprice = 0
+prev_coord = 0
+coord = 0
+prices = {}
+small_book = {0 : {"bids" : 0, "asks" : 0}}
+last_trade = {"qty" : 0, "buyer" : False}
+
+#Trading variables
+trade_mode = False
+open_orders = {}
+open_position = {"entry" : 0, "coord" : 0, "qty" : 0, "pnl": 0}
+
+sub_client = SubscriptionClient(api_key=keys.api, secret_key=keys.secret)
+request_client = RequestClient(api_key=keys.api, secret_key=keys.secret)
+
+ladder_dict = {}
+for i in range(window_price_levels):
+    ladder_dict[i] = 0
+
 #FUNCTIONS
 
 def connect():
@@ -28,14 +58,18 @@ def connect():
 
         #Subscribe to aggregate trade stream
         print("\nSubscribing... - " + time)
-        sub_client.subscribe_aggregate_trade_event(instrument, get_trades_callback, error)
+        agg_result = sub_client.subscribe_aggregate_trade_event(instrument,
+            get_trades_callback, error)
 
         #Start orderbook websocket thread
 
         #Subscribe to user data
         print("Connecting to user data stream... - " + time)
         listenkey = request_client.start_user_data_stream()
-        sub_client.subscribe_user_data_event(listenkey, user_data_callback, error)
+        data_result = sub_client.subscribe_user_data_event(listenkey, user_data_callback, error)
+
+    if agg_result and data_result:
+        return True
 
     else:
         print("Already running.")
@@ -767,14 +801,6 @@ ask_frame{i} = tk.Frame(
         )
 ask_frame{i}.pack(fill="x", side="top")
 
-#ask_bar{i} = tk.Frame(
-#            master = ask_frame{i},
-#            width = 0,
-#            height = 17,
-#            bg = "firebrick"
-#        )
-#ask_bar{i}.pack(side="right")
-
 ask_label{i} = tk.Label(
             master = ask_frame{i},
             text = None,
@@ -882,37 +908,6 @@ class MainApplication(tk.Frame):
 #MAIN
 
 if __name__ == "__main__":
-
-    #Root environment variables
-    wwidth = 400
-    wheight = 988
-    font = "arial 7 bold"
-    title_instrument_info = "none"
-
-    #Dom-related variables
-    dict_setup = False
-    ladder_midpoint = 23
-    subscribed_bool = False
-    orderbook_subscribed_bool = False
-    global_lastprice = 0
-    prev_coord = 0
-    coord = 0
-    prices = {}
-    small_book = {0 : {"bids" : 0, "asks" : 0}}
-    last_trade = {"qty" : 0, "buyer" : False}
-
-    #Trading variables
-    trade_mode = False
-    open_orders = {}
-    open_position = {"entry" : 0, "coord" : 0, "qty" : 0, "pnl": 0}
-
-    ladder_dict = {}
-    for i in range(window_price_levels):
-        ladder_dict[i] = 0
-
-    sub_client = SubscriptionClient(api_key=keys.api, secret_key=keys.secret)
-    request_client = RequestClient(api_key=keys.api, secret_key=keys.secret)
-
     listener_thread = threading.Thread(target=listener)
     orderbook_thread = threading.Thread(target=orderbook_listener)
 
