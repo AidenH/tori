@@ -490,11 +490,13 @@ def listener():
     root.after(500, listener)
 
 def orderbook_listener():
-    _executor = ThreadPoolExecutor(1)
+    #_executor = ThreadPoolExecutor(1)
 
     #Populate orderbook dictionary
     async def get_request():
         result = request_client.get_order_book(instrument, 500)
+
+        await asyncio.sleep(0.01)
 
         for price in small_book:
             coord = price_label0["text"] - price
@@ -534,10 +536,9 @@ def orderbook_listener():
             except:
                 small_book[price]["asks"] = 0
 
-        await asyncio.sleep(0.01)
-
     #Asks
     async def write_asks():
+        await asyncio.sleep(0.01)
         for price in small_book:
             coord = price_label0["text"] - price
 
@@ -546,10 +547,9 @@ def orderbook_listener():
                 and "asks" in small_book[price]:
                     eval(alabel.format(coord))["text"] = small_book[price]["asks"]
 
-        await asyncio.sleep(0.01)
-
     #Bids
     async def write_bids():
+        await asyncio.sleep(0.01)
         for price in small_book:
             coord = price_label0["text"] - price
 
@@ -557,8 +557,6 @@ def orderbook_listener():
             if coord >= 0 and coord < window_price_levels-1\
                 and "bids" in small_book[price]:
                     eval(blabel.format(coord))["text"] = small_book[price]["bids"]
-
-        await asyncio.sleep(0.01)
 
     async def orderbook():
         for i in iter(int, 1): #marginally faster than while True
@@ -913,7 +911,6 @@ if __name__ == "__main__":
 
     #Window setup
     root = tk.Tk()
-    #root.geometry(str(wwidth)+"x"+str(wheight))
     root.geometry(str(wwidth)+"x"+str(40 + (window_price_levels * 19)))
     root.attributes('-topmost', True)
 
