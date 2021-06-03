@@ -15,6 +15,7 @@ from binance_f.base.printobject import *
 import keys
 from settings import *
 
+
 #Root environment variables
 wwidth = 400
 wheight = 988
@@ -44,6 +45,7 @@ request_client = RequestClient(api_key=keys.api, secret_key=keys.secret)
 ladder_dict = {}
 for i in range(window_price_levels):
     ladder_dict[i] = 0
+
 
 #FUNCTIONS
 
@@ -378,18 +380,22 @@ def place_order(coord, side):
         price = ladder_dict[coord]
 
         #Send order to binance
-        if side == "BUY":
+        if side == "BUY" and order_size > 0:
             result = request_client.post_order(symbol=instrument, side=OrderSide.BUY,
-                ordertype=OrderType.LIMIT, price=price, quantity=order_size, timeInForce=TimeInForce.GTC,)
+                ordertype=OrderType.LIMIT, price=price, quantity="%.2f"%order_size, timeInForce=TimeInForce.GTC,)
 
+            print(f"\nOrder {side} {order_size} at {price} sent to exchange. - {time}")
             #eval(label.format(coord))["text"] = str(open_orders[i]["qty"])
             #open_orders[event.orderId]["qty"] += order_size
 
-        elif side == "SELL":
+        elif side == "SELL" and order_size > 0:
             result = request_client.post_order(symbol=instrument, side=OrderSide.SELL,
-                ordertype=OrderType.LIMIT, price=price, quantity=order_size, timeInForce=TimeInForce.GTC,)
+                ordertype=OrderType.LIMIT, price=price, quantity="%.2f"%order_size, timeInForce=TimeInForce.GTC,)
 
-        print(f"Order {side} {order_size} at {price} sent to exchange. - {time}\n")
+            print(f"\nOrder {side} {order_size} at {price} sent to exchange. - {time}")
+
+        else:
+            print(f"\nError: Order {side} {order_size} at {price} was not sent. - {time}")
 
 def cancel_order(coord):
     if subscribed_bool == True and dict_setup == True and trade_mode == True:
@@ -436,13 +442,22 @@ def trade_mode_swap():
     if trade_mode == False:
         trade_mode = True
         trademodebutton["bg"] = "lightcoral"
-        print("Trade mode activated.")
+        print("\nTrade mode activated.")
 
     else:
         trade_mode = False
         trademodebutton["bg"] = "whitesmoke"
-        print("Trade mode disabled.")
+        print("\nTrade mode disabled.")
 
+def modqty(type):
+    global order_size
+
+    if type == "add":
+        order_size += add_lot_size
+        lotqty["text"] = f"Qty: {'%.2f'%order_size}"
+    elif type == "clear":
+        order_size = 0
+        lotqty["text"] = f"Qty: {'%.2f'%order_size}"
 
 #THREADS
 def listener():
@@ -573,6 +588,7 @@ def orderbook_listener():
     asyncio.set_event_loop(loop)
     loop.run_until_complete(orderbook())
 
+
 #CLASSES
 
 class Toolbar(tk.Frame):
@@ -624,6 +640,36 @@ class Tradetools(tk.Frame):
         global trademodebutton
         global pnllabel
         global positionlabel
+        global lotqty
+
+        lotqty = tk.Label(
+            master = self,
+            text = f"Qty: {order_size}",
+            height = 1,
+        )
+
+        ordersizeframe = tk.Frame(
+            master = self,
+            width = 80,
+            height = 30,
+            bg = "silver"
+        )
+
+        addlot = tk.Button(
+            master = ordersizeframe,
+            command = lambda: modqty("add"),
+            text = add_lot_size,
+            height = 1,
+            width = 3
+        )
+
+        clearlot = tk.Button(
+            master = ordersizeframe,
+            command = lambda: modqty("clear"),
+            text = "clear",
+            height = 1,
+            width = 5
+        )
 
         trademodebutton = tk.Button(
             master = self,
@@ -655,6 +701,11 @@ class Tradetools(tk.Frame):
             bg = "silver"
         )
 
+        lotqty.pack(pady=5)
+        addlot.pack(side="left", padx=1)
+        clearlot.pack(side="left", padx=1)
+        ordersizeframe.pack(side="top", padx=5, pady=5)
+        ordersizeframe.pack_propagate(False)
         trademodebutton.pack(side="top", pady=5)
         cancelallbutton.pack(side="top", pady=5)
         positionlabel.pack(side="top")
@@ -902,6 +953,7 @@ class MainApplication(tk.Frame):
         time = datetime.now().strftime("%H:%M:%S.%f")[:-4]
         root.title("tori - " + title_instrument_info + " | " + time)
         root.after(100, self.update_title)
+
 
 #MAIN
 
