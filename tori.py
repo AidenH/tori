@@ -382,7 +382,8 @@ def place_order(coord, side):
         #Send order to binance
         if side == "BUY" and order_size > 0:
             result = request_client.post_order(symbol=instrument, side=OrderSide.BUY,
-                ordertype=OrderType.LIMIT, price=price, quantity="%.2f"%order_size, timeInForce=TimeInForce.GTC,)
+                ordertype=OrderType.LIMIT, price=price, quantity="%.2f"%order_size,
+                    timeInForce=TimeInForce.GTC,)
 
             print(f"\nOrder {side} {order_size} at {price} sent to exchange. - {time}")
             #eval(label.format(coord))["text"] = str(open_orders[i]["qty"])
@@ -390,7 +391,8 @@ def place_order(coord, side):
 
         elif side == "SELL" and order_size > 0:
             result = request_client.post_order(symbol=instrument, side=OrderSide.SELL,
-                ordertype=OrderType.LIMIT, price=price, quantity="%.2f"%order_size, timeInForce=TimeInForce.GTC,)
+                ordertype=OrderType.LIMIT, price=price, quantity="%.2f"%order_size,
+                    timeInForce=TimeInForce.GTC,)
 
             print(f"\nOrder {side} {order_size} at {price} sent to exchange. - {time}")
 
