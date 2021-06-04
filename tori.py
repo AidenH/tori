@@ -252,6 +252,8 @@ def refresh():
         eval(asklabel.format(i))["text"] = ""
         eval(bidlabel.format(i))["text"] = ""
 
+        eval(olabel.format(i))["text"] = ""
+
     #write dictionary values to frame
     for i in range(window_price_levels-1, -1, -1):
         eval(label.format(i))["text"] = ladder_dict[i]
@@ -470,16 +472,16 @@ def listener():
         for i in open_orders:
             coord = int(price_label0["text"]) - i
 
-            if coord >= 0 and coord <= 49:
+            if coord >= 0 and coord <= window_price_levels-1:
 
                 #If order is buy
                 if open_orders[i]["side"] == "BUY":
                     pass
-                    eval(label.format(coord))["text"] = str(open_orders[i]["qty"])
+                    eval(label.format(coord))["text"] = open_orders[i]["qty"]
                     eval(label.format(coord))["fg"] = "blue"
 
                 if open_orders[i]["side"] == "SELL":
-                    eval(label.format(coord))["text"] = str(open_orders[i]["qty"])
+                    eval(label.format(coord))["text"] = open_orders[i]["qty"]
                     eval(label.format(coord))["fg"] = "maroon"
 
         #LONG
@@ -729,7 +731,7 @@ order_frame{i}.pack(fill="x")
 
 order_label{i} = tk.Label(
             master=order_frame{i},
-            text="",
+            text=None,
             font = font,
             anchor = "w",
             fg = "blue",
