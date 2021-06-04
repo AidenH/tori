@@ -115,13 +115,15 @@ def get_trades_callback(data_type: 'SubscribeMessageType', event: 'any'):
         if dict_setup == False:
             print("Set up dictionary - " + time + "\n")
 
-            for i in range(0, local_lastprice + local_lastprice):
-                #only adding the total level volume information for the moment
+            #tick_size other than 1 not yet working.
+            #Subscriptionprocess error on start.
+            for i in range(0, local_lastprice + local_lastprice, tick_size):
+                #Init price level volume data
                 prices[i] = {"volume" : 0, "buy" : 0, "sell" : 0}
 
             #This and refresh() for us to have a midpoint coord on first startup
             #   in order to avoid refresh() spamming because highlight_trade_price hasn't received
-            #   a coord over the auto-recenter trigger
+            #   a coord outside the auto-recenter trigger zones
             price_label0["text"] = global_lastprice+ladder_midpoint
             coord = int(price_label0["text"]) - global_lastprice
 

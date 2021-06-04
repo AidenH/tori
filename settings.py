@@ -4,6 +4,7 @@ window_price_levels = 50    #Determines height of window,
 
 #Trading settings
 instrument = "ethusdt"
+tick_size = 1   #Leave at 1 for the time being
 order_size = 0.01   #Default order size
 add_lot_size = 0.01
 pnl_point_mode = True   #Display PnL in points or currency
