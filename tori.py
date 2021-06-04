@@ -161,6 +161,7 @@ def user_data_callback(data_type: 'SubscribeMessageType', event: 'any'):
         PrintBasic.print_obj(event)
         print("------------END EVENT------------")'''
 
+        #If new order received
         if event.eventType == "ORDER_TRADE_UPDATE" and event.orderStatus == "NEW":
             #open_orders[event.orderId] = {"price" : event.price, "side" : event.side, "qty" : event.origQty}
 
@@ -182,6 +183,7 @@ def user_data_callback(data_type: 'SubscribeMessageType', event: 'any'):
 
             print(f"Order {event.side} {event.origQty} at {int(event.price)} placed. - {time}\n")
 
+        #Check for order being filled
         if event.eventType == "ORDER_TRADE_UPDATE" and event.orderStatus == "FILLED":
             #Check for matching order id by event.price/open_orders[price]
             for id in list(open_orders[event.price]["ids"]):
@@ -385,21 +387,35 @@ def place_order(coord, side):
 
         #Send order to binance
         if side == "BUY" and order_size > 0:
-            result = request_client.post_order(symbol=instrument, side=OrderSide.BUY,
-                ordertype=OrderType.LIMIT, price=price, quantity="%.2f"%order_size,
-                    timeInForce=TimeInForce.GTC,)
+            if price < global_lastprice:
+                result = request_client.post_order(symbol=instrument, side=OrderSide.BUY,
+                    ordertype=OrderType.LIMIT, price=price, quantity="%.2f"%order_size,
+                        timeInForce=TimeInForce.GTC,)
+                print(f"\nLimit order {side} {order_size} at {price} sent to exchange. - {time}")
 
-            print(f"\nOrder {side} {order_size} at {price} sent to exchange. - {time}")
+            #Stop limit
+            else:
+                result = request_client.post_order(symbol=instrument, side=OrderSide.BUY,
+                    ordertype=OrderType.STOP, price=price+1, stopPrice=price, quantity="%.2f"%order_size,
+                        timeInForce=TimeInForce.GTC,)
+                print(f"\nStop limit order {side} {order_size} at {price} sent to exchange. - {time}")
 
         elif side == "SELL" and order_size > 0:
-            result = request_client.post_order(symbol=instrument, side=OrderSide.SELL,
-                ordertype=OrderType.LIMIT, price=price, quantity="%.2f"%order_size,
-                    timeInForce=TimeInForce.GTC,)
+            if price > global_lastprice:
+                result = request_client.post_order(symbol=instrument, side=OrderSide.SELL,
+                    ordertype=OrderType.LIMIT, price=price, quantity="%.2f"%order_size,
+                        timeInForce=TimeInForce.GTC,)
+                print(f"\nLimit order {side} {order_size} at {price} sent to exchange. - {time}")
 
-            print(f"\nOrder {side} {order_size} at {price} sent to exchange. - {time}")
+            #Stop limit
+            else:
+                result = request_client.post_order(symbol=instrument, side=OrderSide.SELL,
+                    ordertype=OrderType.STOP, price=price-1, stopPrice=price, quantity="%.2f"%order_size,
+                        timeInForce=TimeInForce.GTC,)
+                print(f"\nStop limit order {side} {order_size} at {price} sent to exchange. - {time}")
 
         else:
-            print(f"\nError: Order {side} {order_size} at {price} was not sent. - {time}")
+            print(f"\n! Error: Order {side} {order_size} at {price} was not sent. - {time}")
 
 def cancel_order(coord):
     if subscribed_bool == True and dict_setup == True and trade_mode == True:
