@@ -983,6 +983,10 @@ if __name__ == "__main__":
     if auto_subscribe == True:
         connect()
 
+    if init_trademode == True:
+        print("! Starting in trade mode.")
+        trade_mode_swap()
+
     root.mainloop()
 
     listener_thread.join()
