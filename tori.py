@@ -510,54 +510,63 @@ def modqty(type):
         order_size = 0
         lotqty["text"] = f"Qty: {'%.2f'%order_size}"
 
+
 #THREADS
 def listener():
-    global global_lastprice
-    label = "order_label{0}"
+    for i in iter(int, 1):
 
-    if subscribed_bool == True and dict_setup == True:
-        for i in open_orders:
-            coord = int(price_label0["text"]) - i
+        print(f"LISTENER: {open_orders} - {time}")
+        if subscribed_bool == True and dict_setup == True and listener_safe == True:
+            for i in list(open_orders):
+                coord = int(price_label0["text"]) - i
 
-            if coord >= 0 and coord <= window_price_levels-1:
+                if coord >= 0 and coord <= window_price_levels-1:
+                    #If order is buy
+                    if open_orders[i]["side"] == "BUY":
+                        eval(olabel.format(coord))["text"] = open_orders[i]["qty"]
+                        eval(olabel.format(coord))["fg"] = "blue"
 
-                #If order is buy
-                if open_orders[i]["side"] == "BUY":
-                    pass
-                    eval(label.format(coord))["text"] = open_orders[i]["qty"]
-                    eval(label.format(coord))["fg"] = "blue"
+                    elif open_orders[i]["side"] == "SELL":
+                        eval(olabel.format(coord))["text"] = open_orders[i]["qty"]
+                        eval(olabel.format(coord))["fg"] = "maroon"
 
-                if open_orders[i]["side"] == "SELL":
-                    eval(label.format(coord))["text"] = open_orders[i]["qty"]
-                    eval(label.format(coord))["fg"] = "maroon"
+            #LONG
+            if open_position["qty"] > 0:
+                open_position["pnl"] = round((global_lastprice * open_position["qty"])
+                    - (open_position["entry"] * open_position["qty"]), 3)
 
-        #LONG
-        if open_position["qty"] > 0:
-            open_position["pnl"] = round((global_lastprice * open_position["qty"])
-                - (open_position["entry"] * open_position["qty"]), 3)
+                #check whether pnl should be in point mode or cash mode
+                if pnl_point_mode == False:
+                    pnllabel["text"] = "PnL: " + str(open_position["pnl"])
+                else:
+                    pnllabel["text"] = "PnL: " + str(global_lastprice - open_position["entry"]) + "pt"
 
-            #check whether pnl should be in point mode or cash mode
-            if pnl_point_mode == False:
-                pnllabel["text"] = "PnL: " + str(open_position["pnl"])
+                positionlabel["text"] = f"Position: {open_position['qty']}"
+
+            #SHORT
+            elif open_position["qty"] < 0:
+                open_position["pnl"] = round((open_position["entry"] * open_position["qty"])
+                    - (global_lastprice * open_position["qty"]), 3)
+
+                #check whether pnl should be in point mode or cash mode
+                if pnl_point_mode == False:
+                    pnllabel["text"] = "PnL: " + str(open_position["pnl"])
+                else:
+                    pnllabel["text"] = "PnL: " + str(open_position["entry"] - global_lastprice) + "pt"
+
+                positionlabel["text"] = f"Position: {open_position['qty']}"
+
+            #NO POSITION
             else:
-                pnllabel["text"] = "PnL: " + str(global_lastprice - open_position["entry"]) + "pt"
+                positionlabel["text"] = "Position: ---"
+                pnllabel["text"] = "PnL: ---"
 
-            positionlabel["text"] = f"Position: {open_position['qty']}"
+        t.sleep(0.5)
 
-        #SHORT
-        elif open_position["qty"] < 0:
-            pass
-
-        #NO POSITION
-        else:
-            positionlabel["text"] = "Position: ---"
-            pnllabel["text"] = "PnL: ---"
-
-    root.after(500, listener)
+    #Using for and sleep now instead
+    #root.after(500, listener)
 
 def orderbook_listener():
-    #_executor = ThreadPoolExecutor(1)
-
     #Populate orderbook dictionary
     async def get_request():
         result = request_client.get_order_book(instrument, 500)
