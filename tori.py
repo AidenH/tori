@@ -228,7 +228,7 @@ def user_data_callback(data_type: 'SubscribeMessageType', event: 'any'):
                     if open_orders[event.price]["ids"] == []:
                         print(f"empty - no orders at {event.price}")
                         open_orders.pop(event.price, None)
-                        eval(olabel.format(coord))["text"] = None
+                        eval(olabel.format(coord))["text"] = ""
 
                     #Otherwise just subtract order qty from dict level qty
                     else:
@@ -458,7 +458,6 @@ def place_order(coord, side):
 def cancel_order(coord):
     if subscribed_bool == True and dict_setup == True and trade_mode == True:
         price = ladder_dict[coord]
-        #label = "order_label{0}"
 
         #For every order id at logged at a particular price level, cancel.
         for id in list(open_orders[price]["ids"]):
