@@ -521,7 +521,7 @@ def modqty(type):
 def listener():
     #loop indefinitely with iter()
     for i in iter(int, 1):
-        print(f"LISTENER: {open_orders} - {time}")
+        #print(f"LISTENER: {open_orders} - {time}")
         if subscribed_bool == True and dict_setup == True and listener_safe == True:
             #Handle open orders list and send to orders column
             for i in list(open_orders):
@@ -533,7 +533,7 @@ def listener():
                     if open_orders[i]["side"] == "BUY":
                         eval(olabel.format(coord))["text"] = open_orders[i]["qty"]
                         eval(olabel.format(coord))["fg"] = "blue"
-                        
+
                     #Order is sell
                     elif open_orders[i]["side"] == "SELL":
                         eval(olabel.format(coord))["text"] = open_orders[i]["qty"]
@@ -596,7 +596,7 @@ def orderbook_listener():
                 break
 
             if price not in small_book:
-                small_book[price] = {}
+                small_book[price] = {"bids": 0}
 
             try:
                 small_book[price]["bids"] += qty
@@ -611,7 +611,7 @@ def orderbook_listener():
                 break
 
             if price not in small_book:
-                small_book[price] = {}
+                small_book[price] = {"asks": 0}
 
             try:
                 small_book[price]["asks"] += qty
