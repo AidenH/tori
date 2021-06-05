@@ -527,12 +527,14 @@ def listener():
             for i in list(open_orders):
                 coord = int(price_label0["text"]) - i
 
-                if coord >= 0 and coord <= window_price_levels-1:
-                    #If order is buy
+                #Check that coord is within window and price is in open_orders[]
+                if coord >= 0 and coord <= window_price_levels-1 and i in open_orders:
+                    #Order is buy
                     if open_orders[i]["side"] == "BUY":
                         eval(olabel.format(coord))["text"] = open_orders[i]["qty"]
                         eval(olabel.format(coord))["fg"] = "blue"
-
+                        
+                    #Order is sell
                     elif open_orders[i]["side"] == "SELL":
                         eval(olabel.format(coord))["text"] = open_orders[i]["qty"]
                         eval(olabel.format(coord))["fg"] = "maroon"
