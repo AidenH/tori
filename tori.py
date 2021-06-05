@@ -33,6 +33,8 @@ coord = 0
 prices = {}
 small_book = {0 : {"bids" : 0, "asks" : 0}}
 last_trade = {"qty" : 0, "buyer" : False}
+listener_safe = True
+
 plabel = "price_label{0}"
 vlabel = "volume_label{0}"
 blabel = "buy_label{0}"
@@ -160,6 +162,8 @@ def get_trades_callback(data_type: 'SubscribeMessageType', event: 'any'):
 
     #user data for position updates, balance etc.
 def user_data_callback(data_type: 'SubscribeMessageType', event: 'any'):
+    global listener_safe
+
     if data_type == SubscribeMessageType.RESPONSE:
         print("EventID: ", event)
 
@@ -197,6 +201,9 @@ def user_data_callback(data_type: 'SubscribeMessageType', event: 'any'):
             for id in list(open_orders[event.price]["ids"]):
                 #If event id matches an open_orders id, then delete id from dict
                 if id == event.orderId:
+                    #Deactivate listener temporarily
+                    listener_safe = False
+
                     open_orders[event.price]["ids"].remove(id)
 
                     #If open_orders is void of ids after this, remove that price level from dict
@@ -205,6 +212,9 @@ def user_data_callback(data_type: 'SubscribeMessageType', event: 'any'):
                     #Otherwise just subtract order qty from dict level qty
                     else:
                         open_orders[event.price]["qty"] -= event.origQty
+
+                    #Reactivate listener
+                    listener_safe = True
 
         if event.eventType == "ACCOUNT_UPDATE":
             print("\n-----------POSITIONS-------------")
