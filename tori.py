@@ -79,6 +79,8 @@ def connect():
         listenkey = request_client.start_user_data_stream()
         data_result = sub_client.subscribe_user_data_event(listenkey, user_data_callback, error)
 
+        keepalive()
+
     if agg_result and data_result:
         return True
 
@@ -95,6 +97,17 @@ def disconnect():
 
     print("\n\nDisconnected.\n")
     sub_client.unsubscribe_all()
+
+def keepalive():
+    print("Pinging server...")
+
+    try:
+        request_client.keep_user_data_stream()
+        print("Ping success.")
+    except:
+        print("Could not ping server.")
+
+    root.after(3600000, keepalive)
 
     #get aggregate trades
 def get_trades_callback(data_type: 'SubscribeMessageType', event: 'any'):
