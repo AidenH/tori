@@ -33,6 +33,13 @@ coord = 0
 prices = {}
 small_book = {0 : {"bids" : 0, "asks" : 0}}
 last_trade = {"qty" : 0, "buyer" : False}
+plabel = "price_label{0}"
+vlabel = "volume_label{0}"
+blabel = "buy_label{0}"
+slabel = "sell_label{0}"
+olabel = "order_label{0}"
+bidlabel = "bid_label{0}"
+asklabel = "ask_label{0}"
 
 #Trading variables
 trade_mode = False
@@ -185,6 +192,7 @@ def user_data_callback(data_type: 'SubscribeMessageType', event: 'any'):
 
         #Check for order being filled
         if event.eventType == "ORDER_TRADE_UPDATE" and event.orderStatus == "FILLED":
+            #olabel = "order_label{0}"
             #Check for matching order id by event.price/open_orders[price]
             for id in list(open_orders[event.price]["ids"]):
                 #If event id matches an open_orders id, then delete id from dict
@@ -239,13 +247,13 @@ def refresh():
     global global_lastprice
     global ladder_dict
 
-    label = "price_label{0}"
-    vlabel = "volume_label{0}"
-    blabel = "buy_label{0}"
-    slabel = "sell_label{0}"
-    olabel = "order_label{0}"
-    asklabel = "ask_label{0}"
-    bidlabel = "bid_label{0}"
+    # plabel = "price_label{0}"
+    # vlabel = "volume_label{0}"
+    # blabel = "buy_label{0}"
+    # slabel = "sell_label{0}"
+    # olabel = "order_label{0}"
+    #asklabel = "ask_label{0}"
+    #bidlabel = "bid_label{0}"
 
     #populate the ladder cell dictionary
     for i in range(window_price_levels):
@@ -272,9 +280,9 @@ def volume_column_populate(clean):
     global ladder_dict
     global coord
 
-    label = "volume_label{0}"
+    #label = "volume_label{0}"
 
-    eval(label.format(coord))["text"] = str(prices[ladder_dict[coord]]["volume"])[:-2]
+    eval(vlabel.format(coord))["text"] = str(prices[ladder_dict[coord]]["volume"])[:-2]
 
     #OLD
     '''for i in range(0, window_price_levels):
@@ -291,9 +299,9 @@ def buy_column_populate(clean):
     global ladder_dict
     global coord
 
-    label = "buy_label{0}"
+    #label = "buy_label{0}"
 
-    eval(label.format(coord))["text"] = str(prices[ladder_dict[coord]]["buy"])[:-2]
+    eval(blabel.format(coord))["text"] = str(prices[ladder_dict[coord]]["buy"])[:-2]
 
     if clean == False:
         root.after(100, buy_column_populate, False)
@@ -304,9 +312,9 @@ def sell_column_populate(clean):
     global ladder_dict
     global coord
 
-    label = "sell_label{0}"
+    #label = "sell_label{0}"
 
-    eval(label.format(coord))["text"] = str(prices[ladder_dict[coord]]["sell"])[:-2]
+    eval(slabel.format(coord))["text"] = str(prices[ladder_dict[coord]]["sell"])[:-2]
 
     if clean == False:
         root.after(100, sell_column_populate, False)
@@ -367,8 +375,8 @@ def highlight_trade_price():
     root.after(100, highlight_trade_price)
 
 def clean_volume():
-    blabel = "buy_label{0}"
-    slabel = "sell_label{0}"
+    #blabel = "buy_label{0}"
+    #slabel = "sell_label{0}"
 
     for i in range(len(prices)):
         #prices[i]["volume"] = 0
@@ -420,7 +428,7 @@ def place_order(coord, side):
 def cancel_order(coord):
     if subscribed_bool == True and dict_setup == True and trade_mode == True:
         price = ladder_dict[coord]
-        label = "order_label{0}"
+        #label = "order_label{0}"
 
         #For every order id at logged at a particular price level, cancel.
         for id in list(open_orders[price]["ids"]):
@@ -437,20 +445,20 @@ def cancel_order(coord):
             open_orders.pop(price, None)
 
         #Reset label text
-        eval(label.format(coord))["text"] = ""
+        eval(olabel.format(coord))["text"] = ""
 
         print(f"after cancel: {open_orders}")
 
 def cancel_all():
-    label = "order_label{0}"
-
     request_client.cancel_all_orders(symbol=instrument)
 
     for order in list(open_orders):
         coord = int(price_label0["text"]) - order
 
         open_orders.pop(order, None)
-        eval(label.format(coord))["text"] = ""
+        eval(olabel.format(coord))["text"] = ""
+
+    print("All orders cancelled.")
 
 def flatten():
     #I need to be built
@@ -600,10 +608,7 @@ def orderbook_listener():
                 await write_asks()
                 await write_bids()
             await asyncio.sleep(0.5)
-            #t.sleep(0.5)
 
-    blabel = "bid_label{0}"
-    alabel = "ask_label{0}"
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     loop.run_until_complete(orderbook())
