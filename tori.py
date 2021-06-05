@@ -187,8 +187,6 @@ def user_data_callback(data_type: 'SubscribeMessageType', event: 'any'):
 
         #If new order received
         if event.eventType == "ORDER_TRADE_UPDATE" and event.orderStatus == "NEW":
-            #open_orders[event.orderId] = {"price" : event.price, "side" : event.side, "qty" : event.origQty}
-
             if event.price not in open_orders:
                 open_orders[int(event.price)] = {}
 
@@ -207,27 +205,39 @@ def user_data_callback(data_type: 'SubscribeMessageType', event: 'any'):
 
             print(f"Order {event.side} {event.origQty} at {int(event.price)} placed. - {time}\n")
 
+            print(open_orders)
+
         #Check for order being filled
         if event.eventType == "ORDER_TRADE_UPDATE" and event.orderStatus == "FILLED":
-            #olabel = "order_label{0}"
+            PrintBasic.print_obj(event)
             #Check for matching order id by event.price/open_orders[price]
             for id in list(open_orders[event.price]["ids"]):
                 #If event id matches an open_orders id, then delete id from dict
                 if id == event.orderId:
                     #Deactivate listener temporarily
-                    listener_safe = False
+                    #listener_safe = False
 
+                    print(ladder_dict[0])
+                    price = int(round(float(event.price), 0))
+                    coord = ladder_dict[0] - price
+
+                    #Remove id key & data from open orders price level
                     open_orders[event.price]["ids"].remove(id)
 
-                    #If open_orders is void of ids after this, remove that price level from dict
+                    #If open_orders is empty of ids after this, remove that price level from dict
                     if open_orders[event.price]["ids"] == []:
+                        print(f"empty - no orders at {event.price}")
                         open_orders.pop(event.price, None)
+                        eval(olabel.format(coord))["text"] = None
+
                     #Otherwise just subtract order qty from dict level qty
                     else:
+                        print("id left, subbing from order qty")
                         open_orders[event.price]["qty"] -= event.origQty
+                        eval(olabel.format(coord))["text"] -= event.origQty
 
                     #Reactivate listener
-                    listener_safe = True
+                    #listener_safe = True
 
         if event.eventType == "ACCOUNT_UPDATE":
             print("\n-----------POSITIONS-------------")
@@ -270,14 +280,6 @@ def refresh():
     global global_lastprice
     global ladder_dict
 
-    # plabel = "price_label{0}"
-    # vlabel = "volume_label{0}"
-    # blabel = "buy_label{0}"
-    # slabel = "sell_label{0}"
-    # olabel = "order_label{0}"
-    #asklabel = "ask_label{0}"
-    #bidlabel = "bid_label{0}"
-
     #populate the ladder cell dictionary
     for i in range(window_price_levels):
         ladder_dict[i] = global_lastprice+ladder_midpoint-i
@@ -289,7 +291,7 @@ def refresh():
 
     #write dictionary values to frame
     for i in range(window_price_levels-1, -1, -1):
-        eval(label.format(i))["text"] = ladder_dict[i]
+        eval(plabel.format(i))["text"] = ladder_dict[i]
         eval(vlabel.format(i))["text"] = str(prices[ladder_dict[i]]["volume"])[:-2]
         eval(blabel.format(i))["text"] = str(prices[ladder_dict[i]]["buy"])[:-2]
         eval(slabel.format(i))["text"] = str(prices[ladder_dict[i]]["sell"])[:-2]
@@ -430,6 +432,11 @@ def place_order(coord, side):
                     ordertype=OrderType.STOP, price=price+1, stopPrice=price, quantity="%.2f"%order_size,
                         timeInForce=TimeInForce.GTC,)
                 print(f"\nStop limit order {side} {order_size} at {price} sent to exchange. - {time}")
+
+            # result = request_client.post_order(symbol=instrument, side=OrderSide.BUY,
+            #     ordertype=OrderType.LIMIT, price=price, quantity="%.2f"%order_size,
+            #         timeInForce=TimeInForce.GTC,)
+            # print(f"\nLimit order {side} {order_size} at {price} sent to exchange. - {time}")
 
         elif side == "SELL" and order_size > 0:
             if price > global_lastprice:
@@ -574,10 +581,11 @@ def orderbook_listener():
         await asyncio.sleep(0.01)
 
         for price in small_book:
-            coord = price_label0["text"] - price
+            coord = ladder_dict[0] - price
+            #coord = price_label0["text"] - price
             if coord >= 0 and coord < window_price_levels-1:
-                eval(blabel.format(coord))["text"] = ""
-                eval(alabel.format(coord))["text"] = ""
+                eval(bidlabel.format(coord))["text"] = ""
+                eval(asklabel.format(coord))["text"] = ""
 
         small_book.clear()
 
@@ -615,23 +623,25 @@ def orderbook_listener():
     async def write_asks():
         await asyncio.sleep(0.01)
         for price in small_book:
-            coord = price_label0["text"] - price
+            coord = ladder_dict[0] - price
+            #coord = price_label0["text"] - price
 
             #Check coord is within window and that "asks" is a key in small_book
             if coord >= 0 and coord < window_price_levels-1\
                 and "asks" in small_book[price]:
-                    eval(alabel.format(coord))["text"] = small_book[price]["asks"]
+                    eval(asklabel.format(coord))["text"] = small_book[price]["asks"]
 
     #Bids
     async def write_bids():
         await asyncio.sleep(0.01)
         for price in small_book:
-            coord = price_label0["text"] - price
+            coord = ladder_dict[0] - price
+            #coord = price_label0["text"] - price
 
             #Check coord is within window and that "bids" is a key in small_book
             if coord >= 0 and coord < window_price_levels-1\
                 and "bids" in small_book[price]:
-                    eval(blabel.format(coord))["text"] = small_book[price]["bids"]
+                    eval(bidlabel.format(coord))["text"] = small_book[price]["bids"]
 
     async def orderbook():
         for i in iter(int, 1): #marginally faster than while True
