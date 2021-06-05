@@ -520,10 +520,11 @@ def modqty(type):
 
 #THREADS
 def listener():
+    #loop indefinitely with iter()
     for i in iter(int, 1):
-
         print(f"LISTENER: {open_orders} - {time}")
         if subscribed_bool == True and dict_setup == True and listener_safe == True:
+            #Handle open orders list and send to orders column
             for i in list(open_orders):
                 coord = int(price_label0["text"]) - i
 
@@ -537,7 +538,7 @@ def listener():
                         eval(olabel.format(coord))["text"] = open_orders[i]["qty"]
                         eval(olabel.format(coord))["fg"] = "maroon"
 
-            #LONG
+            #LONG position PnL calculation
             if open_position["qty"] > 0:
                 open_position["pnl"] = round((global_lastprice * open_position["qty"])
                     - (open_position["entry"] * open_position["qty"]), 3)
@@ -550,7 +551,7 @@ def listener():
 
                 positionlabel["text"] = f"Position: {open_position['qty']}"
 
-            #SHORT
+            #SHORT position PnL calculation
             elif open_position["qty"] < 0:
                 open_position["pnl"] = round((open_position["entry"] * open_position["qty"])
                     - (global_lastprice * open_position["qty"]), 3)
@@ -569,9 +570,6 @@ def listener():
                 pnllabel["text"] = "PnL: ---"
 
         t.sleep(0.5)
-
-    #Using for and sleep now instead
-    #root.after(500, listener)
 
 def orderbook_listener():
     #Populate orderbook dictionary
