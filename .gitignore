@@ -1,5 +1,6 @@
 __pycache__/
 *.pyc
+*.pyw
 binance_f/
 keys.py
 dist/
