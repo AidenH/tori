@@ -823,9 +823,9 @@ order_label{i} = tk.Label(
             bg = "gainsboro"
         )
 order_label{i}.pack(fill="x")
-order_label{i}.bind("<Button-1>", lambda e: place_order({i}, "BUY"))
+#order_label{i}.bind("<Button-1>", lambda e: place_order({i}, "BUY"))
 order_label{i}.bind("<Button-2>", lambda e: cancel_order({i}))
-order_label{i}.bind("<Button-3>", lambda e: place_order({i}, "SELL"))''')
+#''')
 
 class Priceaxis(tk.Frame):
     def __init__(self, master):
@@ -942,12 +942,14 @@ ask_frame{i}.pack(fill="x", side="top")
 ask_label{i} = tk.Label(
             master = ask_frame{i},
             text = None,
-            width = 0,
+            width = 5,
             font = font,
             fg = "white",
-            bg = "maroon"
+            bg = "maroon",
+            anchor = "w"
         )
-ask_label{i}.pack(side="left")''')
+ask_label{i}.pack(side="left")
+ask_label{i}.bind("<Button-1>", lambda e: place_order({i}, "SELL"))''')
 
 class Bidcolumn(tk.Frame):
     def __init__(self, master):
@@ -975,12 +977,14 @@ bid_frame{i}.pack(fill="x", side="top")
 bid_label{i} = tk.Label(
             master = bid_frame{i},
             text = None,
-            width = 0,
+            width = 5,
             font = font,
             fg = "white",
-            bg = "navy"
+            bg = "navy",
+            anchor = "e"
         )
-bid_label{i}.pack(side="right")''')
+bid_label{i}.pack(side="right")
+bid_label{i}.bind("<Button-1>", lambda e: place_order({i}, "BUY"))''')
 
 class MainApplication(tk.Frame):
     def __init__(self, master, *args, **kwargs):
