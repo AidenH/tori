@@ -356,11 +356,7 @@ def sell_column_populate(clean):
         root.after(100, sell_column_populate, False)
 
 def highlight_trade_price():
-    global global_lastprice
-    global prev_highlight_price
-    global coord
-    global prev_coord
-    global last_trade
+    global global_lastprice, prev_highlight_price, coord, prev_coord, last_trade
 
     if dict_setup == True:
         #If there is an open position, mark it at entry_coord location
