@@ -43,6 +43,9 @@ olabel = "order_label{0}"
 bidlabel = "bid_label{0}"
 asklabel = "ask_label{0}"
 
+total_buy_volume = 0
+total_sell_volume = 0
+
 #Trading variables
 trade_mode = False
 open_orders = {}
@@ -117,6 +120,8 @@ def get_trades_callback(data_type: 'SubscribeMessageType', event: 'any'):
     global title_instrument_info
     global coord
     global last_trade
+    global total_buy_volume
+    global total_sell_volume
 
     coord = int(price_label0["text"]) - global_lastprice
 
@@ -165,10 +170,15 @@ def get_trades_callback(data_type: 'SubscribeMessageType', event: 'any'):
             #if buyer
             last_trade["buyer"] = True
             prices[local_lastprice]["buy"] += round(event.qty, 0)
+            total_buy_volume += event.qty
         else:
             #if seller
             last_trade["buyer"] = False
             prices[local_lastprice]["sell"] += round(event.qty, 0)
+            total_sell_volume += event.qty
+
+        delta = int(total_buy_volume - total_sell_volume)
+        deltainfolabel["text"] = f"Delta: {delta}"
 
     else:
         print("Unknown Data:")
@@ -400,17 +410,16 @@ def highlight_trade_price():
     root.after(100, highlight_trade_price)
 
 def clean_volume():
-    #blabel = "buy_label{0}"
-    #slabel = "sell_label{0}"
+    global total_buy_volume, total_sell_volume, delta
 
     for i in range(len(prices)):
         #prices[i]["volume"] = 0
-        prices[i]["buy"] = 0
-        prices[i]["sell"] = 0
+        prices[i]["buy"] = prices[i]["sell"] = 0
 
     for i in range(window_price_levels):
-        eval(blabel.format(i))["text"] = ""
-        eval(slabel.format(i))["text"] = ""
+        eval(blabel.format(i))["text"] = eval(slabel.format(i))["text"] = ""
+
+    total_buy_volume = total_sell_volume = delta = 0
 
     print("clean volume - " + time)
 
@@ -707,6 +716,7 @@ class Tradetools(tk.Frame):
         global pnllabel
         global positionlabel
         global lotqty
+        global deltainfolabel
 
         lotqty = tk.Label(
             master = self,
@@ -767,6 +777,20 @@ class Tradetools(tk.Frame):
             bg = "silver"
         )
 
+        deltainfoframe = tk.Frame(
+            master = self,
+            height = 20,
+            bg = "navy"
+        )
+
+        deltainfolabel = tk.Label(
+            master = deltainfoframe,
+            font = font,
+            text = None,
+            fg = "white",
+            bg = "navy"
+        )
+
         lotqty.pack(pady=5)
         addlot.pack(side="left", padx=1)
         clearlot.pack(side="left", padx=1)
@@ -776,6 +800,8 @@ class Tradetools(tk.Frame):
         cancelallbutton.pack(side="top", pady=5)
         positionlabel.pack(side="top")
         pnllabel.pack(side="top")
+        deltainfoframe.pack(side="bottom", fill="x")
+        deltainfolabel.pack()
 
 class Ordercolumn(tk.Frame):
     def __init__(self, master):
