@@ -270,6 +270,7 @@ def user_data_callback(data_type: 'SubscribeMessageType', event: 'any'):
 
                         exec(f"price_label{entry_coord}['text'] = '{ladder_dict[entry_coord]}'")
                         exec(f"price_label{entry_coord}['fg'] = 'white'")
+                        exec(f"price_label{entry_coord}['bg'] = 'gray'")
 
                         open_position["entry"] = 0
                         open_position["coord"] = 0
