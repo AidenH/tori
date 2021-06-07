@@ -24,7 +24,8 @@ title_instrument_info = "none"
 
 #Dom-related variables
 dict_setup = False
-ladder_midpoint = 23
+#ladder_midpoint = 23
+ladder_midpoint = int(window_price_levels / 2) - 2
 subscribed_bool = False
 orderbook_subscribed_bool = False
 global_lastprice = 0
