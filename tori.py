@@ -1,7 +1,6 @@
 from datetime import datetime
 import tkinter as tk
 import threading
-from concurrent.futures import ThreadPoolExecutor
 import asyncio
 import time as t
 
