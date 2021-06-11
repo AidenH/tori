@@ -1058,6 +1058,8 @@ if __name__ == "__main__":
     root = tk.Tk()
     root.geometry(str(wwidth)+"x"+str(40 + (window_price_levels * 19)))
     root.attributes('-topmost', True)
+
+    #Window can only be resized by setting window_price_levels in settings.py
     root.resizable(width=False, height=False)
 
     main = MainApplication(root)
