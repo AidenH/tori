@@ -1,10 +1,10 @@
 LAG
   DONE -Would likely be much faster if volume was only added to specific cell labels,
       rather than iterating and refreshing the entire column every cycle.
-  -App still gets very laggy after a certain period. Need to get to the bottom of this.
+  DONE -App still gets very laggy after a certain period. Need to get to the bottom of this.
 
   DONE??? HUGE DELAY ---- FIX IT
-  -implement .after() into all funcs to see if it improves performance
+  UNNECESSARY -implement .after() into all funcs to see if it improves performance
       (it was actually in issue of calling too many functions with .after() recursion,
       so it just added more and more recursive functions firing with each cycle.)
 
@@ -41,8 +41,10 @@ ORDER COLUMN
 
     -Implement Binance user account functionality
         -Display account balance
-        -Display orders
-        -Add Buy
-        -Add Sell
-        -Cancel individual
-        -Cancel all
+        -flatten
+
+        DONE -Display orders
+        DONE -Add Buy
+        DONE -Add Sell
+        DONE -Cancel individual
+        DONE -Cancel all
