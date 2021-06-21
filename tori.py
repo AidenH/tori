@@ -300,6 +300,9 @@ def refresh():
 
         eval(olabel.format(i))["text"] = ""
 
+        exec(f"price_label{i}['bg'] = 'gray'")
+        exec(f"price_label{i}['fg'] = 'white'")
+
     #write dictionary values to frame
     for i in range(window_price_levels-1, -1, -1):
         eval(plabel.format(i))["text"] = ladder_dict[i]
@@ -356,15 +359,19 @@ def sell_column_populate(clean):
         root.after(100, sell_column_populate, False)
 
 def highlight_trade_price():
-    global global_lastprice, prev_highlight_price, coord, prev_coord, last_trade
+    global global_lastprice, prev_highlight_price
+    global coord, prev_coord, last_trade
 
     if dict_setup == True:
         #If there is an open position, mark it at entry_coord location
         if open_position["qty"] != 0:
-            entry_coord = open_position["coord"]
+            #Entry coord = top of ladder/highest price - current position entry price
+            entry_coord = ladder_dict[0] - open_position["entry"]
+
             e = open_position["entry"]
             q = open_position["qty"]
 
+            #If entry is within frame, place styled highlight
             if entry_coord >= 0 and entry_coord <= (window_price_levels - 1):
                 if open_position["qty"] > 0:
                     exec(f"price_label{entry_coord}['bg'] = 'mediumpurple'")
@@ -421,6 +428,10 @@ def clean_volume():
     print("clean volume - " + time)
 
 def place_order(coord, side):
+    global open_position
+    open_position["entry"] = 1940
+    open_position["qty"] = -0.01
+
     if subscribed_bool == True and dict_setup == True and trade_mode == True:
         price = ladder_dict[coord]
 
