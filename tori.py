@@ -428,10 +428,6 @@ def clean_volume():
     print("clean volume - " + time)
 
 def place_order(coord, side):
-    global open_position
-    open_position["entry"] = 1940
-    open_position["qty"] = -0.01
-
     if subscribed_bool == True and dict_setup == True and trade_mode == True:
         price = ladder_dict[coord]
 
