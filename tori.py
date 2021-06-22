@@ -253,6 +253,9 @@ def user_data_callback(data_type: 'SubscribeMessageType', event: 'any'):
                 if event.positions and event.positions[i].symbol == instrument.upper():
                     #If account update event details open position, add to open_position
                     if event.positions[i].amount != 0:
+                        refresh() #Refresh in case of adding to position size,
+                            #we need to write a new, averaged entry price
+
                         PrintBasic.print_obj(event.positions[i])
 
                         open_position["entry"] = int(round(event.positions[i].entryPrice, 0))
