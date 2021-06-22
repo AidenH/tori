@@ -592,6 +592,7 @@ def orderbook_listener():
 
         await asyncio.sleep(0.01)
 
+        #Reset orderbook labels
         for price in small_book:
             coord = ladder_dict[0] - price
             #coord = price_label0["text"] - price
@@ -601,6 +602,7 @@ def orderbook_listener():
 
         small_book.clear()
 
+        #Add bids to small_book
         for i in result.bids:
             price = int(round(float(i.price), 0))
             qty = int(round(float(i.qty), 0))
@@ -616,6 +618,7 @@ def orderbook_listener():
             except:
                 small_book[price]["bids"] = 0
 
+        #Add asks to small_book
         for i in result.asks:
             price = int(round(float(i.price), 0))
             qty = int(round(float(i.qty), 0))
