@@ -246,9 +246,6 @@ def user_data_callback(data_type: 'SubscribeMessageType', event: 'any'):
                         open_orders[event.price]["qty"] -= event.origQty
                         eval(olabel.format(coord))["text"] -= event.origQty
 
-                    #Reactivate listener
-                    #listener_safe = True
-
         if event.eventType == "ACCOUNT_UPDATE":
             print("\n-----------POSITIONS-------------")
 
@@ -659,7 +656,7 @@ def orderbook_listener():
                     eval(bidlabel.format(coord))["text"] = small_book[price]["bids"]
 
     async def orderbook():
-        for i in iter(int, 1): #marginally faster than while True
+        for i in iter(int, 1): #Supposedly marginally faster than "while True"
             if subscribed_bool == True and dict_setup == True:
                 await get_request()
                 await write_asks()
