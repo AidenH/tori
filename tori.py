@@ -16,7 +16,7 @@ from settings import *
 
 
 #Root environment variables
-wwidth = 400
+wwidth = 370
 wheight = 988
 font = "arial 7 bold"
 title_instrument_info = "none"
