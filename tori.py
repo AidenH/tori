@@ -422,41 +422,41 @@ def place_order(coord, side):
         price = ladder_dict[coord]
 
         #Send order to binance
-        if side == "BUY" and order_size > 0:
+        if side == "BUY" and lot_size > 0:
             if price < global_lastprice:
                 result = request_client.post_order(symbol=instrument, side=OrderSide.BUY,
-                    ordertype=OrderType.LIMIT, price=price, quantity="%.2f"%order_size,
+                    ordertype=OrderType.LIMIT, price=price, quantity="%.2f"%lot_size,
                         timeInForce=TimeInForce.GTC,)
-                print(f"\nLimit order {side} {order_size} at {price} sent to exchange. - {time}")
+                print(f"\nLimit order {side} {lot_size} at {price} sent to exchange. - {time}")
 
             #Stop limit
             else:
                 result = request_client.post_order(symbol=instrument, side=OrderSide.BUY,
-                    ordertype=OrderType.STOP, price=price+1, stopPrice=price, quantity="%.2f"%order_size,
+                    ordertype=OrderType.STOP, price=price+1, stopPrice=price, quantity="%.2f"%lot_size,
                         timeInForce=TimeInForce.GTC,)
-                print(f"\nStop limit order {side} {order_size} at {price} sent to exchange. - {time}")
+                print(f"\nStop limit order {side} {lot_size} at {price} sent to exchange. - {time}")
 
             # result = request_client.post_order(symbol=instrument, side=OrderSide.BUY,
-            #     ordertype=OrderType.LIMIT, price=price, quantity="%.2f"%order_size,
+            #     ordertype=OrderType.LIMIT, price=price, quantity="%.2f"%lot_size,
             #         timeInForce=TimeInForce.GTC,)
-            # print(f"\nLimit order {side} {order_size} at {price} sent to exchange. - {time}")
+            # print(f"\nLimit order {side} {lot_size} at {price} sent to exchange. - {time}")
 
-        elif side == "SELL" and order_size > 0:
+        elif side == "SELL" and lot_size > 0:
             if price > global_lastprice:
                 result = request_client.post_order(symbol=instrument, side=OrderSide.SELL,
-                    ordertype=OrderType.LIMIT, price=price, quantity="%.2f"%order_size,
+                    ordertype=OrderType.LIMIT, price=price, quantity="%.2f"%lot_size,
                         timeInForce=TimeInForce.GTC,)
-                print(f"\nLimit order {side} {order_size} at {price} sent to exchange. - {time}")
+                print(f"\nLimit order {side} {lot_size} at {price} sent to exchange. - {time}")
 
             #Stop limit
             else:
                 result = request_client.post_order(symbol=instrument, side=OrderSide.SELL,
-                    ordertype=OrderType.STOP, price=price-1, stopPrice=price, quantity="%.2f"%order_size,
+                    ordertype=OrderType.STOP, price=price-1, stopPrice=price, quantity="%.2f"%lot_size,
                         timeInForce=TimeInForce.GTC,)
-                print(f"\nStop limit order {side} {order_size} at {price} sent to exchange. - {time}")
+                print(f"\nStop limit order {side} {lot_size} at {price} sent to exchange. - {time}")
 
         else:
-            print(f"\n! Error: Order {side} {order_size} at {price} was not sent. - {time}")
+            print(f"\n! Error: Order {side} {lot_size} at {price} was not sent. - {time}")
 
 def cancel_order(coord):
     if subscribed_bool == True and dict_setup == True and trade_mode == True:
@@ -510,15 +510,15 @@ def trade_mode_swap():
         print("\nTrade mode disabled.")
 
 def modqty(type):
-    global order_size
+    global lot_size
 
     if type == "add":
-        order_size += add_lot_size
-        lotqty["text"] = f"Qty: {'%.2f'%order_size}"
+        lot_size += lot_increment_size
+        lotqty["text"] = f"Qty: {'%.2f'%lot_size}"
 
     elif type == "clear":
-        order_size = 0
-        lotqty["text"] = f"Qty: {'%.2f'%order_size}"
+        lot_size = 0
+        lotqty["text"] = f"Qty: {'%.2f'%lot_size}"
 
 
 #THREADS
@@ -719,7 +719,7 @@ class Tradetools(tk.Frame):
 
         lotqty = tk.Label(
             master = self,
-            text = f"Qty: {order_size}",
+            text = f"Qty: {lot_size}",
             height = 1,
         )
 
@@ -733,7 +733,7 @@ class Tradetools(tk.Frame):
         addlot = tk.Button(
             master = ordersizeframe,
             command = lambda: modqty("add"),
-            text = add_lot_size,
+            text = lot_increment_size,
             height = 1,
             width = 3
         )

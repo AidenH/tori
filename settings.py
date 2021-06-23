@@ -9,8 +9,8 @@ window_price_levels = config['Window'].getint('WindowPriceLevels', 50)
 #Trading settings
 instrument = config['Trading']['Instrument']
 tick_size = config['Trading'].getint('TickSize')   #Need to implement dynamic tick sizing
-order_size = config['Trading'].getfloat('LotSize')   #Default order size
-add_lot_size = config['Trading'].getfloat('LotIncrementSize')
+lot_size = config['Trading'].getfloat('LotSize')   #Default order size
+lot_increment_size = config['Trading'].getfloat('LotIncrementSize')
 pnl_point_mode = config['Trading'].getboolean('PnlPointMode')   #Display PnL in points or currency
 
 #Dom settings
