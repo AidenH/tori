@@ -23,8 +23,7 @@ title_instrument_info = "none"
 
 #Dom-related variables
 dict_setup = False
-#ladder_midpoint = 23
-ladder_midpoint = int(window_price_levels / 2) - 2
+ladder_midpoint = int(window_price_levels / 2) - 2  #Otherwise 23
 subscribed_bool = False
 orderbook_subscribed_bool = False
 global_lastprice = 0
@@ -114,14 +113,8 @@ def keepalive():
 
     #get aggregate trades
 def get_trades_callback(data_type: 'SubscribeMessageType', event: 'any'):
-    global dict_setup
-    global prices
-    global global_lastprice
-    global title_instrument_info
-    global coord
-    global last_trade
-    global total_buy_volume
-    global total_sell_volume
+    global dict_setup, prices, global_lastprice, title_instrument_info, coord
+    global last_trade, total_buy_volume, total_sell_volume
 
     coord = int(price_label0["text"]) - global_lastprice
 
@@ -522,6 +515,7 @@ def modqty(type):
 
 
 #THREADS
+
 def listener():
     #loop indefinitely with iter()
     for i in iter(int, 1):
@@ -1074,6 +1068,7 @@ if __name__ == "__main__":
     orderbook_thread.start()
 
     if auto_subscribe == True:
+        print(f"! Auto-subscribing to {instrument}")
         connect()
 
     if init_trademode == True:
