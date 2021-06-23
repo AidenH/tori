@@ -5,6 +5,7 @@ build/
 
 *.pyc
 *.pyw
+*.spec
 
 keys.py
 config.ini
