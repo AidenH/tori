@@ -825,9 +825,8 @@ order_label{i} = tk.Label(
             bg = "gainsboro"
         )
 order_label{i}.pack(fill="x")
-#order_label{i}.bind("<Button-1>", lambda e: place_order({i}, "BUY"))
-order_label{i}.bind("<Button-2>", lambda e: cancel_order({i}))
-#''')
+order_label{i}.bind("<Button-3>", lambda e: cancel_order({i}))
+''')
 
 class Priceaxis(tk.Frame):
     def __init__(self, master):
