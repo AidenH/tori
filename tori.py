@@ -224,9 +224,6 @@ def user_data_callback(data_type: 'SubscribeMessageType', event: 'any'):
             for id in list(open_orders[event.price]["ids"]):
                 #If event id matches an open_orders id, then delete id from dict
                 if id == event.orderId:
-                    #Deactivate listener temporarily
-                    #listener_safe = False
-
                     print(ladder_dict[0])
                     price = int(round(float(event.price), 0))
                     coord = ladder_dict[0] - price
@@ -246,8 +243,9 @@ def user_data_callback(data_type: 'SubscribeMessageType', event: 'any'):
                         open_orders[event.price]["qty"] -= event.origQty
                         eval(olabel.format(coord))["text"] -= event.origQty
 
-            refresh() #Refresh in case of adding to position size,
-                #we need to write a new, averaged entry price
+            #Refresh in case of adding to position size,
+            #we need to write a new, averaged entry price
+            refresh()
 
         if event.eventType == "ACCOUNT_UPDATE":
             print("\n-----------POSITIONS-------------")
@@ -517,6 +515,7 @@ def modqty(type):
     if type == "add":
         order_size += add_lot_size
         lotqty["text"] = f"Qty: {'%.2f'%order_size}"
+
     elif type == "clear":
         order_size = 0
         lotqty["text"] = f"Qty: {'%.2f'%order_size}"
@@ -526,7 +525,6 @@ def modqty(type):
 def listener():
     #loop indefinitely with iter()
     for i in iter(int, 1):
-        #print(f"LISTENER: {open_orders} - {time}")
         if subscribed_bool == True and dict_setup == True and listener_safe == True:
             #Handle open orders list and send to orders column
             for i in list(open_orders):
@@ -587,7 +585,6 @@ def orderbook_listener():
         #Reset orderbook labels
         for price in small_book:
             coord = ladder_dict[0] - price
-            #coord = price_label0["text"] - price
             if coord >= 0 and coord < window_price_levels-1:
                 eval(bidlabel.format(coord))["text"] = ""
                 eval(asklabel.format(coord))["text"] = ""
@@ -631,7 +628,6 @@ def orderbook_listener():
         await asyncio.sleep(0.01)
         for price in small_book:
             coord = ladder_dict[0] - price
-            #coord = price_label0["text"] - price
 
             #Check coord is within window and that "asks" is a key in small_book
             if coord >= 0 and coord < window_price_levels-1\
@@ -651,7 +647,7 @@ def orderbook_listener():
                     eval(bidlabel.format(coord))["text"] = small_book[price]["bids"]
 
     async def orderbook():
-        for i in iter(int, 1): #Supposedly marginally faster than "while True"
+        for i in iter(int, 1): #Supposedly faster than "while True"
             if subscribed_bool == True and dict_setup == True:
                 await get_request()
                 await write_asks()
