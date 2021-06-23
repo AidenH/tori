@@ -544,8 +544,10 @@ def listener():
 
             #LONG position PnL calculation
             if open_position["qty"] > 0:
-                open_position["pnl"] = round((global_lastprice * open_position["qty"])
-                    - (open_position["entry"] * open_position["qty"]), 3)
+                #calculate open long position pnl
+                long_global = global_lastprice * open_position["qty"]
+                long_position = open_position["entry"] * open_position["qty"]
+                open_position["pnl"] = round(long_global - long_position, 3)
 
                 #check whether pnl should be in point mode or cash mode
                 if pnl_point_mode == False:
@@ -557,8 +559,10 @@ def listener():
 
             #SHORT position PnL calculation
             elif open_position["qty"] < 0:
-                open_position["pnl"] = round((open_position["entry"] * open_position["qty"])
-                    - (global_lastprice * open_position["qty"]), 3)
+                #calculate open short position pnl
+                short_global = global_lastprice * open_position["qty"]
+                short_position = open_position["entry"] * open_position["qty"]
+                open_position["pnl"] = round(short_global - short_position, 3)
 
                 #check whether pnl should be in point mode or cash mode
                 if pnl_point_mode == False:
