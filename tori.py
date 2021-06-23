@@ -11,7 +11,6 @@ from binance_f.model import *
 from binance_f.exception.binanceapiexception import BinanceApiException
 from binance_f.base.printobject import *
 
-import keys
 from settings import *
 
 
@@ -50,8 +49,8 @@ trade_mode = False
 open_orders = {}
 open_position = {"entry" : 0, "coord" : 0, "qty" : 0, "pnl": 0}
 
-sub_client = SubscriptionClient(api_key=keys.api, secret_key=keys.secret)
-request_client = RequestClient(api_key=keys.api, secret_key=keys.secret)
+sub_client = SubscriptionClient(api_key=api_key, secret_key=secret_key)
+request_client = RequestClient(api_key=api_key, secret_key=secret_key)
 
 ladder_dict = {}
 for i in range(window_price_levels):

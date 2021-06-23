@@ -2,11 +2,16 @@ import configparser
 config = configparser.ConfigParser()
 config.read('config.ini')
 
+import keys
+
 #Window settings
 window_price_levels = config['Window'].getint('WindowPriceLevels', 50)
     #need to generate this dynamically based on the window size at some point
 
 #Trading settings
+api_key = config['Trading'].get('ApiKey', keys.api)
+secret_key = config['Trading'].get('SecretKey', keys.secret)
+
 instrument = config['Trading']['Instrument']
 tick_size = config['Trading'].getint('TickSize')   #Need to implement dynamic tick sizing
 lot_size = config['Trading'].getfloat('LotSize')   #Default order size
