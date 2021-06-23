@@ -1,17 +1,21 @@
+import configparser
+config = configparser.ConfigParser()
+config.read('config.ini')
+
 #Window settings
-window_price_levels = 50    #Determines height of window,
+window_price_levels = config['Window'].getint('WindowPriceLevels', 50)
     #need to generate this dynamically based on the window size at some point
 
 #Trading settings
-instrument = "ethusdt"
-tick_size = 1   #Leave at 1 for the time being
-order_size = 0.01   #Default order size
-add_lot_size = 0.01
-pnl_point_mode = False   #Display PnL in points or currency
+instrument = config['Trading']['Instrument']
+tick_size = config['Trading'].getint('TickSize')   #Need to implement dynamic tick sizing
+order_size = config['Trading'].getfloat('LotSize')   #Default order size
+add_lot_size = config['Trading'].getfloat('LotIncrementSize')
+pnl_point_mode = config['Trading'].getboolean('PnlPointMode')   #Display PnL in points or currency
 
 #Dom settings
-vol_filter = 5  #Aggregate trade size filter
-book_size = 5
-auto_subscribe = True
-precision = 2   #Decimal point precision
-init_trademode = True
+vol_filter = config['Dom'].getint('VolumeFilter')  #Aggregate trade size filter
+book_size = config['Dom'].getint('BookSize')
+auto_subscribe = config['Dom'].getboolean('AutoSubscribe')
+precision = config['Dom'].getint('Precision')  #Decimal point precision
+init_trademode = config['Dom'].getboolean('InitTrademode')  #Start program in trade mode

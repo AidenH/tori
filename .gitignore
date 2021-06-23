@@ -1,7 +1,10 @@
 __pycache__/
-*.pyc
-*.pyw
 binance_f/
-keys.py
 dist/
 build/
+
+*.pyc
+*.pyw
+
+keys.py
+config.ini
