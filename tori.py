@@ -246,6 +246,9 @@ def user_data_callback(data_type: 'SubscribeMessageType', event: 'any'):
                         open_orders[event.price]["qty"] -= event.origQty
                         eval(olabel.format(coord))["text"] -= event.origQty
 
+            refresh() #Refresh in case of adding to position size,
+                #we need to write a new, averaged entry price
+
         if event.eventType == "ACCOUNT_UPDATE":
             print("\n-----------POSITIONS-------------")
 
@@ -253,8 +256,6 @@ def user_data_callback(data_type: 'SubscribeMessageType', event: 'any'):
                 if event.positions and event.positions[i].symbol == instrument.upper():
                     #If account update event details open position, add to open_position
                     if event.positions[i].amount != 0:
-                        refresh() #Refresh in case of adding to position size,
-                            #we need to write a new, averaged entry price
 
                         PrintBasic.print_obj(event.positions[i])
 
@@ -319,15 +320,8 @@ def volume_column_populate(clean):
     global ladder_dict
     global coord
 
-    #label = "volume_label{0}"
-
-    eval(vlabel.format(coord))["text"] = str(prices[ladder_dict[coord]]["volume"])[:-2]
-
-    #OLD
-    '''for i in range(0, window_price_levels):
-        if subscribed_bool == True:
-            #print(str(prices[ladder_dict[i]]["volume"]))
-            eval(label.format(i))["text"] = str(prices[ladder_dict[i]]["volume"])[:-2]'''
+    if dict_setup == True and coord >= 0 and coord < window_price_levels:
+        eval(vlabel.format(coord))["text"] = str(prices[ladder_dict[coord]]["volume"])[:-2]
 
     if clean == False:
         root.after(100, volume_column_populate, False)
@@ -338,9 +332,8 @@ def buy_column_populate(clean):
     global ladder_dict
     global coord
 
-    #label = "buy_label{0}"
-
-    eval(blabel.format(coord))["text"] = str(prices[ladder_dict[coord]]["buy"])[:-2]
+    if dict_setup == True and coord >= 0 and coord < window_price_levels:
+        eval(blabel.format(coord))["text"] = str(prices[ladder_dict[coord]]["buy"])[:-2]
 
     if clean == False:
         root.after(100, buy_column_populate, False)
@@ -351,9 +344,8 @@ def sell_column_populate(clean):
     global ladder_dict
     global coord
 
-    #label = "sell_label{0}"
-
-    eval(slabel.format(coord))["text"] = str(prices[ladder_dict[coord]]["sell"])[:-2]
+    if dict_setup == True and coord >= 0 and coord < window_price_levels:
+        eval(slabel.format(coord))["text"] = str(prices[ladder_dict[coord]]["sell"])[:-2]
 
     if clean == False:
         root.after(100, sell_column_populate, False)
@@ -362,7 +354,7 @@ def highlight_trade_price():
     global global_lastprice, prev_highlight_price
     global coord, prev_coord, last_trade
 
-    if dict_setup == True:
+    if dict_setup == True and coord >= 0 and coord < window_price_levels:
         #If there is an open position, mark it at entry_coord location
         if open_position["qty"] != 0:
             #Entry coord = top of ladder/highest price - current position entry price
@@ -406,7 +398,7 @@ def highlight_trade_price():
             exec(f"buy_label{prev_coord}['bg'] = 'gainsboro'")
             exec(f"sell_label{prev_coord}['bg'] = 'gainsboro'")
 
-    prev_coord = coord
+        prev_coord = coord
 
     if dict_setup == True and (coord < 6 or coord > (window_price_levels-6)):
         refresh()

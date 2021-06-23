@@ -7,7 +7,7 @@ instrument = "ethusdt"
 tick_size = 1   #Leave at 1 for the time being
 order_size = 0.01   #Default order size
 add_lot_size = 0.01
-pnl_point_mode = True   #Display PnL in points or currency
+pnl_point_mode = False   #Display PnL in points or currency
 
 #Dom settings
 vol_filter = 5  #Aggregate trade size filter
