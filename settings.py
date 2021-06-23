@@ -1,3 +1,4 @@
+import sys
 import configparser
 config = configparser.ConfigParser()
 config.read('config.ini')
@@ -9,8 +10,13 @@ window_price_levels = config['Window'].getint('WindowPriceLevels', 50)
     #need to generate this dynamically based on the window size at some point
 
 #Trading settings
-api_key = config['Trading'].get('ApiKey', keys.api)
-secret_key = config['Trading'].get('SecretKey', keys.secret)
+try:
+    api_key = config.get('Trading', 'ApiKey', fallback=keys.api)
+    secret_key = config.get('Trading', 'SecretKey', fallback=keys.secret)
+except configparser.NoOptionError as err:
+    print(f"! You have a problem with your API keys: \n\n{err}\n")
+    print("Check your config.ini file.\n")
+    sys.exit(1)
 
 instrument = config['Trading']['Instrument']
 tick_size = config['Trading'].getint('TickSize')   #Need to implement dynamic tick sizing
