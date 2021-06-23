@@ -1,5 +1,12 @@
 # tori
 
+tori is a price ladder trading application built for cryptocurrency markets.
+I wrote this application with the intention of filling gaps that I felt were present
+within the feature lists of many widely popular proprietary DOM platforms on the
+market today. This includes not only technical gaps such as scalable
+(but not synthetic) tick sizing, volume cleaning, and reliable entry display, but
+also accessibility gaps, namely in the form of prohibitive pricing.
+
 Requirements:
   * binance_f
 
