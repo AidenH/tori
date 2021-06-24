@@ -1,3 +1,4 @@
+import os
 from datetime import datetime
 import tkinter as tk
 import threading
@@ -655,6 +656,9 @@ def orderbook_listener():
     asyncio.set_event_loop(loop)
     loop.run_until_complete(orderbook())
 
+def term():
+    os._exit(0)
+
 
 #CLASSES
 
@@ -1074,7 +1078,5 @@ if __name__ == "__main__":
         print("! Starting in trade mode.")
         trade_mode_swap()
 
+    root.protocol("WM_DELETE_WINDOW", term)
     root.mainloop()
-
-    listener_thread.join()
-    orderbook_thread.join()
