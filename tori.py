@@ -119,7 +119,9 @@ def get_trades_callback(data_type: 'SubscribeMessageType', event: 'any'):
     coord = int(price_label0["text"]) - global_lastprice
 
     if data_type == SubscribeMessageType.RESPONSE:
-        print("EventID: ", event)
+        #Supressing event id printing for now due to console clutter.
+        #print("EventID: ", event)
+        pass
 
     elif data_type == SubscribeMessageType.PAYLOAD:
         #PrintBasic.print_obj(event)    #keep for full aggtrade payload example
@@ -181,7 +183,9 @@ def user_data_callback(data_type: 'SubscribeMessageType', event: 'any'):
     global listener_safe
 
     if data_type == SubscribeMessageType.RESPONSE:
-        print("EventID: ", event)
+        #Supressing event id printing for now due to console clutter.
+        #print("EventID: ", event)
+        pass
 
     elif data_type == SubscribeMessageType.PAYLOAD:
         '''print("\n--------------EVENT--------------")
@@ -415,6 +419,8 @@ def place_order(coord, side):
         price = ladder_dict[coord]
 
         #Send order to binance
+        #LONG
+        #limit
         if side == "BUY" and lot_size > 0:
             if price < global_lastprice:
                 result = request_client.post_order(symbol=instrument, side=OrderSide.BUY,
@@ -429,11 +435,8 @@ def place_order(coord, side):
                         timeInForce=TimeInForce.GTC,)
                 print(f"\nStop limit order {side} {lot_size} at {price} sent to exchange. - {time}")
 
-            # result = request_client.post_order(symbol=instrument, side=OrderSide.BUY,
-            #     ordertype=OrderType.LIMIT, price=price, quantity="%.2f"%lot_size,
-            #         timeInForce=TimeInForce.GTC,)
-            # print(f"\nLimit order {side} {lot_size} at {price} sent to exchange. - {time}")
-
+        #SHORT
+        #limit
         elif side == "SELL" and lot_size > 0:
             if price > global_lastprice:
                 result = request_client.post_order(symbol=instrument, side=OrderSide.SELL,
@@ -657,6 +660,7 @@ def orderbook_listener():
     loop.run_until_complete(orderbook())
 
 def term():
+    print("Exiting tori...")
     os._exit(0)
 
 
