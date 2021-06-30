@@ -547,10 +547,10 @@ def listener():
                 open_position["pnl"] = round(long_global - long_position, 3)
 
                 #check whether pnl should be in point mode or cash mode
-                if pnl_point_mode == False:
+                if pnl_tick_mode == False:
                     pnllabel["text"] = "PnL: " + str(open_position["pnl"])
                 else:
-                    pnllabel["text"] = "PnL: " + str(global_lastprice - open_position["entry"]) + "pt"
+                    pnllabel["text"] = "PnL: " + str(global_lastprice - open_position["entry"]) + "tick"
 
                 positionlabel["text"] = f"Position: {open_position['qty']}"
 
@@ -562,10 +562,10 @@ def listener():
                 open_position["pnl"] = round(short_global - short_position, 3)
 
                 #check whether pnl should be in point mode or cash mode
-                if pnl_point_mode == False:
+                if pnl_tick_mode == False:
                     pnllabel["text"] = "PnL: " + str(open_position["pnl"])
                 else:
-                    pnllabel["text"] = "PnL: " + str(open_position["entry"] - global_lastprice) + "pt"
+                    pnllabel["text"] = "PnL: " + str(open_position["entry"] - global_lastprice) + "tick"
 
                 positionlabel["text"] = f"Position: {open_position['qty']}"
 

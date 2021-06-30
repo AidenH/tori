@@ -22,7 +22,7 @@ instrument = config['Trading']['Instrument']
 tick_size = config['Trading'].getint('TickSize')   #Need to implement dynamic tick sizing
 lot_size = config['Trading'].getfloat('LotSize')   #Default order size
 lot_increment_size = config['Trading'].getfloat('LotIncrementSize')
-pnl_point_mode = config['Trading'].getboolean('PnlPointMode')   #Display PnL in points or currency
+pnl_tick_mode = config['Trading'].getboolean('PnlTickMode')   #Display PnL in points or currency
 
 #Dom settings
 vol_filter = config['Dom'].getint('VolumeFilter')  #Aggregate trade size filter
