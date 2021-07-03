@@ -260,6 +260,23 @@ def user_data_callback(data_type: 'SubscribeMessageType', event: 'any'):
             #we need to write a new, averaged entry price
             refresh()
 
+        #If update is order cancel, remove order from open_orders and clean label
+        if event.eventType == "ORDER_TRADE_UPDATE" and event.orderStatus == "CANCELED":
+            coord = ladder_dict[0] - int(event.price)
+
+            open_orders[event.price]["ids"].remove(event.orderId)
+
+            #If every id is deleted at the price level, remove level from open orders list
+            #Consider adding try & except here.
+            if open_orders[event.price]["ids"] == []:
+                open_orders.pop(event.price, None)
+
+            #Reset level label text if within window
+            if coord >= 0 and coord <= window_price_levels-1:
+                eval(olabel.format(coord))["text"] = ""
+
+            print(f"\norders: {open_orders}")
+
         if event.eventType == "ACCOUNT_UPDATE":
             print("\n-----------POSITIONS-------------")
 
@@ -477,19 +494,6 @@ def cancel_order(coord):
         #For every order id at logged at a particular price level, cancel.
         for id in list(open_orders[price]["ids"]):
             result = request_client.cancel_order(symbol=instrument, orderId=id)
-
-            #Double check that order has been cancelled at exchange before removing from list
-            #Ideally there should be a try: & except: here
-            if result.status == "CANCELED" and result.orderId == id:
-                open_orders[price]["ids"].remove(id)
-
-        #Once every id is deleted at a price level, remove level from open orders list
-        #Another try: & except: here.
-        if open_orders[price]["ids"] == []:
-            open_orders.pop(price, None)
-
-        #Reset label text
-        eval(olabel.format(coord))["text"] = ""
 
         print(f"after cancel: {open_orders}")
 
