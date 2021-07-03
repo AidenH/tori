@@ -4,6 +4,7 @@ SYSTEM
     -More function summary comments
 
 TOOLS
+    -Add Flatten function with button
     -Total session PnL tracking
     -Account Balance (consider doing this in new window)
 
