@@ -7,10 +7,10 @@ market today. This includes not only technical gaps such as scalable
 (but not synthetic) tick sizing, volume cleaning, and reliable entry display, but
 also accessibility gaps, namely in the form of prohibitive pricing.
 
-tori is licensed under the GNU General Public License. Please see COPYING.txt for more information.
+tori is licensed under the GNU General Public License. Please see COPYING for more information.
 
 Requirements:
-  * binance_f
+  * binance_f (in root folder)
 
 ![tori as of 06/05/2021](https://raw.githubusercontent.com/AidenH/tori/main/img/6-5-21-tori.png)  
 *tori as of 06/05/2021*
