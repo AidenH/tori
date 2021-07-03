@@ -1,6 +1,6 @@
 # tori
 
-tori is a price ladder trading application built for cryptocurrency markets.
+tori is a price ladder trading application built for cryptocurrency markets (currently only supporting the Binance Perpetual Futures market).
 I wrote this application with the intention of filling gaps that I felt were present
 within the feature lists of many widely popular proprietary DOM platforms on the
 market today. This includes not only technical gaps such as scalable
