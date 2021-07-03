@@ -492,10 +492,15 @@ def cancel_order(coord):
         price = ladder_dict[coord]
 
         #For every order id at logged at a particular price level, cancel.
-        for id in list(open_orders[price]["ids"]):
-            result = request_client.cancel_order(symbol=instrument, orderId=id)
-
-        print(f"after cancel: {open_orders}")
+        try:
+            for id in list(open_orders[price]["ids"]):
+                try:
+                    result = request_client.cancel_order(symbol=instrument, orderId=id)
+                except Exception as err:
+                    print(f"\n! Error cancelling order:\n{err.args}")
+                    print("Check whether your order has already been cancelled.\n")
+        except KeyError as k:
+            print(f"\n! No orders found at price level {k}\n")
 
 def cancel_all():
     request_client.cancel_all_orders(symbol=instrument)
