@@ -262,14 +262,18 @@ def user_data_callback(data_type: 'SubscribeMessageType', event: 'any'):
 
         #If update is order cancel, remove order from open_orders and clean label
         if event.eventType == "ORDER_TRADE_UPDATE" and event.orderStatus == "CANCELED":
-            coord = ladder_dict[0] - int(event.price)
+            price = int(event.price)
+            coord = ladder_dict[0] - price
 
-            open_orders[event.price]["ids"].remove(event.orderId)
+            print(f" open ----- {open_orders[price]['ids']}")
+            print(f" orderid ------ {event.orderId}")
+            open_orders[price]["ids"].remove(event.orderId)
 
             #If every id is deleted at the price level, remove level from open orders list
             #Consider adding try & except here.
-            if open_orders[event.price]["ids"] == []:
-                open_orders.pop(event.price, None)
+            if open_orders[price]["ids"] == []:
+                open_orders.pop(price, None)
+                print("3")
 
             #Reset level label text if within window
             if coord >= 0 and coord <= window_price_levels-1:
