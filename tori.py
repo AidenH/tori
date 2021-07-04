@@ -518,8 +518,8 @@ def cancel_all():
     print("All orders cancelled.")
 
 def flatten():
-    #I need to be built
-    pass
+    for i in open_orders:
+        print(open_orders[i])
 
 def trade_mode_swap():
     global trade_mode
@@ -555,6 +555,7 @@ def term():
 def listener():
     #loop indefinitely with iter()
     for i in iter(int, 1):
+
         if subscribed_bool == True and dict_setup == True and listener_safe == True:
 
             #Handle open orders list and send to orders column
@@ -786,6 +787,15 @@ class Tradetools(tk.Frame):
             bg = "whitesmoke"
         )
 
+        flattenbutton = tk.Button(
+            master = self,
+            command = flatten,
+            text = "Flatten",
+            width = 10,
+            relief = "flat",
+            bg = "whitesmoke"
+        )
+
         cancelallbutton = tk.Button(
             master = self,
             command = cancel_all,
@@ -827,6 +837,7 @@ class Tradetools(tk.Frame):
         ordersizeframe.pack(side="top", padx=5, pady=5)
         ordersizeframe.pack_propagate(False)
         trademodebutton.pack(side="top", pady=5)
+        flattenbutton.pack(side="top", pady=5)
         cancelallbutton.pack(side="top", pady=5)
         positionlabel.pack(side="top")
         pnllabel.pack(side="top")
