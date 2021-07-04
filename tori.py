@@ -127,7 +127,7 @@ def keepalive():
 
     root.after(3600000, keepalive)
 
-    #get aggregate trades
+#get aggregate trades
 def get_trades_callback(data_type: 'SubscribeMessageType', event: 'any'):
     global dict_setup, prices, global_lastprice, title_instrument_info, coord
     global last_trade, total_buy_volume, total_sell_volume
@@ -194,7 +194,7 @@ def get_trades_callback(data_type: 'SubscribeMessageType', event: 'any'):
     else:
         print("Unknown Data:")
 
-    #user data for position updates, balance etc.
+#user data for position updates, balance etc.
 def user_data_callback(data_type: 'SubscribeMessageType', event: 'any'):
     global listener_safe
 
@@ -314,7 +314,7 @@ def user_data_callback(data_type: 'SubscribeMessageType', event: 'any'):
 def error(e: 'BinanceApiException'):
     print(e.error_code + e.error_message)
 
-    #recenter/price populate price axis
+#recenter/price populate price axis
 def refresh():
     global ladder_midpoint
     global global_lastprice
@@ -341,7 +341,7 @@ def refresh():
 
     print("Refresh - " + time)
 
-    #volume cell update
+#volume cell update
 def volume_column_populate(clean):
     global subscribed_bool
     global global_lastprice
@@ -594,7 +594,7 @@ def listener():
 
                 positionlabel["text"] = f"Position: {open_position['qty']}"
 
-            #NO POSITION
+            #NO POSITION pnl default
             else:
                 positionlabel["text"] = "Position: ---"
                 pnllabel["text"] = "PnL: ---"
