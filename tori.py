@@ -87,15 +87,21 @@ def connect():
 
         #Subscribe to aggregate trade stream
         print("\nSubscribing... - " + time)
-        agg_result = sub_client.subscribe_aggregate_trade_event(instrument,
-            get_trades_callback, error)
 
-        #Start orderbook websocket thread
+        try:
+            agg_result = sub_client.subscribe_aggregate_trade_event(instrument,
+                get_trades_callback, error)
+        except:
+            print(sys.exc_info())
 
         #Subscribe to user data
         print("Connecting to user data stream... - " + time)
-        listenkey = request_client.start_user_data_stream()
-        data_result = sub_client.subscribe_user_data_event(listenkey, user_data_callback, error)
+
+        try:
+            listenkey = request_client.start_user_data_stream()
+            data_result = sub_client.subscribe_user_data_event(listenkey, user_data_callback, error)
+        except:
+            print(sys.exc_info())
 
         keepalive()
 
@@ -317,8 +323,6 @@ def error(e: 'BinanceApiException'):
 
 #recenter/price populate price axis
 def refresh():
-    global ladder_midpoint
-    global global_lastprice
     global ladder_dict
 
     #populate the ladder cell dictionary
