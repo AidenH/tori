@@ -265,15 +265,12 @@ def user_data_callback(data_type: 'SubscribeMessageType', event: 'any'):
             price = int(event.price)
             coord = ladder_dict[0] - price
 
-            print(f" open ----- {open_orders[price]['ids']}")
-            print(f" orderid ------ {event.orderId}")
             open_orders[price]["ids"].remove(event.orderId)
 
             #If every id is deleted at the price level, remove level from open orders list
             #Consider adding try & except here.
             if open_orders[price]["ids"] == []:
                 open_orders.pop(price, None)
-                print("3")
 
             #Reset level label text if within window
             if coord >= 0 and coord <= window_price_levels-1:
@@ -507,15 +504,11 @@ def cancel_order(coord):
             print(f"\n! No orders found at price level {k}\n")
 
 def cancel_all():
-    request_client.cancel_all_orders(symbol=instrument)
-
-    for order in list(open_orders):
-        coord = int(price_label0["text"]) - order
-
-        open_orders.pop(order, None)
-        eval(olabel.format(coord))["text"] = ""
-
-    print("All orders cancelled.")
+    try:
+        request_client.cancel_all_orders(symbol=instrument)
+        print("All orders cancelled.")
+    except:
+        print(sys.exc_info())
 
 def flatten():
     for i in open_orders:
