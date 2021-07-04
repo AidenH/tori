@@ -17,6 +17,11 @@
 import unittest
 import tori
 
+from binance_f import RequestClient
+from binance_f import SubscriptionClient
+
+from settings import *
+
 class Testtori(unittest.TestCase):
 
     def test_connect(self):
