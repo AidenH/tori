@@ -541,6 +541,10 @@ def modqty(type):
         lot_size = 0
         lotqty["text"] = f"Qty: {'%.2f'%lot_size}"
 
+def term():
+    print("Exiting tori...")
+    os._exit(0)
+
 
 #THREADS
 
@@ -548,6 +552,7 @@ def listener():
     #loop indefinitely with iter()
     for i in iter(int, 1):
         if subscribed_bool == True and dict_setup == True and listener_safe == True:
+
             #Handle open orders list and send to orders column
             for i in list(open_orders):
                 coord = int(price_label0["text"]) - i
@@ -683,10 +688,6 @@ def orderbook_listener():
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     loop.run_until_complete(orderbook())
-
-def term():
-    print("Exiting tori...")
-    os._exit(0)
 
 
 #CLASSES
