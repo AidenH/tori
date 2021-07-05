@@ -207,14 +207,13 @@ def get_trades_callback(data_type: 'SubscribeMessageType', event: 'any'):
 
 #user data for position updates, balance etc.
 def user_data_callback(data_type: 'SubscribeMessageType', event: 'any'):
-    global listener_safe
-
     if data_type == SubscribeMessageType.RESPONSE:
         #Supressing event id printing for now due to console clutter.
         #print("EventID: ", event)
         pass
 
     elif data_type == SubscribeMessageType.PAYLOAD:
+
         '''print("\n--------------EVENT--------------")
         PrintBasic.print_obj(event)
         print("------------END EVENT------------")'''
@@ -278,7 +277,8 @@ def user_data_callback(data_type: 'SubscribeMessageType', event: 'any'):
 
             open_orders[price]["ids"].remove(event.orderId)
 
-            #If every id is deleted at the price level, remove level from open orders list
+            #If every id has been deleted at the price level, remove level from
+            #open orders list
             #Consider adding try & except here.
             if open_orders[price]["ids"] == []:
                 open_orders.pop(price, None)
