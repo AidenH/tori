@@ -545,6 +545,13 @@ def term():
     print("Exiting tori...")
     os._exit(0)
 
+def update_title():
+    global time
+    global title_instrument_info
+    time = datetime.now().strftime("%H:%M:%S.%f")[:-4]
+    root.title("tori - " + title_instrument_info + " | " + time)
+    root.after(100, update_title)
+
 
 #THREADS
 
@@ -1079,13 +1086,6 @@ class MainApplication(tk.Frame):
         self.volumecolumn.pack(side="left", fill="y")
         self.volumecolumn.pack_propagate(False)
 
-    def update_title(self):
-        global time
-        global title_instrument_info
-        time = datetime.now().strftime("%H:%M:%S.%f")[:-4]
-        root.title("tori - " + title_instrument_info + " | " + time)
-        root.after(100, self.update_title)
-
 
 #MAIN
 
@@ -1104,7 +1104,7 @@ if __name__ == "__main__":
     main = MainApplication(root)
     main.pack(side="top", fill="both", expand=True)
 
-    main.update_title()
+    update_title()
 
     print("\ntori\n\nReady to connect.")
 
