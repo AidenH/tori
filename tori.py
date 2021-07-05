@@ -354,11 +354,6 @@ def refresh():
 
 #volume cell update
 def volume_column_populate(clean):
-    global subscribed_bool
-    global global_lastprice
-    global ladder_dict
-    global coord
-
     if dict_setup == True and coord >= 0 and coord < window_price_levels:
         eval(vlabel.format(coord))["text"] = str(prices[ladder_dict[coord]]["volume"])[:-2]
 
@@ -366,11 +361,6 @@ def volume_column_populate(clean):
         root.after(100, volume_column_populate, False)
 
 def buy_column_populate(clean):
-    global subscribed_bool
-    global global_lastprice
-    global ladder_dict
-    global coord
-
     if dict_setup == True and coord >= 0 and coord < window_price_levels:
         eval(blabel.format(coord))["text"] = str(prices[ladder_dict[coord]]["buy"])[:-2]
 
@@ -378,11 +368,6 @@ def buy_column_populate(clean):
         root.after(100, buy_column_populate, False)
 
 def sell_column_populate(clean):
-    global subscribed_bool
-    global global_lastprice
-    global ladder_dict
-    global coord
-
     if dict_setup == True and coord >= 0 and coord < window_price_levels:
         eval(slabel.format(coord))["text"] = str(prices[ladder_dict[coord]]["sell"])[:-2]
 
@@ -390,8 +375,7 @@ def sell_column_populate(clean):
         root.after(100, sell_column_populate, False)
 
 def highlight_trade_price():
-    global global_lastprice, prev_highlight_price
-    global coord, prev_coord, last_trade
+    global prev_coord
 
     if dict_setup == True and coord >= 0 and coord < window_price_levels:
         #If there is an open position, mark it at entry_coord location
@@ -480,8 +464,6 @@ def init_check_user_status():
 
     #Check open orders and add to open_orders
     for i in range(len(ord_result)):
-        PrintMix.print_data(ord_result[i])
-
         price = int(round(ord_result[i].price, 0))
 
         if price not in open_orders:
