@@ -515,19 +515,7 @@ def cancel_all():
         print(sys.exc_info())
 
 def flatten():
-    '''async def market_limit(p):
-        await asyncio.sleep(0.01)
-        print(open_orders[p])
-
-    async def flatten_iterator():
-        for i in open_orders:
-            await market_limit(i)
-
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    loop.run_until_complete(flatten_iterator())'''
-
-
+    print(open_position)
 
 def trade_mode_swap():
     global trade_mode
