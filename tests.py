@@ -14,6 +14,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+
+# Tests at the moment remain unfinished. It's unclear whether the structure
+# in which tori was initially written even allows for tests to be added.
+# It may require a full overhaul of the software to be able to implement testing
+# where it counts.
+
 import unittest
 from unittest.mock import patch
 import tori
