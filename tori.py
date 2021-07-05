@@ -547,6 +547,28 @@ def cancel_all():
 def flatten():
     print(open_position)
 
+    try:
+        #if LONG
+        if open_position["qty"] > 0:
+            request_client.post_order(symbol=instrument, side=OrderSide.SELL,
+                ordertype=OrderType.MARKET, closePosition=True,
+                    positionSide="Long")
+            print("Long position flattened. - " + time)
+
+        #if SHORT
+        elif open_position["qty"] < 0:
+            request_client.post_order(symbol=instrument, side=OrderSide.BUY,
+                ordertype=OrderType.MARKET, closePosition=True)
+            print("Short position flattened. - " + time)
+
+        else:
+            print("No open positions recognized.")
+
+        cancel_all()
+
+    except Exception as e:
+        print(f"! Error while flattening: {e}")
+
 def trade_mode_swap():
     global trade_mode
 
