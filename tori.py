@@ -540,9 +540,9 @@ def cancel_order(coord):
 def cancel_all():
     try:
         request_client.cancel_all_orders(symbol=instrument)
-        print("All orders cancelled.")
+        print("All orders cancelled." + time)
     except:
-        print(sys.exc_info())
+        print(f"! Error while cancelling all orders:\n{sys.exc_info()}")
 
 def flatten():
     print(open_position)
@@ -593,7 +593,7 @@ def listener():
 
             #Handle open orders list and send to orders column
             for i in list(open_orders):
-                coord = int(price_label0["text"]) - i
+                coord = ladder_dict[0] - i
 
                 #Check that coord is within window and price is in open_orders[]
                 if coord >= 0 and coord <= window_price_levels-1 and i in open_orders:
@@ -620,7 +620,7 @@ def listener():
                 else:
                     pnllabel["text"] = "PnL: " + str(global_lastprice - open_position["entry"]) + "tick"
 
-                positionlabel["text"] = f"Position: {open_position['qty']}"
+                positionlabel["text"] = f"Position: {open_position['qty']}\n@{open_position['entry']}"
 
             #SHORT position PnL calculation
             elif open_position["qty"] < 0:
