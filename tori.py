@@ -183,6 +183,7 @@ def get_trades_callback(data_type: 'SubscribeMessageType', event: 'any'):
             volume_column_populate(False)
             buy_column_populate(False)
             sell_column_populate(False)
+            init_check_position()
 
         #add event order quantity to price[volume] dict key
         prices[local_lastprice]["volume"] += round(event.qty, 0)
@@ -456,6 +457,20 @@ def clean_volume():
     total_buy_volume = total_sell_volume = delta = 0
 
     print("clean volume - " + time)
+
+def init_check_position():
+    global open_position
+    result = request_client.get_position()
+
+    #If current tori instrument has an open position, add to open_position
+    for i in range(len(result)):
+        if result[i].symbol == instrument.upper():
+            entry = int(result[i].entryPrice)
+
+            open_position = {"entry": entry,
+                "coord": ladder_dict[0] - entry,
+                "qty": result[i].positionAmt,
+                "pnl": "%.2f" % result[i].unrealizedProfit}
 
 def place_order(coord, side):
     if subscribed_bool == True and dict_setup == True and trade_mode == True:
