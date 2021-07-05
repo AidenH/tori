@@ -183,7 +183,7 @@ def get_trades_callback(data_type: 'SubscribeMessageType', event: 'any'):
             volume_column_populate(False)
             buy_column_populate(False)
             sell_column_populate(False)
-            init_check_position()
+            init_check_user_status()
 
         #add event order quantity to price[volume] dict key
         prices[local_lastprice]["volume"] += round(event.qty, 0)
@@ -458,19 +458,47 @@ def clean_volume():
 
     print("clean volume - " + time)
 
-def init_check_position():
+def init_check_user_status():
     global open_position
-    result = request_client.get_position()
+    global open_orders
 
-    #If current tori instrument has an open position, add to open_position
-    for i in range(len(result)):
-        if result[i].symbol == instrument.upper():
-            entry = int(result[i].entryPrice)
+    pos_result = request_client.get_position()
+    ord_result = request_client.get_open_orders()
+
+    #Check open position and add to open_position
+    for i in range(len(pos_result)):
+        if pos_result[i].symbol == instrument.upper() and pos_result[i].positionAmt != 0:
+            entry = int(pos_result[i].entryPrice)
 
             open_position = {"entry": entry,
                 "coord": ladder_dict[0] - entry,
-                "qty": result[i].positionAmt,
-                "pnl": "%.2f" % result[i].unrealizedProfit}
+                "qty": pos_result[i].positionAmt,
+                "pnl": "%.2f" % pos_result[i].unrealizedProfit}
+
+            print(f"\n! You have an open position on {instrument}:")
+            print(f"{open_position['qty']} at {entry}")
+
+    #Check open orders and add to open_orders
+    for i in range(len(ord_result)):
+        PrintMix.print_data(ord_result[i])
+
+        price = int(round(ord_result[i].price, 0))
+
+        if price not in open_orders:
+            open_orders[price] = {}
+
+        open_orders[price]["side"] = ord_result[i].side
+
+        if "ids" in open_orders[price]:
+            open_orders[price]["ids"].append(ord_result[i].orderId)
+        else:
+            open_orders[price]["ids"] = []
+            open_orders[price]["ids"] = [ord_result[i].orderId]
+
+        if "qty" in open_orders[price]:
+            open_orders[price]["qty"] += ord_result[i].origQty
+        else:
+            open_orders[price]["qty"] = ord_result[i].origQty
 
 def place_order(coord, side):
     if subscribed_bool == True and dict_setup == True and trade_mode == True:
