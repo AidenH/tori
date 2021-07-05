@@ -15,6 +15,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import unittest
+from unittest.mock import patch
 import tori
 
 from binance_f import RequestClient
@@ -25,7 +26,8 @@ from settings import *
 class Testtori(unittest.TestCase):
 
     def test_connect(self):
-        pass
+        result = tori.connect()
+        self.assertTrue(result[0])
 
 if __name__ == "__main__":
     unittest.main()

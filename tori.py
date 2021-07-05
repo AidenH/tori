@@ -82,6 +82,9 @@ def connect():
 
     dict_setup = False
 
+    #Connection results for unittest
+    result = {"agg_result": False, "data_result": False}
+
     if subscribed_bool == False:
         subscribed_bool = True
 
@@ -89,8 +92,9 @@ def connect():
         print("\nSubscribing... - " + time)
 
         try:
-            agg_result = sub_client.subscribe_aggregate_trade_event(instrument,
+            sub_client.subscribe_aggregate_trade_event(instrument,
                 get_trades_callback, error)
+            result["agg_result"] = True
         except:
             print(sys.exc_info())
 
@@ -99,14 +103,15 @@ def connect():
 
         try:
             listenkey = request_client.start_user_data_stream()
-            data_result = sub_client.subscribe_user_data_event(listenkey, user_data_callback, error)
+            sub_client.subscribe_user_data_event(listenkey, user_data_callback, error)
+            result["data_result"] = True
         except:
             print(sys.exc_info())
 
         keepalive()
 
-    if agg_result and data_result:
-        return True
+        #return passes for unittest
+        return result
 
     else:
         print("Already running.")
