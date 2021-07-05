@@ -63,6 +63,7 @@ total_sell_volume = 0
 
 #Trading variables
 trade_mode = False
+flatten_mode = False
 open_orders = {}
 open_position = {"entry" : 0, "coord" : 0, "qty" : 0, "pnl": 0}
 
@@ -548,23 +549,25 @@ def flatten():
     print(open_position)
 
     try:
-        #if LONG
-        if open_position["qty"] > 0:
-            request_client.post_order(symbol=instrument, side=OrderSide.SELL,
-                ordertype=OrderType.MARKET, closePosition=True,
-                    positionSide="Long")
-            print("Long position flattened. - " + time)
+        if flatten_mode:
+            #if LONG
+            if open_position["qty"] > 0:
+                request_client.post_order(symbol=instrument, side=OrderSide.SELL,
+                    ordertype=OrderType.MARKET, closePosition=True,
+                        positionSide="LONG")
+                print("Long position flattened. - " + time)
 
-        #if SHORT
-        elif open_position["qty"] < 0:
-            request_client.post_order(symbol=instrument, side=OrderSide.BUY,
-                ordertype=OrderType.MARKET, closePosition=True)
-            print("Short position flattened. - " + time)
+            #if SHORT
+            elif open_position["qty"] < 0:
+                request_client.post_order(symbol=instrument, side=OrderSide.BUY,
+                    ordertype=OrderType.MARKET, closePosition=True,
+                        positionSide="SHORT")
+                print("Short position flattened. - " + time)
 
-        else:
-            print("No open positions recognized.")
+            else:
+                print("No open positions recognized.")
 
-        cancel_all()
+            cancel_all()
 
     except Exception as e:
         print(f"! Error while flattening: {e}")
@@ -581,6 +584,19 @@ def trade_mode_swap():
         trade_mode = False
         trademodebutton["bg"] = "whitesmoke"
         print("\nTrade mode disabled.")
+
+def flatten_mode_swap():
+    global flatten_mode
+
+    if not flatten_mode:
+        flatten_mode = True
+        flattenlockbutton["bg"] = "whitesmoke"
+        print("\nFlatten lock deactivated.")
+
+    else:
+        flatten_mode = False
+        flattenlockbutton["bg"] = "lightcoral"
+        print("\nFlatten lock activated")
 
 def modqty(type):
     global lot_size
@@ -799,6 +815,7 @@ class Tradetools(tk.Frame):
         self.parent = master
 
         global trademodebutton
+        global flattenlockbutton
         global pnllabel
         global positionlabel
         global lotqty
@@ -810,6 +827,7 @@ class Tradetools(tk.Frame):
             height = 1,
         )
 
+        #Order size frame
         ordersizeframe = tk.Frame(
             master = self,
             width = 80,
@@ -842,11 +860,25 @@ class Tradetools(tk.Frame):
             bg = "whitesmoke"
         )
 
-        flattenbutton = tk.Button(
+        #Flatten frame
+        flattenbuttonframe = tk.Frame(
             master = self,
+            bg = "silver"
+        )
+
+        flattenlockbutton = tk.Button(
+            master = flattenbuttonframe,
+            command = flatten_mode_swap,
+            text = "L",
+            relief = "flat",
+            bg = "lightcoral"
+        )
+
+        flattenbutton = tk.Button(
+            master = flattenbuttonframe,
             command = flatten,
             text = "Flatten",
-            width = 10,
+            width = 7,
             relief = "flat",
             bg = "whitesmoke"
         )
@@ -891,8 +923,13 @@ class Tradetools(tk.Frame):
         clearlot.pack(side="left", padx=1)
         ordersizeframe.pack(side="top", padx=5, pady=5)
         ordersizeframe.pack_propagate(False)
+
         trademodebutton.pack(side="top", pady=5)
-        flattenbutton.pack(side="top", pady=5)
+
+        flattenbuttonframe.pack(side="top", pady=5)
+        flattenlockbutton.pack(side="left", padx=1)
+        flattenbutton.pack(side="left")
+
         cancelallbutton.pack(side="top", pady=5)
         positionlabel.pack(side="top")
         pnllabel.pack(side="top")
