@@ -12,7 +12,7 @@ tori is licensed under the GNU General Public License. Please see COPYING for mo
 Requirements:
   * binance_f (in root folder)
 
-![tori as of 06/05/2021](https://raw.githubusercontent.com/AidenH/tori/main/img/6-5-21-tori.png)  
+![tori as of 06/05/2021](https://raw.githubusercontent.com/AidenH/tori/main/img/7-5-21-tori.png)  
 *tori as of 06/05/2021*
 
 Notice: This software is currently in development. By using tori you acknowledge
