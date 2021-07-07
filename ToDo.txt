@@ -4,7 +4,6 @@ SYSTEM
     -More function summary comments
 
 TOOLS
-    -Add Flatten function with button
     -Total session PnL tracking
     -Account Balance (consider doing this in new window)
 
@@ -17,13 +16,10 @@ VOLUME COLUMN
     -Add proportional volume bars behind (or below?) quantity label as representation of size
 
 ORDER COLUMN
-    -Getting orders is very slow.
-        -get_open_orders() potentially being called multiple times?
-        -Need to stop it from printing the request data.
+    -Getting open orders is slow.
 
     -Implement Binance user account functionality
         -Display account balance
-        -flatten
 
 NEW WINDOWS
     -Account info & balance
