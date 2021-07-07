@@ -318,7 +318,9 @@ def user_data_callback(data_type: 'SubscribeMessageType', event: 'any'):
                         open_position["entry"] = 0
                         open_position["coord"] = 0
                         open_position["qty"] = 0
-                        print(f"Position closed: {open_position}")
+                        print(f"{open_position}")
+                        print(f"Position closed with PnL: {open_position['pnl']}")
+                        open_position["pnl"] = 0
 
             print("\n---------END POSITIONS-----------")
 
@@ -541,33 +543,33 @@ def cancel_order(coord):
 def cancel_all():
     try:
         request_client.cancel_all_orders(symbol=instrument)
-        print("All orders cancelled." + time)
+        print("All orders cancelled. - " + time)
     except:
         print(f"! Error while cancelling all orders:\n{sys.exc_info()}")
 
 def flatten():
-    print(open_position)
-
     try:
         if flatten_mode:
+            print(open_position)
+
             #if LONG
             if open_position["qty"] > 0:
                 request_client.post_order(symbol=instrument, side=OrderSide.SELL,
-                    ordertype=OrderType.MARKET, closePosition=True,
-                        positionSide="LONG")
+                    ordertype=OrderType.MARKET, quantity=abs(open_position["qty"]))
                 print("Long position flattened. - " + time)
+
+                cancel_all()
 
             #if SHORT
             elif open_position["qty"] < 0:
                 request_client.post_order(symbol=instrument, side=OrderSide.BUY,
-                    ordertype=OrderType.MARKET, closePosition=True,
-                        positionSide="SHORT")
+                    ordertype=OrderType.MARKET, quantity=abs(open_position["qty"]))
                 print("Short position flattened. - " + time)
+
+                cancel_all()
 
             else:
                 print("No open positions recognized.")
-
-            cancel_all()
 
     except Exception as e:
         print(f"! Error while flattening: {e}")
