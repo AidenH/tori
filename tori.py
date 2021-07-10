@@ -179,9 +179,9 @@ def get_trades_callback(data_type: 'SubscribeMessageType', event: 'any'):
 
             dict_setup = True
 
-            refresh()
-            highlight_trade_price()
-            volume_column_populate(False)
+            main.refresh()
+            main.highlight_trade_price()
+            main.volumecolumn.volume_column_populate(False)
             buy_column_populate(False)
             sell_column_populate(False)
             init_check_user_status()
@@ -330,39 +330,6 @@ def user_data_callback(data_type: 'SubscribeMessageType', event: 'any'):
 def error(e: 'BinanceApiException'):
     print(e.error_code + e.error_message)
 
-#recenter/price populate price axis
-def refresh():
-    global ladder_dict
-
-    #populate the ladder cell dictionary
-    for i in range(window_price_levels):
-        ladder_dict[i] = global_lastprice+ladder_midpoint-i
-
-        eval(asklabel.format(i))["text"] = ""
-        eval(bidlabel.format(i))["text"] = ""
-
-        eval(olabel.format(i))["text"] = ""
-
-        exec(f"price_label{i}['bg'] = 'gray'")
-        exec(f"price_label{i}['fg'] = 'white'")
-
-    #write dictionary values to frame
-    for i in range(window_price_levels-1, -1, -1):
-        eval(plabel.format(i))["text"] = ladder_dict[i]
-        eval(vlabel.format(i))["text"] = str(prices[ladder_dict[i]]["volume"])[:-2]
-        eval(blabel.format(i))["text"] = str(prices[ladder_dict[i]]["buy"])[:-2]
-        eval(slabel.format(i))["text"] = str(prices[ladder_dict[i]]["sell"])[:-2]
-
-    print("Refresh - " + time)
-
-#volume cell update
-def volume_column_populate(clean):
-    if dict_setup == True and coord >= 0 and coord < window_price_levels:
-        eval(vlabel.format(coord))["text"] = str(prices[ladder_dict[coord]]["volume"])[:-2]
-
-    if clean == False:
-        root.after(100, volume_column_populate, False)
-
 def buy_column_populate(clean):
     if dict_setup == True and coord >= 0 and coord < window_price_levels:
         eval(blabel.format(coord))["text"] = str(prices[ladder_dict[coord]]["buy"])[:-2]
@@ -376,60 +343,6 @@ def sell_column_populate(clean):
 
     if clean == False:
         root.after(100, sell_column_populate, False)
-
-def highlight_trade_price():
-    global prev_coord
-
-    if dict_setup == True and coord >= 0 and coord < window_price_levels:
-        #If there is an open position, mark it at entry_coord location
-        if open_position["qty"] != 0:
-            #Entry coord = top of ladder/highest price - current position entry price
-            entry_coord = ladder_dict[0] - open_position["entry"]
-
-            e = open_position["entry"]
-            q = open_position["qty"]
-
-            #If entry is within frame, place styled highlight
-            if entry_coord >= 0 and entry_coord <= (window_price_levels - 1):
-                if open_position["qty"] > 0:
-                    exec(f"price_label{entry_coord}['bg'] = 'mediumpurple'")
-
-                elif open_position["qty"] < 0:
-                    exec(f"price_label{entry_coord}['bg'] = 'firebrick'")
-
-                exec(f"price_label{entry_coord}['text'] = '{e} {q}'")
-
-        #Need to be able to remove position marking dynamically as well!
-
-        #Mark last trade qty and side on price axis
-        if last_trade["qty"] > vol_filter:
-            exec(f"price_label{coord}['text'] = last_trade['qty']")
-
-            if last_trade["buyer"]:
-                exec(f"price_label{coord}['fg'] = 'lime'")
-            else:
-                exec(f"price_label{coord}['fg'] = 'red'")
-
-        #Highlight current trade price coord on axis
-        exec(f"price_label{coord}['bg'] = 'blue'")
-        exec(f"buy_label{coord}['bg'] = 'silver'")
-        exec(f"sell_label{coord}['bg'] = 'silver'")
-
-        #If new price from last coord, reset previous coord's label style
-        if coord != prev_coord:
-            exec(f"price_label{prev_coord}['text'] = ladder_dict[prev_coord]")
-
-            exec(f"price_label{prev_coord}['bg'] = 'gray'")
-            exec(f"price_label{prev_coord}['fg'] = 'white'")
-            exec(f"buy_label{prev_coord}['bg'] = 'gainsboro'")
-            exec(f"sell_label{prev_coord}['bg'] = 'gainsboro'")
-
-        prev_coord = coord
-
-    if dict_setup == True and (coord < 6 or coord > (window_price_levels-6)):
-        refresh()
-
-    root.after(100, highlight_trade_price)
 
 def clean_volume():
     global total_buy_volume, total_sell_volume, delta
@@ -792,7 +705,7 @@ class Toolbar(tk.Frame):
 
         recenter = tk.Button(
             master = self,
-            command = refresh,
+            command = lambda: main.refresh(),
             text = "Recenter",
             width = 10,
             padx = 3
@@ -1013,6 +926,14 @@ volume_label{i} = tk.Label(
         )
 volume_label{i}.pack(fill="x")''')
 
+    #volume cell update
+    def volume_column_populate(self, clean):
+        if dict_setup == True and coord >= 0 and coord < window_price_levels:
+            eval(vlabel.format(coord))["text"] = str(prices[ladder_dict[coord]]["volume"])[:-2]
+
+        if clean == False:
+            root.after(100, self.volume_column_populate, False)
+
 class Buycolumn(tk.Frame):
     def __init__(self, master):
         tk.Frame.__init__(self, master, bg="blue", width = wwidth / 12)
@@ -1176,6 +1097,85 @@ class MainApplication(tk.Frame):
         #Total volume
         self.volumecolumn.pack(side="left", fill="y")
         self.volumecolumn.pack_propagate(False)
+
+    #recenter/price populate price axis
+    def refresh(self):
+        global ladder_dict
+
+        #populate the ladder cell dictionary
+        for i in range(window_price_levels):
+            ladder_dict[i] = global_lastprice+ladder_midpoint-i
+
+            eval(asklabel.format(i))["text"] = ""
+            eval(bidlabel.format(i))["text"] = ""
+
+            eval(olabel.format(i))["text"] = ""
+
+            exec(f"price_label{i}['bg'] = 'gray'")
+            exec(f"price_label{i}['fg'] = 'white'")
+
+        #write dictionary values to frame
+        for i in range(window_price_levels-1, -1, -1):
+            eval(plabel.format(i))["text"] = ladder_dict[i]
+            eval(vlabel.format(i))["text"] = str(prices[ladder_dict[i]]["volume"])[:-2]
+            eval(blabel.format(i))["text"] = str(prices[ladder_dict[i]]["buy"])[:-2]
+            eval(slabel.format(i))["text"] = str(prices[ladder_dict[i]]["sell"])[:-2]
+
+        print("Refresh - " + time)
+
+    def highlight_trade_price(self):
+        global prev_coord
+
+        if dict_setup == True and coord >= 0 and coord < window_price_levels:
+            #If there is an open position, mark it at entry_coord location
+            if open_position["qty"] != 0:
+                #Entry coord = top of ladder/highest price - current position entry price
+                entry_coord = ladder_dict[0] - open_position["entry"]
+
+                e = open_position["entry"]
+                q = open_position["qty"]
+
+                #If entry is within frame, place styled highlight
+                if entry_coord >= 0 and entry_coord <= (window_price_levels - 1):
+                    if open_position["qty"] > 0:
+                        exec(f"price_label{entry_coord}['bg'] = 'mediumpurple'")
+
+                    elif open_position["qty"] < 0:
+                        exec(f"price_label{entry_coord}['bg'] = 'firebrick'")
+
+                    exec(f"price_label{entry_coord}['text'] = '{e} {q}'")
+
+            #Need to be able to remove position marking dynamically as well!
+
+            #Mark last trade qty and side on price axis
+            if last_trade["qty"] > vol_filter:
+                exec(f"price_label{coord}['text'] = last_trade['qty']")
+
+                if last_trade["buyer"]:
+                    exec(f"price_label{coord}['fg'] = 'lime'")
+                else:
+                    exec(f"price_label{coord}['fg'] = 'red'")
+
+            #Highlight current trade price coord on axis
+            exec(f"price_label{coord}['bg'] = 'blue'")
+            exec(f"buy_label{coord}['bg'] = 'silver'")
+            exec(f"sell_label{coord}['bg'] = 'silver'")
+
+            #If new price from last coord, reset previous coord's label style
+            if coord != prev_coord:
+                exec(f"price_label{prev_coord}['text'] = ladder_dict[prev_coord]")
+
+                exec(f"price_label{prev_coord}['bg'] = 'gray'")
+                exec(f"price_label{prev_coord}['fg'] = 'white'")
+                exec(f"buy_label{prev_coord}['bg'] = 'gainsboro'")
+                exec(f"sell_label{prev_coord}['bg'] = 'gainsboro'")
+
+            prev_coord = coord
+
+        if dict_setup == True and (coord < 6 or coord > (window_price_levels-6)):
+            refresh()
+
+        root.after(100, self.highlight_trade_price)
 
 
 #MAIN
