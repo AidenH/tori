@@ -94,7 +94,7 @@ def connect():
 
         try:
             sub_client.subscribe_aggregate_trade_event(instrument,
-                get_trades_callback, error)
+                handle_agg_trades_callback, error)
             result["agg_result"] = True
         except:
             print(sys.exc_info())
@@ -104,7 +104,7 @@ def connect():
 
         try:
             listenkey = request_client.start_user_data_stream()
-            sub_client.subscribe_user_data_event(listenkey, user_data_callback, error)
+            sub_client.subscribe_user_data_event(listenkey, handle_user_data_callback, error)
             result["data_result"] = True
         except:
             print(sys.exc_info())
@@ -140,7 +140,7 @@ def keepalive():
     root.after(3600000, keepalive)
 
 #get aggregate trades
-def get_trades_callback(data_type: 'SubscribeMessageType', event: 'any'):
+def handle_agg_trades_callback(data_type: 'SubscribeMessageType', event: 'any'):
     global dict_setup, prices, global_lastprice, title_instrument_info, coord
     global last_trade, total_buy_volume, total_sell_volume
 
@@ -208,7 +208,7 @@ def get_trades_callback(data_type: 'SubscribeMessageType', event: 'any'):
         print("Unknown Data:")
 
 #user data for position updates, balance etc.
-def user_data_callback(data_type: 'SubscribeMessageType', event: 'any'):
+def handle_user_data_callback(data_type: 'SubscribeMessageType', event: 'any'):
     if data_type == SubscribeMessageType.RESPONSE:
         #Supressing event id printing for now due to console clutter.
         #print("EventID: ", event)
