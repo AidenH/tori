@@ -32,6 +32,7 @@ from settings import *
 
 
 #Root environment variables
+root = tk.Tk()
 wwidth = 370
 wheight = 988
 font = "arial 7 bold"
@@ -171,7 +172,7 @@ def handle_agg_trades_callback(data_type: 'SubscribeMessageType', event: 'any'):
                 #Init price level volume data
                 prices[i] = {"volume" : 0, "buy" : 0, "sell" : 0}
 
-            #This and refresh() for us to have a midpoint coord on first startup
+            #This and refresh() for us to have a midpoint coord on startup
             #   in order to avoid refresh() spamming because highlight_trade_price hasn't received
             #   a coord outside the auto-recenter trigger zones
             price_label0["text"] = global_lastprice+ladder_midpoint
@@ -181,9 +182,11 @@ def handle_agg_trades_callback(data_type: 'SubscribeMessageType', event: 'any'):
 
             main.refresh()
             main.highlight_trade_price()
+
             main.volumecolumn.volume_column_populate(False)
             main.buycolumn.buy_column_populate(False)
             main.sellcolumn.sell_column_populate(False)
+
             init_check_user_status()
 
         #add event order quantity to price[volume] dict key
@@ -1051,7 +1054,6 @@ bid_label{i}.bind("<Button-1>", lambda e: main.bidcolumn.place_order_buy({i}))''
                 print(f"\n! Error: Order BUY {lot_size} at {price} was not sent.")
                 print(f"Can't send zero lot order. - {time}")
 
-
 class MainApplication(tk.Frame):
     def __init__(self, master):
         tk.Frame.__init__(self, master)
@@ -1193,7 +1195,6 @@ if __name__ == "__main__":
     orderbook_thread = threading.Thread(target=orderbook_listener)
 
     #Window setup
-    root = tk.Tk()
     root.geometry(str(wwidth)+"x"+str(40 + (window_price_levels * 19)))
     root.attributes('-topmost', True)
 
