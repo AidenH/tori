@@ -231,7 +231,7 @@ def handle_user_data_callback(data_type: 'SubscribeMessageType', event: 'any'):
         PrintBasic.print_obj(event)
         print("------------END EVENT------------")'''
 
-        # If new order received
+        # If new order received, add to open_orders
         if event.eventType == "ORDER_TRADE_UPDATE" and event.orderStatus == "NEW":
             if event.price not in open_orders:
                 open_orders[int(event.price)] = {}
@@ -253,8 +253,9 @@ def handle_user_data_callback(data_type: 'SubscribeMessageType', event: 'any'):
 
             print(open_orders)
 
-        # Check for order being filled
-        if event.eventType == "ORDER_TRADE_UPDATE" and event.orderStatus == "FILLED":
+        # Check if open order has been filled and then remove from open_orders
+        if (event.eventType == "ORDER_TRADE_UPDATE" and
+            event.orderStatus == "FILLED" and event.type != "MARKET"):
             PrintBasic.print_obj(event)
             # Check for matching order id by event.price/open_orders[price]
             for id in list(open_orders[event.price]["ids"]):
@@ -281,7 +282,7 @@ def handle_user_data_callback(data_type: 'SubscribeMessageType', event: 'any'):
 
             # Refresh in case of adding to position size,
             # we need to write a new, averaged entry price
-            refresh()
+            main.refresh()
 
         # If update is order cancel, remove order from open_orders and clean label
         if event.eventType == "ORDER_TRADE_UPDATE" and event.orderStatus == "CANCELED":
@@ -333,7 +334,7 @@ def handle_user_data_callback(data_type: 'SubscribeMessageType', event: 'any'):
                         print(f"Position closed with PnL: {open_position['pnl']}")
                         open_position["pnl"] = 0
 
-            print("\n---------END POSITIONS-----------")
+            print("---------END POSITIONS-----------\n")
 
     else:
         print("Unknown Data:")
