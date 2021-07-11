@@ -33,11 +33,13 @@ from settings import *
 
 class Testtori(unittest.TestCase):
 
-    #@patch.object(tori.root, root)
     def test_connect(self):
-        tori.time = "123"
+        tori.time = "(test time)"
         result = tori.connect()
-        self.assertTrue(result, 0)
+        self.assertTrue(result["agg_result"], "Problem subscribing to \
+aggregate trade stream.")
+        self.assertTrue(result["data_result"], "Problem subscribing to \
+user data stream.")
 
 if __name__ == "__main__":
     root = tk.Tk()
