@@ -453,77 +453,6 @@ def cancel_order(coord):
         except KeyError as k:
             print(f"\n! No orders found at price level {k}\n")
 
-def cancel_all():
-    try:
-        request_client.cancel_all_orders(symbol=instrument)
-        print("All orders cancelled. - " + time)
-    except:
-        print(f"! Error while cancelling all orders:\n{sys.exc_info()}")
-
-def flatten():
-    try:
-        if flatten_mode:
-            print(open_position)
-
-            #if LONG
-            if open_position["qty"] > 0:
-                request_client.post_order(symbol=instrument, side=OrderSide.SELL,
-                    ordertype=OrderType.MARKET, quantity=abs(open_position["qty"]))
-                print("Long position flattened. - " + time)
-
-                cancel_all()
-
-            #if SHORT
-            elif open_position["qty"] < 0:
-                request_client.post_order(symbol=instrument, side=OrderSide.BUY,
-                    ordertype=OrderType.MARKET, quantity=abs(open_position["qty"]))
-                print("Short position flattened. - " + time)
-
-                cancel_all()
-
-            else:
-                print("No open positions recognized.")
-
-    except Exception as e:
-        print(f"! Error while flattening: {e}")
-
-def trade_mode_swap():
-    global trade_mode
-
-    if trade_mode == False:
-        trade_mode = True
-        trademodebutton["bg"] = "lightcoral"
-        print("\nTrade mode activated.")
-
-    else:
-        trade_mode = False
-        trademodebutton["bg"] = "whitesmoke"
-        print("\nTrade mode disabled.")
-
-def flatten_mode_swap():
-    global flatten_mode
-
-    if not flatten_mode:
-        flatten_mode = True
-        flattenlockbutton["bg"] = "whitesmoke"
-        print("\nFlatten lock deactivated.")
-
-    else:
-        flatten_mode = False
-        flattenlockbutton["bg"] = "lightcoral"
-        print("\nFlatten lock activated")
-
-def modqty(type):
-    global lot_size
-
-    if type == "add":
-        lot_size += lot_increment_size
-        lotqty["text"] = f"Qty: {'%.2f'%lot_size}"
-
-    elif type == "clear":
-        lot_size = 0
-        lotqty["text"] = f"Qty: {'%.2f'%lot_size}"
-
 def term():
     print("Exiting tori...")
     os._exit(0)
@@ -752,7 +681,7 @@ class Tradetools(tk.Frame):
 
         addlot = tk.Button(
             master = ordersizeframe,
-            command = lambda: modqty("add"),
+            command = lambda: self.modqty("add"),
             text = lot_increment_size,
             height = 1,
             width = 3
@@ -760,7 +689,7 @@ class Tradetools(tk.Frame):
 
         clearlot = tk.Button(
             master = ordersizeframe,
-            command = lambda: modqty("clear"),
+            command = lambda: self.modqty("clear"),
             text = "clear",
             height = 1,
             width = 5
@@ -768,7 +697,7 @@ class Tradetools(tk.Frame):
 
         trademodebutton = tk.Button(
             master = self,
-            command = trade_mode_swap,
+            command = self.trade_mode_swap,
             text = "Trade mode",
             width = 10,
             relief = "flat",
@@ -783,7 +712,7 @@ class Tradetools(tk.Frame):
 
         flattenlockbutton = tk.Button(
             master = flattenbuttonframe,
-            command = flatten_mode_swap,
+            command = self.flatten_mode_swap,
             text = "L",
             relief = "flat",
             bg = "lightcoral"
@@ -791,7 +720,7 @@ class Tradetools(tk.Frame):
 
         flattenbutton = tk.Button(
             master = flattenbuttonframe,
-            command = flatten,
+            command = self.flatten,
             text = "Flatten",
             width = 7,
             relief = "flat",
@@ -800,7 +729,7 @@ class Tradetools(tk.Frame):
 
         cancelallbutton = tk.Button(
             master = self,
-            command = cancel_all,
+            command = self.cancel_all,
             text = "Cancel all",
             width = 10,
             relief = "flat",
@@ -850,6 +779,77 @@ class Tradetools(tk.Frame):
         pnllabel.pack(side="top")
         deltainfoframe.pack(side="bottom", fill="x")
         deltainfolabel.pack()
+
+    def modqty(self, type):
+        global lot_size
+
+        if type == "add":
+            lot_size += lot_increment_size
+            lotqty["text"] = f"Qty: {'%.2f'%lot_size}"
+
+        elif type == "clear":
+            lot_size = 0
+            lotqty["text"] = f"Qty: {'%.2f'%lot_size}"
+
+    def flatten_mode_swap(self):
+        global flatten_mode
+
+        if not flatten_mode:
+            flatten_mode = True
+            flattenlockbutton["bg"] = "whitesmoke"
+            print("\nFlatten lock deactivated.")
+
+        else:
+            flatten_mode = False
+            flattenlockbutton["bg"] = "lightcoral"
+            print("\nFlatten lock activated")
+
+    def trade_mode_swap(self):
+        global trade_mode
+
+        if trade_mode == False:
+            trade_mode = True
+            trademodebutton["bg"] = "lightcoral"
+            print("\nTrade mode activated.")
+
+        else:
+            trade_mode = False
+            trademodebutton["bg"] = "whitesmoke"
+            print("\nTrade mode disabled.")
+
+    def flatten(self):
+        try:
+            if flatten_mode:
+                print(open_position)
+
+                #if LONG
+                if open_position["qty"] > 0:
+                    request_client.post_order(symbol=instrument, side=OrderSide.SELL,
+                        ordertype=OrderType.MARKET, quantity=abs(open_position["qty"]))
+                    print("Long position flattened. - " + time)
+
+                    cancel_all()
+
+                #if SHORT
+                elif open_position["qty"] < 0:
+                    request_client.post_order(symbol=instrument, side=OrderSide.BUY,
+                        ordertype=OrderType.MARKET, quantity=abs(open_position["qty"]))
+                    print("Short position flattened. - " + time)
+
+                    cancel_all()
+
+                else:
+                    print("No open positions recognized.")
+
+        except Exception as e:
+            print(f"! Error while flattening: {e}")
+
+    def cancel_all(self):
+        try:
+            request_client.cancel_all_orders(symbol=instrument)
+            print("All orders cancelled. - " + time)
+        except:
+            print(f"! Error while cancelling all orders:\n{sys.exc_info()}")
 
 class Ordercolumn(tk.Frame):
     def __init__(self, master):
@@ -1208,7 +1208,7 @@ if __name__ == "__main__":
 
     if init_trademode == True:
         print("! Starting in trade mode.")
-        trade_mode_swap()
+        main.tradetools.trade_mode_swap()
 
     root.protocol("WM_DELETE_WINDOW", term)
     root.mainloop()
