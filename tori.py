@@ -137,7 +137,7 @@ def keepalive():
     except:
         print("Could not ping server.")
 
-    root.after(3600000, keepalive)
+    root.after(3599999, keepalive)
 
 #get aggregate trades
 def handle_agg_trades_callback(data_type: 'SubscribeMessageType', event: 'any'):
@@ -370,47 +370,7 @@ def init_check_user_status():
         else:
             open_orders[price]["qty"] = ord_result[i].origQty
 
-def place_order(coord, side):
-    if subscribed_bool == True and dict_setup == True and trade_mode == True:
-        price = ladder_dict[coord]
-
-        #Send order to binance
-        #LONG
-        #limit
-        if side == "BUY" and lot_size > 0:
-            if price < global_lastprice:
-                result = request_client.post_order(symbol=instrument, side=OrderSide.BUY,
-                    ordertype=OrderType.LIMIT, price=price, quantity="%.2f"%lot_size,
-                        timeInForce=TimeInForce.GTC,)
-                print(f"\nLimit order {side} {lot_size} at {price} sent to exchange. - {time}")
-
-            #Stop limit
-            else:
-                result = request_client.post_order(symbol=instrument, side=OrderSide.BUY,
-                    ordertype=OrderType.STOP, price=price+1, stopPrice=price, quantity="%.2f"%lot_size,
-                        timeInForce=TimeInForce.GTC,)
-                print(f"\nStop limit order {side} {lot_size} at {price} sent to exchange. - {time}")
-
-        #SHORT
-        #limit
-        elif side == "SELL" and lot_size > 0:
-            if price > global_lastprice:
-                result = request_client.post_order(symbol=instrument, side=OrderSide.SELL,
-                    ordertype=OrderType.LIMIT, price=price, quantity="%.2f"%lot_size,
-                        timeInForce=TimeInForce.GTC,)
-                print(f"\nLimit order {side} {lot_size} at {price} sent to exchange. - {time}")
-
-            #Stop limit
-            else:
-                result = request_client.post_order(symbol=instrument, side=OrderSide.SELL,
-                    ordertype=OrderType.STOP, price=price-1, stopPrice=price, quantity="%.2f"%lot_size,
-                        timeInForce=TimeInForce.GTC,)
-                print(f"\nStop limit order {side} {lot_size} at {price} sent to exchange. - {time}")
-
-        else:
-            print(f"\n! Error: Order {side} {lot_size} at {price} was not sent. - {time}")
-
-def term():
+def term_program():
     print("Exiting tori...")
     os._exit(0)
 
@@ -1093,8 +1053,8 @@ bid_label{i}.bind("<Button-1>", lambda e: main.bidcolumn.place_order_buy({i}))''
 
 
 class MainApplication(tk.Frame):
-    def __init__(self, master, *args, **kwargs):
-        tk.Frame.__init__(self, master, *args, **kwargs)
+    def __init__(self, master):
+        tk.Frame.__init__(self, master)
         self.parent = master
 
         #toolbars
@@ -1146,7 +1106,7 @@ class MainApplication(tk.Frame):
         self.volumecolumn.pack(side="left", fill="y")
         self.volumecolumn.pack_propagate(False)
 
-    #recenter/price populate price axis
+    #Recenter everything based on last trade price
     def refresh(self):
         global ladder_dict
 
@@ -1258,5 +1218,5 @@ if __name__ == "__main__":
         print("! Starting in trade mode.")
         main.tradetools.trade_mode_swap()
 
-    root.protocol("WM_DELETE_WINDOW", term)
+    root.protocol("WM_DELETE_WINDOW", term_program)
     root.mainloop()
