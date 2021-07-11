@@ -22,6 +22,8 @@
 
 import unittest
 from unittest.mock import patch
+import tkinter as tk
+
 import tori
 
 from binance_f import RequestClient
@@ -31,9 +33,14 @@ from settings import *
 
 class Testtori(unittest.TestCase):
 
+    #@patch.object(tori.root, root)
     def test_connect(self):
+        tori.time = "123"
         result = tori.connect()
-        self.assertTrue(result[0])
+        self.assertTrue(result, 0)
 
 if __name__ == "__main__":
+    root = tk.Tk()
+    main = tori.MainApplication(root)
+
     unittest.main()
