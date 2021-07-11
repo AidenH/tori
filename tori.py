@@ -31,16 +31,16 @@ from binance_f.base.printobject import *
 from settings import *
 
 
-#Root environment variables
+# Root environment variables
 root = tk.Tk()
 wwidth = 370
 wheight = 988
 font = "arial 7 bold"
 title_instrument_info = "none"
 
-#Dom-related variables
+# Dom-related variables
 dict_setup = False
-ladder_midpoint = int(window_price_levels / 2) - 2  #Otherwise 23 if height 50
+ladder_midpoint = int(window_price_levels / 2) - 2  # Otherwise 23 if height 50
 subscribed_bool = False
 orderbook_subscribed_bool = False
 global_lastprice = 0
@@ -62,7 +62,7 @@ asklabel = "ask_label{0}"
 total_buy_volume = 0
 total_sell_volume = 0
 
-#Trading variables
+# Trading variables
 trade_mode = False
 flatten_mode = False
 open_orders = {}
@@ -76,7 +76,7 @@ for i in range(window_price_levels):
     ladder_dict[i] = 0
 
 
-#FUNCTIONS
+# GLOBAL FUNCS
 
 def connect():
     global dict_setup
@@ -84,13 +84,13 @@ def connect():
 
     dict_setup = False
 
-    #Connection results for unittest
+    # Connection results for unittest
     connect_result = {"agg_result": False, "data_result": False}
 
     if subscribed_bool == False:
         subscribed_bool = True
 
-        #Subscribe to aggregate trade stream
+        # Subscribe to aggregate trade stream
         print("\nSubscribing... - " + time)
 
         try:
@@ -100,7 +100,7 @@ def connect():
         except:
             print(sys.exc_info())
 
-        #Subscribe to user data
+        # Subscribe to user data
         print("Connecting to user data stream... - " + time)
 
         try:
@@ -112,7 +112,7 @@ def connect():
 
         keepalive()
 
-        #return passes for unittest
+        # return passes for unittest
         return connect_result
 
     else:
@@ -148,7 +148,7 @@ def keepalive():
 
     root.after(3599999, keepalive)
 
-#get aggregate trades
+# get aggregate trades data
 def handle_agg_trades_callback(data_type: 'SubscribeMessageType', event: 'any'):
     global dict_setup, prices, global_lastprice, title_instrument_info, coord
     global last_trade, total_buy_volume, total_sell_volume
@@ -156,33 +156,33 @@ def handle_agg_trades_callback(data_type: 'SubscribeMessageType', event: 'any'):
     coord = int(price_label0["text"]) - global_lastprice
 
     if data_type == SubscribeMessageType.RESPONSE:
-        #Supressing event id printing for now due to console clutter.
-        #print("EventID: ", event)
+        # Supressing event id printing for now due to console clutter.
+        # print("EventID: ", event)
         pass
 
     elif data_type == SubscribeMessageType.PAYLOAD:
-        #PrintBasic.print_obj(event)    #keep for full aggtrade payload example
+        # PrintBasic.print_obj(event)    # keep for full aggtrade payload example
 
-        #set current global_lastprice
+        # set current global_lastprice
         global_lastprice = int(round(event.price, 0))
-        #set local price variable
+        # set local price variable
         local_lastprice = global_lastprice
-        #update window title ticker info
+        # update window title ticker info
         title_instrument_info = instrument + " " + str(local_lastprice)
 
-        #Populate price levels dictionary
+        # Populate price levels dictionary
         if dict_setup == False:
             print("Set up dictionary - " + time + "\n")
 
-            #tick_size other than 1 not yet working.
-            #Subscriptionprocess error on start.
+            # tick_size other than 1 not yet working.
+            # Subscriptionprocess error on start.
             for i in range(0, local_lastprice + local_lastprice, tick_size):
-                #Init price level volume data
+                # Init price level volume data
                 prices[i] = {"volume" : 0, "buy" : 0, "sell" : 0}
 
-            #This and refresh() for us to have a midpoint coord on startup
-            #   in order to avoid refresh() spamming because highlight_trade_price hasn't received
-            #   a coord outside the auto-recenter trigger zones
+            # This and refresh() for us to have a midpoint coord on startup
+            #    in order to avoid refresh() spamming because highlight_trade_price hasn't received
+            #    a coord outside the auto-recenter trigger zones
             price_label0["text"] = global_lastprice+ladder_midpoint
             coord = int(price_label0["text"]) - global_lastprice
 
@@ -197,17 +197,17 @@ def handle_agg_trades_callback(data_type: 'SubscribeMessageType', event: 'any'):
 
             init_check_user_status()
 
-        #add event order quantity to price[volume] dict key
+        # add event order quantity to price[volume] dict key
         prices[local_lastprice]["volume"] += round(event.qty, 0)
         last_trade["qty"] = int(round(event.qty, 0))
 
         if event.isBuyerMaker == False:
-            #if buyer
+            # if buyer
             last_trade["buyer"] = True
             prices[local_lastprice]["buy"] += round(event.qty, 0)
             total_buy_volume += event.qty
         else:
-            #if seller
+            # if seller
             last_trade["buyer"] = False
             prices[local_lastprice]["sell"] += round(event.qty, 0)
             total_sell_volume += event.qty
@@ -218,11 +218,11 @@ def handle_agg_trades_callback(data_type: 'SubscribeMessageType', event: 'any'):
     else:
         print("Unknown Data:")
 
-#user data for position updates, balance etc.
+# get user data for position updates, balance etc.
 def handle_user_data_callback(data_type: 'SubscribeMessageType', event: 'any'):
     if data_type == SubscribeMessageType.RESPONSE:
-        #Supressing event id printing for now due to console clutter.
-        #print("EventID: ", event)
+        # Supressing event id printing for now due to console clutter.
+        # print("EventID: ", event)
         pass
 
     elif data_type == SubscribeMessageType.PAYLOAD:
@@ -231,7 +231,7 @@ def handle_user_data_callback(data_type: 'SubscribeMessageType', event: 'any'):
         PrintBasic.print_obj(event)
         print("------------END EVENT------------")'''
 
-        #If new order received
+        # If new order received
         if event.eventType == "ORDER_TRADE_UPDATE" and event.orderStatus == "NEW":
             if event.price not in open_orders:
                 open_orders[int(event.price)] = {}
@@ -253,50 +253,50 @@ def handle_user_data_callback(data_type: 'SubscribeMessageType', event: 'any'):
 
             print(open_orders)
 
-        #Check for order being filled
+        # Check for order being filled
         if event.eventType == "ORDER_TRADE_UPDATE" and event.orderStatus == "FILLED":
             PrintBasic.print_obj(event)
-            #Check for matching order id by event.price/open_orders[price]
+            # Check for matching order id by event.price/open_orders[price]
             for id in list(open_orders[event.price]["ids"]):
-                #If event id matches an open_orders id, then delete id from dict
+                # If event id matches an open_orders id, then delete id from dict
                 if id == event.orderId:
                     print(ladder_dict[0])
                     price = int(round(float(event.price), 0))
                     coord = ladder_dict[0] - price
 
-                    #Remove id key & data from open orders price level
+                    # Remove id key & data from open orders price level
                     open_orders[event.price]["ids"].remove(id)
 
-                    #If open_orders is empty of ids after this, remove that price level from dict
+                    # If open_orders is empty of ids after this, remove that price level from dict
                     if open_orders[event.price]["ids"] == []:
                         print(f"empty - no orders at {event.price}")
                         open_orders.pop(event.price, None)
                         eval(olabel.format(coord))["text"] = ""
 
-                    #Otherwise just subtract order qty from dict level qty
+                    # Otherwise just subtract order qty from dict level qty
                     else:
                         print("id left, subbing from order qty")
                         open_orders[event.price]["qty"] -= event.origQty
                         eval(olabel.format(coord))["text"] -= event.origQty
 
-            #Refresh in case of adding to position size,
-            #we need to write a new, averaged entry price
+            # Refresh in case of adding to position size,
+            # we need to write a new, averaged entry price
             refresh()
 
-        #If update is order cancel, remove order from open_orders and clean label
+        # If update is order cancel, remove order from open_orders and clean label
         if event.eventType == "ORDER_TRADE_UPDATE" and event.orderStatus == "CANCELED":
             price = int(event.price)
             coord = ladder_dict[0] - price
 
             open_orders[price]["ids"].remove(event.orderId)
 
-            #If every id has been deleted at the price level, remove level from
-            #open orders list
-            #Consider adding try & except here.
+            # If every id has been deleted at the price level, remove level from
+            # open orders list
+            # Consider adding try & except here.
             if open_orders[price]["ids"] == []:
                 open_orders.pop(price, None)
 
-            #Reset level label text if within window
+            # Reset level label text if within window
             if coord >= 0 and coord <= window_price_levels-1:
                 eval(olabel.format(coord))["text"] = ""
 
@@ -307,7 +307,7 @@ def handle_user_data_callback(data_type: 'SubscribeMessageType', event: 'any'):
 
             for i in range(len(event.positions)):
                 if event.positions and event.positions[i].symbol == instrument.upper():
-                    #If account update event details open position, add to open_position
+                    # If account update event details open position, add to open_position
                     if event.positions[i].amount != 0:
 
                         PrintBasic.print_obj(event.positions[i])
@@ -317,7 +317,7 @@ def handle_user_data_callback(data_type: 'SubscribeMessageType', event: 'any'):
                         open_position["coord"] = int(price_label0["text"]) - open_position["entry"]
                         print(f"Position: {open_position}")
 
-                    #If account update event details no open position, clear open_position
+                    # If account update event details no open position, clear open_position
                     elif event.positions[i].amount == 0:
                         PrintBasic.print_obj(event.positions[i])
                         entry_coord = open_position["coord"]
@@ -348,7 +348,7 @@ def init_check_user_status():
     pos_result = request_client.get_position()
     ord_result = request_client.get_open_orders()
 
-    #Check open position and add to open_position
+    # Check open position and add to open_position
     for i in range(len(pos_result)):
         if pos_result[i].symbol == instrument.upper() and pos_result[i].positionAmt != 0:
             entry = int(pos_result[i].entryPrice)
@@ -361,7 +361,7 @@ def init_check_user_status():
             print(f"\n! You have an open position on {instrument}:")
             print(f"{open_position['qty']} at {entry}")
 
-    #Check open orders and add to open_orders
+    # Check open orders and add to open_orders
     for i in range(len(ord_result)):
         price = int(round(ord_result[i].price, 0))
 
@@ -393,38 +393,38 @@ def update_title():
     root.after(100, update_title)
 
 
-#THREADS
+# THREADS
 
 def listener():
-    #loop indefinitely with iter()
+    # loop indefinitely with iter()
     for i in iter(int, 1):
 
         if subscribed_bool == True and dict_setup == True and listener_safe == True:
 
-            #Handle open orders list and send to orders column
+            # Handle open orders list and send to orders column
             for i in list(open_orders):
                 coord = ladder_dict[0] - i
 
-                #Check that coord is within window and price is in open_orders[]
+                # Check that coord is within window and price is in open_orders[]
                 if coord >= 0 and coord <= window_price_levels-1 and i in open_orders:
-                    #Order is buy
+                    # Order is buy
                     if open_orders[i]["side"] == "BUY":
                         eval(olabel.format(coord))["text"] = open_orders[i]["qty"]
                         eval(olabel.format(coord))["fg"] = "blue"
 
-                    #Order is sell
+                    # Order is sell
                     elif open_orders[i]["side"] == "SELL":
                         eval(olabel.format(coord))["text"] = open_orders[i]["qty"]
                         eval(olabel.format(coord))["fg"] = "maroon"
 
-            #LONG position PnL calculation
+            # LONG position PnL calculation
             if open_position["qty"] > 0:
-                #calculate open long position pnl
+                # calculate open long position pnl
                 long_global = global_lastprice * open_position["qty"]
                 long_position = open_position["entry"] * open_position["qty"]
                 open_position["pnl"] = round(long_global - long_position, 3)
 
-                #check whether pnl should be in point mode or cash mode
+                # check whether pnl should be in point mode or cash mode
                 if pnl_tick_mode == False:
                     pnllabel["text"] = "PnL: " + str(open_position["pnl"])
                 else:
@@ -432,14 +432,14 @@ def listener():
 
                 positionlabel["text"] = f"Position: {open_position['qty']}\n@{open_position['entry']}"
 
-            #SHORT position PnL calculation
+            # SHORT position PnL calculation
             elif open_position["qty"] < 0:
-                #calculate open short position pnl
+                # calculate open short position pnl
                 short_global = global_lastprice * open_position["qty"]
                 short_position = open_position["entry"] * open_position["qty"]
                 open_position["pnl"] = round(short_global - short_position, 3)
 
-                #check whether pnl should be in point mode or cash mode
+                # check whether pnl should be in point mode or cash mode
                 if pnl_tick_mode == False:
                     pnllabel["text"] = "PnL: " + str(open_position["pnl"])
                 else:
@@ -447,7 +447,7 @@ def listener():
 
                 positionlabel["text"] = f"Position: {open_position['qty']}"
 
-            #NO POSITION pnl default
+            # NO POSITION pnl default
             else:
                 positionlabel["text"] = "Position: ---"
                 pnllabel["text"] = "PnL: ---"
@@ -455,13 +455,13 @@ def listener():
         t.sleep(0.5)
 
 def orderbook_listener():
-    #Populate orderbook dictionary
+    # Populate orderbook dictionary
     async def get_request():
         result = request_client.get_order_book(instrument, 500)
 
         await asyncio.sleep(0.01)
 
-        #Reset orderbook labels
+        # Reset orderbook labels
         for price in small_book:
             coord = ladder_dict[0] - price
             if coord >= 0 and coord < window_price_levels-1:
@@ -470,7 +470,7 @@ def orderbook_listener():
 
         small_book.clear()
 
-        #Add bids to small_book
+        # Add bids to small_book
         for i in result.bids:
             price = int(round(float(i.price), 0))
             qty = int(round(float(i.qty), 0))
@@ -486,7 +486,7 @@ def orderbook_listener():
             except:
                 small_book[price]["bids"] = 0
 
-        #Add asks to small_book
+        # Add asks to small_book
         for i in result.asks:
             price = int(round(float(i.price), 0))
             qty = int(round(float(i.qty), 0))
@@ -502,30 +502,30 @@ def orderbook_listener():
             except:
                 small_book[price]["asks"] = 0
 
-    #Asks
+    # Asks
     async def write_asks():
         await asyncio.sleep(0.01)
         for price in small_book:
             coord = ladder_dict[0] - price
 
-            #Check coord is within window and that "asks" is a key in small_book
+            # Check coord is within window and that "asks" is a key in small_book
             if coord >= 0 and coord < window_price_levels-1\
                 and "asks" in small_book[price]:
                     eval(asklabel.format(coord))["text"] = small_book[price]["asks"]
 
-    #Bids
+    # Bids
     async def write_bids():
         await asyncio.sleep(0.01)
         for price in small_book:
             coord = ladder_dict[0] - price
 
-            #Check coord is within window and that "bids" is a key in small_book
+            # Check coord is within window and that "bids" is a key in small_book
             if coord >= 0 and coord < window_price_levels-1\
                 and "bids" in small_book[price]:
                     eval(bidlabel.format(coord))["text"] = small_book[price]["bids"]
 
     async def orderbook():
-        for i in iter(int, 1): #Supposedly faster than "while True"
+        for i in iter(int, 1): # Supposedly faster than "while True"
             if subscribed_bool == True and dict_setup == True:
                 await get_request()
                 await write_asks()
@@ -537,7 +537,7 @@ def orderbook_listener():
     loop.run_until_complete(orderbook())
 
 
-#CLASSES
+# CLASSES
 
 class Toolbar(tk.Frame):
     def __init__(self, master):
@@ -611,7 +611,7 @@ class Tradetools(tk.Frame):
             height = 1,
         )
 
-        #Order size frame
+        # Order size frame
         ordersizeframe = tk.Frame(
             master = self,
             width = 80,
@@ -644,7 +644,7 @@ class Tradetools(tk.Frame):
             bg = "whitesmoke"
         )
 
-        #Flatten frame
+        # Flatten frame
         flattenbuttonframe = tk.Frame(
             master = self,
             bg = "silver"
@@ -762,7 +762,7 @@ class Tradetools(tk.Frame):
             if flatten_mode:
                 print(open_position)
 
-                #if LONG
+                # if LONG
                 if open_position["qty"] > 0:
                     request_client.post_order(symbol=instrument, side=OrderSide.SELL,
                         ordertype=OrderType.MARKET, quantity=abs(open_position["qty"]))
@@ -770,7 +770,7 @@ class Tradetools(tk.Frame):
 
                     cancel_all()
 
-                #if SHORT
+                # if SHORT
                 elif open_position["qty"] < 0:
                     request_client.post_order(symbol=instrument, side=OrderSide.BUY,
                         ordertype=OrderType.MARKET, quantity=abs(open_position["qty"]))
@@ -821,7 +821,7 @@ order_label{i}.bind("<Button-3>", lambda e: main.ordercolumn.cancel_order({i}))
         if subscribed_bool == True and dict_setup == True and trade_mode == True:
             price = ladder_dict[coord]
 
-            #For every order id at logged at a particular price level, cancel.
+            # For every order id at logged at a particular price level, cancel.
             try:
                 for id in list(open_orders[price]["ids"]):
                     try:
@@ -838,7 +838,7 @@ class Priceaxis(tk.Frame):
         self.parent = master
         global highlight
 
-        #arrange empty price ladder grid
+        # arrange empty price ladder grid
         for i in range(window_price_levels):
             exec(f'''global price_frame{i}
 global price_label{i}
@@ -881,7 +881,7 @@ volume_label{i} = tk.Label(
         )
 volume_label{i}.pack(fill="x")''')
 
-    #volume cell update
+    # volume cell update
     def volume_column_populate(self, clean):
         if dict_setup == True and coord >= 0 and coord < window_price_levels:
             eval(vlabel.format(coord))["text"] = str(prices[ladder_dict[coord]]["volume"])[:-2]
@@ -982,16 +982,16 @@ ask_label{i}.bind("<Button-1>", lambda e: main.askcolumn.place_order_sell({i}))'
         if subscribed_bool == True and dict_setup == True and trade_mode == True:
             price = ladder_dict[coord]
 
-            #Send SHORT order to binance
+            # Send SHORT order to binance
             if lot_size > 0:
-                #Limit
+                # Limit
                 if price > global_lastprice:
                     result = request_client.post_order(symbol=instrument, side=OrderSide.SELL,
                         ordertype=OrderType.LIMIT, price=price, quantity="%.2f"%lot_size,
                             timeInForce=TimeInForce.GTC,)
                     print(f"\nLimit order SELL {lot_size} at {price} sent to exchange. - {time}")
 
-                #Stop limit
+                # Stop limit
                 else:
                     result = request_client.post_order(symbol=instrument, side=OrderSide.SELL,
                         ordertype=OrderType.STOP, price=price-1, stopPrice=price, quantity="%.2f"%lot_size,
@@ -1041,16 +1041,16 @@ bid_label{i}.bind("<Button-1>", lambda e: main.bidcolumn.place_order_buy({i}))''
         if subscribed_bool == True and dict_setup == True and trade_mode == True:
             price = ladder_dict[coord]
 
-            #Send LONG order to binance
+            # Send LONG order to binance
             if lot_size > 0:
-                #Limit
+                # Limit
                 if price < global_lastprice:
                     result = request_client.post_order(symbol=instrument, side=OrderSide.BUY,
                         ordertype=OrderType.LIMIT, price=price, quantity="%.2f"%lot_size,
                             timeInForce=TimeInForce.GTC,)
                     print(f"\nLimit order BUY {lot_size} at {price} sent to exchange. - {time}")
 
-                #Stop limit
+                # Stop limit
                 else:
                     result = request_client.post_order(symbol=instrument, side=OrderSide.BUY,
                         ordertype=OrderType.STOP, price=price+1, stopPrice=price, quantity="%.2f"%lot_size,
@@ -1066,14 +1066,14 @@ class MainApplication(tk.Frame):
         tk.Frame.__init__(self, master)
         self.parent = master
 
-        #toolbars
+        # toolbars
         self.toolbar = Toolbar(self)
         self.toolbar.pack(side="top", fill="x")
-        #Need to add:
-            #Menu bar
-            #Account info toolbar
+        # Need to add:
+            # Menu bar
+            # Account info toolbar
 
-        #columns
+        # columns
         self.tradetools = Tradetools(self)
         self.ordercolumn = Ordercolumn(self)
         self.priceaxis = Priceaxis(self)
@@ -1083,43 +1083,43 @@ class MainApplication(tk.Frame):
         self.bidcolumn = Bidcolumn(self)
         self.askcolumn = Askcolumn(self)
 
-        #Trading toolbar
+        # Trading toolbar
         self.tradetools.pack(side="left", fill="y")
         self.tradetools.pack_propagate(False)
 
-        #Active orders
+        # Active orders
         self.ordercolumn.pack(side="left", fill="y")
         self.ordercolumn.pack_propagate(False)
 
-        #Price levels
+        # Price levels
         self.priceaxis.pack(side="left", fill="y")
         self.priceaxis.pack_propagate(False)
 
-        #Resting bids
+        # Resting bids
         self.bidcolumn.pack(side="left", fill="y")
         self.bidcolumn.pack_propagate(False)
 
-        #Sell volume
+        # Sell volume
         self.sellcolumn.pack(side="left", fill="y")
         self.sellcolumn.pack_propagate(False)
 
-        #Buy volume
+        # Buy volume
         self.buycolumn.pack(side="left", fill="y")
         self.buycolumn.pack_propagate(False)
 
-        #Resting asks
+        # Resting asks
         self.askcolumn.pack(side="left", fill="y")
         self.askcolumn.pack_propagate(False)
 
-        #Total volume
+        # Total volume
         self.volumecolumn.pack(side="left", fill="y")
         self.volumecolumn.pack_propagate(False)
 
-    #Recenter everything based on last trade price
+    # Recenter everything based on last trade price
     def refresh(self):
         global ladder_dict
 
-        #populate the ladder cell dictionary
+        # populate the ladder cell dictionary
         for i in range(window_price_levels):
             ladder_dict[i] = global_lastprice+ladder_midpoint-i
 
@@ -1131,7 +1131,7 @@ class MainApplication(tk.Frame):
             exec(f"price_label{i}['bg'] = 'gray'")
             exec(f"price_label{i}['fg'] = 'white'")
 
-        #write dictionary values to frame
+        # write dictionary values to frame
         for i in range(window_price_levels-1, -1, -1):
             eval(plabel.format(i))["text"] = ladder_dict[i]
             eval(vlabel.format(i))["text"] = str(prices[ladder_dict[i]]["volume"])[:-2]
@@ -1144,15 +1144,15 @@ class MainApplication(tk.Frame):
         global prev_coord
 
         if dict_setup == True and coord >= 0 and coord < window_price_levels:
-            #If there is an open position, mark it at entry_coord location
+            # If there is an open position, mark it at entry_coord location
             if open_position["qty"] != 0:
-                #Entry coord = top of ladder/highest price - current position entry price
+                # Entry coord = top of ladder/highest price - current position entry price
                 entry_coord = ladder_dict[0] - open_position["entry"]
 
                 e = open_position["entry"]
                 q = open_position["qty"]
 
-                #If entry is within frame, place styled highlight
+                # If entry is within frame, place styled highlight
                 if entry_coord >= 0 and entry_coord <= (window_price_levels - 1):
                     if open_position["qty"] > 0:
                         exec(f"price_label{entry_coord}['bg'] = 'mediumpurple'")
@@ -1162,9 +1162,9 @@ class MainApplication(tk.Frame):
 
                     exec(f"price_label{entry_coord}['text'] = '{e} {q}'")
 
-            #Need to be able to remove position marking dynamically as well!
+            # Need to be able to remove position marking dynamically as well!
 
-            #Mark last trade qty and side on price axis
+            # Mark last trade qty and side on price axis
             if last_trade["qty"] > vol_filter:
                 exec(f"price_label{coord}['text'] = last_trade['qty']")
 
@@ -1173,12 +1173,12 @@ class MainApplication(tk.Frame):
                 else:
                     exec(f"price_label{coord}['fg'] = 'red'")
 
-            #Highlight current trade price coord on axis
+            # Highlight current trade price coord on axis
             exec(f"price_label{coord}['bg'] = 'blue'")
             exec(f"buy_label{coord}['bg'] = 'silver'")
             exec(f"sell_label{coord}['bg'] = 'silver'")
 
-            #If new price from last coord, reset previous coord's label style
+            # If new price from last coord, reset previous coord's label style
             if coord != prev_coord:
                 exec(f"price_label{prev_coord}['text'] = ladder_dict[prev_coord]")
 
@@ -1195,17 +1195,17 @@ class MainApplication(tk.Frame):
         root.after(100, self.highlight_trade_price)
 
 
-#MAIN
+# MAIN
 
 if __name__ == "__main__":
     listener_thread = threading.Thread(target=listener)
     orderbook_thread = threading.Thread(target=orderbook_listener)
 
-    #Window setup
+    # Window setup
     root.geometry(str(wwidth)+"x"+str(40 + (window_price_levels * 19)))
     root.attributes('-topmost', True)
 
-    #Window can only be resized by setting window_price_levels in settings.py
+    # Window can only be resized by setting window_price_levels in settings.py
     root.resizable(width=False, height=False)
 
     main = MainApplication(root)

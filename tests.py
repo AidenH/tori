@@ -16,7 +16,7 @@
 
 
 # Tests at the moment remain unfinished. It's unclear whether the structure
-# in which tori was initially written even allows for tests to be added.
+# in which tori was initially written even allows for all tests to be added.
 # It may require a full overhaul of the software to be able to implement testing
 # where it counts, as there is too much tangling between functions currently.
 
