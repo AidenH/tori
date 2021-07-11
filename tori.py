@@ -182,8 +182,8 @@ def handle_agg_trades_callback(data_type: 'SubscribeMessageType', event: 'any'):
             main.refresh()
             main.highlight_trade_price()
             main.volumecolumn.volume_column_populate(False)
-            buy_column_populate(False)
-            sell_column_populate(False)
+            main.buycolumn.buy_column_populate(False)
+            main.sellcolumn.sell_column_populate(False)
             init_check_user_status()
 
         #add event order quantity to price[volume] dict key
@@ -330,34 +330,6 @@ def handle_user_data_callback(data_type: 'SubscribeMessageType', event: 'any'):
 def error(e: 'BinanceApiException'):
     print(e.error_code + e.error_message)
 
-def buy_column_populate(clean):
-    if dict_setup == True and coord >= 0 and coord < window_price_levels:
-        eval(blabel.format(coord))["text"] = str(prices[ladder_dict[coord]]["buy"])[:-2]
-
-    if clean == False:
-        root.after(100, buy_column_populate, False)
-
-def sell_column_populate(clean):
-    if dict_setup == True and coord >= 0 and coord < window_price_levels:
-        eval(slabel.format(coord))["text"] = str(prices[ladder_dict[coord]]["sell"])[:-2]
-
-    if clean == False:
-        root.after(100, sell_column_populate, False)
-
-def clean_volume():
-    global total_buy_volume, total_sell_volume, delta
-
-    for i in range(len(prices)):
-        #prices[i]["volume"] = 0
-        prices[i]["buy"] = prices[i]["sell"] = 0
-
-    for i in range(window_price_levels):
-        eval(blabel.format(i))["text"] = eval(slabel.format(i))["text"] = ""
-
-    total_buy_volume = total_sell_volume = delta = 0
-
-    print("clean volume - " + time)
-
 def init_check_user_status():
     global open_position
     global open_orders
@@ -437,21 +409,6 @@ def place_order(coord, side):
 
         else:
             print(f"\n! Error: Order {side} {lot_size} at {price} was not sent. - {time}")
-
-def cancel_order(coord):
-    if subscribed_bool == True and dict_setup == True and trade_mode == True:
-        price = ladder_dict[coord]
-
-        #For every order id at logged at a particular price level, cancel.
-        try:
-            for id in list(open_orders[price]["ids"]):
-                try:
-                    result = request_client.cancel_order(symbol=instrument, orderId=id)
-                except Exception as err:
-                    print(f"\n! Error cancelling order:\n{err.args}")
-                    print("Check whether your order has already been cancelled.\n")
-        except KeyError as k:
-            print(f"\n! No orders found at price level {k}\n")
 
 def term():
     print("Exiting tori...")
@@ -642,7 +599,7 @@ class Toolbar(tk.Frame):
 
         clean = tk.Button(
             master = self,
-            command = clean_volume,
+            command = self.clean_volume,
             text = "Clean",
             width = 10,
             padx = 3
@@ -652,6 +609,19 @@ class Toolbar(tk.Frame):
         unsubbutton.pack(side = "left")
         recenter.pack(side="left")
         clean.pack(side="left")
+
+    def clean_volume(self):
+        global total_buy_volume, total_sell_volume, delta
+
+        for i in range(len(prices)):
+            prices[i]["buy"] = prices[i]["sell"] = 0
+
+        for i in range(window_price_levels):
+            eval(blabel.format(i))["text"] = eval(slabel.format(i))["text"] = ""
+
+        total_buy_volume = total_sell_volume = delta = 0
+
+        print("clean volume - " + time)
 
 class Tradetools(tk.Frame):
     def __init__(self, master):
@@ -874,8 +844,23 @@ order_label{i} = tk.Label(
             bg = "gainsboro"
         )
 order_label{i}.pack(fill="x")
-order_label{i}.bind("<Button-3>", lambda e: cancel_order({i}))
+order_label{i}.bind("<Button-3>", lambda e: main.ordercolumn.cancel_order({i}))
 ''')
+
+    def cancel_order(self, coord):
+        if subscribed_bool == True and dict_setup == True and trade_mode == True:
+            price = ladder_dict[coord]
+
+            #For every order id at logged at a particular price level, cancel.
+            try:
+                for id in list(open_orders[price]["ids"]):
+                    try:
+                        result = request_client.cancel_order(symbol=instrument, orderId=id)
+                    except Exception as err:
+                        print(f"\n! Error cancelling order:\n{err.args}")
+                        print("Check whether your order has already been cancelled.\n")
+            except KeyError as k:
+                print(f"\n! No orders found at price level {k}\n")
 
 class Priceaxis(tk.Frame):
     def __init__(self, master):
@@ -958,6 +943,13 @@ buy_label{i} = tk.Label(
         )
 buy_label{i}.pack(fill="x")''')
 
+    def buy_column_populate(self, clean):
+        if dict_setup == True and coord >= 0 and coord < window_price_levels:
+            eval(blabel.format(coord))["text"] = str(prices[ladder_dict[coord]]["buy"])[:-2]
+
+        if clean == False:
+            root.after(100, self.buy_column_populate, False)
+
 class Sellcolumn(tk.Frame):
     def __init__(self, master):
         tk.Frame.__init__(self, master, bg="blue", width = wwidth / 12)
@@ -981,6 +973,13 @@ sell_label{i} = tk.Label(
             bg = "gainsboro"
         )
 sell_label{i}.pack(fill="x")''')
+
+    def sell_column_populate(self, clean):
+        if dict_setup == True and coord >= 0 and coord < window_price_levels:
+            eval(slabel.format(coord))["text"] = str(prices[ladder_dict[coord]]["sell"])[:-2]
+
+        if clean == False:
+            root.after(100, self.sell_column_populate, False)
 
 class Askcolumn(tk.Frame):
     def __init__(self, master):
