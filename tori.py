@@ -85,7 +85,7 @@ def connect():
     dict_setup = False
 
     #Connection results for unittest
-    result = {"agg_result": False, "data_result": False}
+    connect_result = {"agg_result": False, "data_result": False}
 
     if subscribed_bool == False:
         subscribed_bool = True
@@ -96,7 +96,7 @@ def connect():
         try:
             sub_client.subscribe_aggregate_trade_event(instrument,
                 handle_agg_trades_callback, error)
-            result["agg_result"] = True
+            connect_result["agg_result"] = True
         except:
             print(sys.exc_info())
 
@@ -106,14 +106,14 @@ def connect():
         try:
             listenkey = request_client.start_user_data_stream()
             sub_client.subscribe_user_data_event(listenkey, handle_user_data_callback, error)
-            result["data_result"] = True
+            connect_result["data_result"] = True
         except:
             print(sys.exc_info())
 
         keepalive()
 
         #return passes for unittest
-        return result
+        return connect_result
 
     else:
         print("Already running.")
@@ -125,9 +125,17 @@ def disconnect():
     title_instrument_info = "none"
     subscribed_bool = False
     orderbook_subscribed_bool = False
+    disconnect_result = False
 
-    print("\n\nDisconnected.\n")
-    sub_client.unsubscribe_all()
+    try:
+        sub_client.unsubscribe_all()
+        print("\n\nDisconnected.\n")
+
+        disconnect_result = True
+    except:
+        print(sys.exc_info())
+
+    return disconnect_result
 
 def keepalive():
     print("Pinging server...")
@@ -510,7 +518,6 @@ def orderbook_listener():
         await asyncio.sleep(0.01)
         for price in small_book:
             coord = ladder_dict[0] - price
-            #coord = price_label0["text"] - price
 
             #Check coord is within window and that "bids" is a key in small_book
             if coord >= 0 and coord < window_price_levels-1\
@@ -969,7 +976,7 @@ ask_label{i} = tk.Label(
             anchor = "w"
         )
 ask_label{i}.pack(side="left")
-ask_label{i}.bind("<Button-1>", lambda e: main.sellcolumn.place_order_sell({i}))''')
+ask_label{i}.bind("<Button-1>", lambda e: main.askcolumn.place_order_sell({i}))''')
 
     def place_order_sell(self, coord):
         if subscribed_bool == True and dict_setup == True and trade_mode == True:

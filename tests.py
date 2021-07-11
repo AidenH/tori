@@ -35,11 +35,15 @@ class Testtori(unittest.TestCase):
 
     def test_connect(self):
         tori.time = "(test time)"
-        result = tori.connect()
-        self.assertTrue(result["agg_result"], "Problem subscribing to \
-aggregate trade stream.")
-        self.assertTrue(result["data_result"], "Problem subscribing to \
-user data stream.")
+        connect_result = tori.connect()
+        self.assertTrue(connect_result["agg_result"],
+            "Problem subscribing to aggregate trade stream.")
+        self.assertTrue(connect_result["data_result"],
+            "Problem subscribing to user data stream.")
+
+    def test_disconnect(self):
+        disconnect_result = tori.disconnect()
+        self.assertTrue(disconnect_result)
 
 if __name__ == "__main__":
     root = tk.Tk()
