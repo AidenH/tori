@@ -744,6 +744,33 @@ class Tradetools(tk.Frame):
             flattenlockbutton["bg"] = "lightcoral"
             print("\nFlatten lock activated")
 
+    def flatten(self):
+        try:
+            if flatten_mode:
+                print(open_position)
+
+                # if LONG
+                if open_position["qty"] > 0:
+                    request_client.post_order(symbol=instrument, side=OrderSide.SELL,
+                        ordertype=OrderType.MARKET, quantity=abs(open_position["qty"]))
+                    print("Long position flattened. - " + time)
+
+                    self.cancel_all()
+
+                # if SHORT
+                elif open_position["qty"] < 0:
+                    request_client.post_order(symbol=instrument, side=OrderSide.BUY,
+                        ordertype=OrderType.MARKET, quantity=abs(open_position["qty"]))
+                    print("Short position flattened. - " + time)
+
+                    self.cancel_all()
+
+                else:
+                    print("No open positions recognized.")
+
+        except Exception as e:
+            print(f"! Error while flattening: {e}")
+
     def trade_mode_swap(self):
         global trade_mode
 
@@ -756,33 +783,6 @@ class Tradetools(tk.Frame):
             trade_mode = False
             trademodebutton["bg"] = "whitesmoke"
             print("\nTrade mode disabled.")
-
-    def flatten(self):
-        try:
-            if flatten_mode:
-                print(open_position)
-
-                # if LONG
-                if open_position["qty"] > 0:
-                    request_client.post_order(symbol=instrument, side=OrderSide.SELL,
-                        ordertype=OrderType.MARKET, quantity=abs(open_position["qty"]))
-                    print("Long position flattened. - " + time)
-
-                    cancel_all()
-
-                # if SHORT
-                elif open_position["qty"] < 0:
-                    request_client.post_order(symbol=instrument, side=OrderSide.BUY,
-                        ordertype=OrderType.MARKET, quantity=abs(open_position["qty"]))
-                    print("Short position flattened. - " + time)
-
-                    cancel_all()
-
-                else:
-                    print("No open positions recognized.")
-
-        except Exception as e:
-            print(f"! Error while flattening: {e}")
 
     def cancel_all(self):
         try:
