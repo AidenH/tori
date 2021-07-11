@@ -39,7 +39,7 @@ title_instrument_info = "none"
 
 #Dom-related variables
 dict_setup = False
-ladder_midpoint = int(window_price_levels / 2) - 2  #Otherwise 23
+ladder_midpoint = int(window_price_levels / 2) - 2  #Otherwise 23 if height 50
 subscribed_bool = False
 orderbook_subscribed_bool = False
 global_lastprice = 0
@@ -1006,7 +1006,31 @@ ask_label{i} = tk.Label(
             anchor = "w"
         )
 ask_label{i}.pack(side="left")
-ask_label{i}.bind("<Button-1>", lambda e: place_order({i}, "SELL"))''')
+ask_label{i}.bind("<Button-1>", lambda e: main.sellcolumn.place_order_sell({i}))''')
+
+    def place_order_sell(self, coord):
+        if subscribed_bool == True and dict_setup == True and trade_mode == True:
+            price = ladder_dict[coord]
+
+            #Send SHORT order to binance
+            if lot_size > 0:
+                #Limit
+                if price > global_lastprice:
+                    result = request_client.post_order(symbol=instrument, side=OrderSide.SELL,
+                        ordertype=OrderType.LIMIT, price=price, quantity="%.2f"%lot_size,
+                            timeInForce=TimeInForce.GTC,)
+                    print(f"\nLimit order SELL {lot_size} at {price} sent to exchange. - {time}")
+
+                #Stop limit
+                else:
+                    result = request_client.post_order(symbol=instrument, side=OrderSide.SELL,
+                        ordertype=OrderType.STOP, price=price-1, stopPrice=price, quantity="%.2f"%lot_size,
+                            timeInForce=TimeInForce.GTC,)
+                    print(f"\nStop limit order SELL {lot_size} at {price} sent to exchange. - {time}")
+
+            else:
+                print(f"\n! Error: Order SELL {lot_size} at {price} was not sent.")
+                print(f"Can't send zero lot order. - {time}")
 
 class Bidcolumn(tk.Frame):
     def __init__(self, master):
@@ -1041,7 +1065,32 @@ bid_label{i} = tk.Label(
             anchor = "e"
         )
 bid_label{i}.pack(side="right")
-bid_label{i}.bind("<Button-1>", lambda e: place_order({i}, "BUY"))''')
+bid_label{i}.bind("<Button-1>", lambda e: main.bidcolumn.place_order_buy({i}))''')
+
+    def place_order_buy(self, coord):
+        if subscribed_bool == True and dict_setup == True and trade_mode == True:
+            price = ladder_dict[coord]
+
+            #Send LONG order to binance
+            if lot_size > 0:
+                #Limit
+                if price < global_lastprice:
+                    result = request_client.post_order(symbol=instrument, side=OrderSide.BUY,
+                        ordertype=OrderType.LIMIT, price=price, quantity="%.2f"%lot_size,
+                            timeInForce=TimeInForce.GTC,)
+                    print(f"\nLimit order BUY {lot_size} at {price} sent to exchange. - {time}")
+
+                #Stop limit
+                else:
+                    result = request_client.post_order(symbol=instrument, side=OrderSide.BUY,
+                        ordertype=OrderType.STOP, price=price+1, stopPrice=price, quantity="%.2f"%lot_size,
+                            timeInForce=TimeInForce.GTC,)
+                    print(f"\nStop limit order BUY {lot_size} at {price} sent to exchange. - {time}")
+
+            else:
+                print(f"\n! Error: Order BUY {lot_size} at {price} was not sent.")
+                print(f"Can't send zero lot order. - {time}")
+
 
 class MainApplication(tk.Frame):
     def __init__(self, master, *args, **kwargs):
