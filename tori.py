@@ -29,6 +29,7 @@ from binance_f.exception.binanceapiexception import BinanceApiException
 from binance_f.base.printobject import *
 
 from settings import *
+from classes import *
 
 
 # Root environment variables
