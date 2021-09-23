@@ -11,6 +11,7 @@ tori is licensed under the GNU General Public License. Please see COPYING for mo
 
 Requirements:
   * binance_f (in root folder)
+  * `pipenv install` for everything else
 
 ![tori as of 06/05/2021](https://raw.githubusercontent.com/AidenH/tori/main/img/7-5-21-tori.png)  
 *tori as of 06/05/2021*
