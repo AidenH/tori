@@ -24,29 +24,35 @@ import unittest
 from unittest.mock import patch
 import tkinter as tk
 
-import tori
+# import tori
 
 from binance_f import RequestClient
 from binance_f import SubscriptionClient
 
 from settings import *
+import utils
 
 class Testtori(unittest.TestCase):
 
-    def test_connect(self):
-        tori.time = "(test time)"
-        connect_result = tori.connect()
-        self.assertTrue(connect_result["agg_result"],
-            "Problem subscribing to aggregate trade stream.")
-        self.assertTrue(connect_result["data_result"],
-            "Problem subscribing to user data stream.")
+    # def test_connect(self):
+    #     tori.time = "(test time)"
+    #     connect_result = tori.connect()
+    #     self.assertTrue(connect_result["agg_result"],
+    #         "Problem subscribing to aggregate trade stream.")
+    #     self.assertTrue(connect_result["data_result"],
+    #         "Problem subscribing to user data stream.")
 
-    def test_disconnect(self):
-        disconnect_result = tori.disconnect()
-        self.assertTrue(disconnect_result)
+    # def test_disconnect(self):
+    #     disconnect_result = tori.disconnect()
+    #     self.assertTrue(disconnect_result)
+
+    def test_round_half(self):
+        price = 2990.62
+        result = utils.round(price, tick_size)
+        self.assertEqual(result, 2990.50)
 
 if __name__ == "__main__":
-    root = tk.Tk()
-    main = tori.MainApplication(root)
+    # root = tk.Tk()
+    # main = tori.MainApplication(root)
 
     unittest.main()

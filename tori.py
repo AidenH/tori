@@ -30,6 +30,7 @@ from binance_f.exception.binanceapiexception import BinanceApiException
 from binance_f.base.printobject import *
 
 from settings import *
+import utils
 
 
 # Root environment variables
@@ -166,7 +167,7 @@ def handle_agg_trades_callback(data_type: 'SubscribeMessageType', event: 'any'):
 
         # set current global_lastprice
         # global_lastprice = int(round(event.price, 0))
-        global_lastprice = round_half(event.price)
+        global_lastprice = utils.round(event.price)
         print(global_lastprice)
 
         # set local price variable
