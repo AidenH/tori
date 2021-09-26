@@ -167,7 +167,7 @@ def handle_agg_trades_callback(data_type: 'SubscribeMessageType', event: 'any'):
 
         # set current global_lastprice
         # global_lastprice = int(round(event.price, 0))
-        global_lastprice = utils.round(event.price)
+        global_lastprice = utils.round_price(event.price)
         print(global_lastprice)
 
         # set local price variable
