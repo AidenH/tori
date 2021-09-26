@@ -20,6 +20,7 @@ import tkinter as tk
 import threading
 import asyncio
 import time as t
+import numpy as np
 
 from binance_f import RequestClient
 from binance_f import SubscriptionClient
@@ -164,7 +165,10 @@ def handle_agg_trades_callback(data_type: 'SubscribeMessageType', event: 'any'):
         # PrintBasic.print_obj(event)    # keep for full aggtrade payload example
 
         # set current global_lastprice
-        global_lastprice = int(round(event.price, 0))
+        # global_lastprice = int(round(event.price, 0))
+        global_lastprice = round_half(event.price)
+        print(global_lastprice)
+
         # set local price variable
         local_lastprice = global_lastprice
         # update window title ticker info
@@ -176,7 +180,7 @@ def handle_agg_trades_callback(data_type: 'SubscribeMessageType', event: 'any'):
 
             # tick_size other than 1 not yet working.
             # Subscriptionprocess error on start.
-            for i in range(0, local_lastprice + local_lastprice, tick_size):
+            for i in np.arange(0, local_lastprice + local_lastprice, tick_size):
                 # Init price level volume data
                 prices[i] = {"volume" : 0, "buy" : 0, "sell" : 0}
 

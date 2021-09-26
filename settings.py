@@ -35,7 +35,7 @@ except configparser.NoOptionError as err:
     sys.exit(1)
 
 instrument = config['Trading']['Instrument']
-tick_size = config['Trading'].getint('TickSize')   #Need to implement dynamic tick sizing
+tick_size = config['Trading'].getfloat('TickSize')   #Need to implement configurable tick sizing
 lot_size = config['Trading'].getfloat('LotSize')   #Default order size
 lot_increment_size = config['Trading'].getfloat('LotIncrementSize')
 pnl_tick_mode = config['Trading'].getboolean('PnlTickMode')   #Display PnL in points or currency
