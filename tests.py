@@ -46,10 +46,10 @@ class Testtori(unittest.TestCase):
     #     disconnect_result = tori.disconnect()
     #     self.assertTrue(disconnect_result)
 
-    def test_round_half(self):
-        price = 2990.62
-        result = utils.round(price, tick_size)
-        self.assertEqual(result, 2990.50)
+    def test_round_price(self):
+        price = 2990.48
+        result = utils.round_price(price)
+        self.assertEqual(result, 2990.5)
 
 if __name__ == "__main__":
     # root = tk.Tk()
